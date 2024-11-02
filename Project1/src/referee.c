@@ -1,67 +1,40 @@
-// src/referee.c
+// referee.c
 #include <stdio.h>
-#include <unistd.h>
-#include <signal.h>
 #include <stdlib.h>
-#include "config.h"
-#include "team.h"
+#include <unistd.h>
+#include <sys/types.h>
+#include <signal.h>
+#include <string.h>
+#include <time.h>
 #include "referee.h"
+#include "team.h"
+#include "config.h"
 
-// Game state and signal handling
-volatile sig_atomic_t team_ready = 0;
+void referee_main(int *referee_pipe, Config *config) {
+    close(referee_pipe[0]); // Close reading end in referee
 
-// Signal handler for team readiness
-void team_ready_signal(int signum) {
-    team_ready = 1;
-}
+    pid_t teams[3];
+    for (int i = 0; i < 3; i++) {
+        if ((teams[i] = fork()) == 0) {
+            // Each child process represents a team
+            team_main(i, config);
+            exit(EXIT_SUCCESS);
+        }
+    }
 
-void referee_main(const Config *config) {
-    int score_a = 0, score_b = 0, score_c = 0;
-    
-    // Set up signal handling for team readiness
-    signal(SIGUSR1, team_ready_signal);
-
+    // Coordinate turns
     while (1) {
-        team_ready = 0;
-        printf("Referee: Team A's turn\n");
-        team_action(TEAM_A, config);
+        for (int i = 0; i < 3; i++) {
+            printf("Referee: Team %d's turn\n", i + 1);
+            kill(teams[i], SIGUSR1); // Signal the team to start
 
-        // Wait for team to signal readiness
-        while (!team_ready);
-        
-        // Calculate and update score
-        score_a += calculate_score(config);
+            // Wait for result through pipe
+            char buffer[256];
+            read(referee_pipe[1], buffer, sizeof(buffer));
+            printf("Referee received: %s\n", buffer);
 
-        // Check if any team has reached the max score
-        if (score_a >= config->max_score) {
-            printf("Team A wins with a score of %d!\n", score_a);
-            break;
-        }
-
-        // Repeat for teams B and C
-        team_ready = 0;
-        printf("Referee: Team B's turn\n");
-        team_action(TEAM_B, config);
-
-        while (!team_ready);
-        score_b += calculate_score(config);
-
-        if (score_b >= config->max_score) {
-            printf("Team B wins with a score of %d!\n", score_b);
-            break;
-        }
-
-        team_ready = 0;
-        printf("Referee: Team C's turn\n");
-        team_action(TEAM_C, config);
-
-        while (!team_ready);
-        score_c += calculate_score(config);
-
-        if (score_c >= config->max_score) {
-            printf("Team C wins with a score of %d!\n", score_c);
-            break;
+            // Pause between teams
+            sleep(1);
         }
     }
 }
- 

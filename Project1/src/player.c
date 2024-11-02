@@ -1,23 +1,34 @@
- 
-// src/player.c
+// player.c
 #include <stdio.h>
-#include <unistd.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <time.h>
+#include <signal.h>
 #include "player.h"
+#include "config.h"
 
-void player_jump(int team_id, int player_id, int min_time, int max_time) {
-    int time_to_stabilize = min_time + rand() % (max_time - min_time + 1);
-    printf("Team %d: Player %d jumping... Stabilization time: %d\n", team_id, player_id, time_to_stabilize);
-    
-    sleep(time_to_stabilize); // Simulate stabilization time
-    printf("Team %d: Player %d stabilized.\n", team_id, player_id);
-}
+void player_main(int team_id, int player_id, Config *config) {
+    srand(time(NULL) ^ (getpid() << 16));
 
-void player_pull(int team_id, int player1, int player2, int min_time, int max_time) {
-    int pull_time = min_time + rand() % (max_time - min_time + 1);
-    printf("Team %d: Players %d and %d pulling... Pull time: %d\n", team_id, player1, player2, pull_time);
-    
-    sleep(pull_time); // Simulate pull time
-    printf("Team %d: Player pulled up successfully.\n", team_id);
+    int energy = config->initial_energy_team_a; // Adjust based on team
+    int stabilization_time, pull_time;
+
+    while (1) {
+        stabilization_time = (rand() % (config->stabilization_time_max - config->stabilization_time_min)) 
+                                + config->stabilization_time_min;
+        printf("Team %d: Player %d jumping... Stabilization time: %d\n", team_id + 1, player_id + 1, stabilization_time);
+        usleep(stabilization_time * 1000);
+
+        // Signal other players for pull
+        pull_time = (rand() % (config->pull_time_max - config->pull_time_min)) + config->pull_time_min;
+        printf("Team %d: Pulling player %d... Pull time: %d\n", team_id + 1, player_id + 1, pull_time);
+        usleep(pull_time * 1000);
+
+        // Decrease energy for jump and pull
+        energy -= 10;
+        if (energy <= 0) {
+            printf("Team %d: Player %d is out of energy\n", team_id + 1, player_id + 1);
+            exit(0);
+        }
+    }
 }

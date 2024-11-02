@@ -1,11 +1,10 @@
- 
 // include/referee.h
+
 #ifndef REFEREE_H
 #define REFEREE_H
 
 #include "config.h"
 
-// Referee's main function which manages the game
-void referee_main(const Config *config);
+void referee_main(int *referee_pipe, Config *config);
 
 #endif // REFEREE_H
