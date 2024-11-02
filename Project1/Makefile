@@ -17,7 +17,7 @@ all: $(TARGET)
 
 # Build the final executable
 $(TARGET): $(OBJECTS) | $(BIN_DIR)
-	$(CC) $(OBJECTS) -o $(TARGET) -lGL -lGLU -lglut # Linking OpenGL libraries
+	$(CC) $(OBJECTS) -o $(TARGET) -lGL -lGLU -lglut -lm # Linking OpenGL libraries
 
 # Compile each source file to an object file
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
