@@ -10,8 +10,14 @@
 #include "team.h"
 #include "config.h"
 
+pid_t teams[3];
+
 void handle_alarm(int signum) {
     printf("Referee: Maximum time reached. Ending game.\n");
+    // Kill all child processes
+    for (int i = 0; i < 3; i++) {
+        kill(teams[i], SIGTERM);
+    }
     exit(EXIT_SUCCESS);
 }
 
@@ -23,7 +29,6 @@ void referee_main(int *referee_pipe, Config *config) {
 
     int team_pipes[2];  // Pipes for each team
     int team_scores[3] = {0, 0, 0};
-    pid_t teams[3];
 
     // Create a pipe for each team
     if (pipe(team_pipes) == -1) {
@@ -41,10 +46,8 @@ void referee_main(int *referee_pipe, Config *config) {
         }
     }
 
-
-
+    
     while (1) {
-
         for (int i = 0; i < 3; i++) {
             printf("Referee: Team %d's turn\n", i + 1);
             kill(teams[i], SIGUSR1); // Signal the team to start
