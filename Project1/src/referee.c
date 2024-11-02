@@ -10,12 +10,19 @@
 #include "team.h"
 #include "config.h"
 
+void handle_alarm(int signum) {
+    printf("Referee: Maximum time reached. Ending game.\n");
+    exit(EXIT_SUCCESS);
+}
 
 
 void referee_main(int *referee_pipe, Config *config) {
+    signal(SIGALRM, handle_alarm);
+    alarm(config->max_time);
     close(referee_pipe[0]); // Close reading end in referee
 
     int team_pipes[2];  // Pipes for each team
+    int team_scores[3] = {0, 0, 0};
     pid_t teams[3];
 
     // Create a pipe for each team
@@ -34,18 +41,9 @@ void referee_main(int *referee_pipe, Config *config) {
         }
     }
 
-    time_t start_time = time(NULL);
 
 
     while (1) {
-        time_t current_time = time(NULL);
-        int elapsed_time = (int)(current_time - start_time);
-
-        // Check if maximum time is reached
-        if (elapsed_time >= config->max_time) {
-            printf("Referee: Maximum time reached. Ending game.\n");
-            break;
-        }
 
         for (int i = 0; i < 3; i++) {
             printf("Referee: Team %d's turn\n", i + 1);
@@ -53,7 +51,7 @@ void referee_main(int *referee_pipe, Config *config) {
 
             // Wait for result through the team's pipe
             char buffer[256];
-            read(team_pipes[i][0], buffer, sizeof(buffer));
+            read(team_pipes[0], buffer, sizeof(buffer));
             printf("Referee received from Team %d: %s\n", i + 1, buffer);
         }
     }

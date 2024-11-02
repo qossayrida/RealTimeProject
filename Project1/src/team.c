@@ -11,7 +11,7 @@
 
 int team_id;
 Config *team_config;
-//just 
+//just
 
 void handle_team_signal(int signum) {
     if (signum == SIGUSR1) {
@@ -21,7 +21,7 @@ void handle_team_signal(int signum) {
 
 }
 
-void team_main(int team_id, Config *config, int *pipe) {
+void team_main(int id, Config *config, int *pipe) {
 
 
     team_id = id;

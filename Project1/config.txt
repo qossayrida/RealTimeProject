@@ -1,8 +1,8 @@
 # Configuration for Bungee Jumping Simulation
 
 # Game settings
-max_score=1000                 # Maximum score to end the game
-max_time=600                   # Maximum time (in seconds) for the game
+max_score=10                 # Maximum score to end the game
+max_time=6                   # Maximum time (in seconds) for the game
 
 # Player energy levels
 initial_energy_team_a=100

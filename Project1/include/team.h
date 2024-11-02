@@ -6,6 +6,6 @@
 #include "config.h"
 
 // Function to initialize and handle the main team process
-void team_main(int team_id, Config *config);
+void team_main(int id, Config *config, int *pipe);
 
 #endif // TEAM_H
