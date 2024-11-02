@@ -12,13 +12,16 @@
 int team_id;
 Config *team_config;
 
+
 void handle_team_signal(int signum) {
     if (signum == SIGUSR1) {
         printf("Team %d: Received referee's signal, starting jump\n", team_id + 1);
     }
 }
 
-void team_main(int id, Config *config) {
+void team_main(int team_id, Config *config, int *pipe) {
+
+
     team_id = id;
     team_config = config;
 

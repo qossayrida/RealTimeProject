@@ -15,12 +15,6 @@
 Config game_config;
 int referee_pipe[2]; // Pipe for referee-main communication
 
-// Signal handler for referee communication
-void handle_referee_signal(int signum) {
-    if (signum == SIGUSR1) {
-        printf("Referee: Signal received to start game\n");
-    }
-}
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -47,9 +41,6 @@ int main(int argc, char **argv) {
         referee_main(referee_pipe, &game_config);
         exit(EXIT_SUCCESS);
     }
-
-    // Parent process (main) waits for signals
-    signal(SIGUSR1, handle_referee_signal);
 
     // Wait for referee's signal and instructions
     close(referee_pipe[1]); // Close writing end in the main process
