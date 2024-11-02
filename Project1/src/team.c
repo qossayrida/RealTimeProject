@@ -11,7 +11,7 @@
 
 int team_id;
 Config *team_config;
-//just a comment
+//just 
 
 void handle_team_signal(int signum) {
     if (signum == SIGUSR1) {

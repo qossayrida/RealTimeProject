@@ -59,3 +59,4 @@ void referee_main(int *referee_pipe, Config *config) {
     }
 
 }
+
