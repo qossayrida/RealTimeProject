@@ -72,11 +72,11 @@ bungee_simulation/
 
 ## Notes
 
-###Reasons for adding assitance referee
+### Reasons for adding assitance referee
 - For time realitiy jumping we need a management procces to calculate the period for each jump and we have three team if there was one referee to monitor three at the same time
 
--Main Referee Tasks:
--Assitances Referees Tasks:
+- Main Referee Tasks:
+- Assitances Referees Tasks:
 
 ```bash
 			        	
