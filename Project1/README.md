@@ -8,22 +8,20 @@ The project has the following structure:
 
 ```plaintext
 bungee_simulation/
-├── bin/                   # Contains the compiled executable
-├── config.txt             # Configuration file with game settings
-├── include/               # Header files for each module
-│   ├── referee.h          # Referee module header
-│   ├── team.h             # Team module header
-│   ├── player.h           # Player module header
-│   └── config.h           # Config module header for loading settings
-├── obj/                   # Compiled object files for each source file
-├── src/                   # Source code files
-│   ├── main.c             # Main file that starts the game
-│   ├── referee.c          # Referee module implementation
-│   ├── team.c             # Team module implementation
-│   ├── player.c           # Player module implementation
-│   └── config.c           # Config module implementation to load settings
-├── Makefile               # Makefile for building the project
-└── README.md              # This readme file
+├── bin/                        # Contains the compiled executable
+├── config.txt                  # Configuration file with game settings
+├── include/                    # Header files for each module
+│   ├── assistant_referee.h     # Assistant Referee module header
+│   ├── player.h                # Player module header
+│   └── config.h                # Config module header for loading settings
+├── obj/                        # Compiled object files for each source file
+├── src/                        # Source code files
+│   ├── main_referee.c          # Main file that starts the game & Referee module implementation
+│   ├── assistant_referee.c     # Team module implementation
+│   ├── player.c                # Player module implementation
+│   └── config.c                # Config module implementation to load settings
+├── Makefile                    # Makefile for building the project
+└── README.md                   # This readme file
 ```
 
 ## Files Description

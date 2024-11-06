@@ -1,16 +1,20 @@
-// referee.c
+// main_referee.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <signal.h>
 #include <string.h>
 #include <time.h>
-#include "referee.h"
-#include "team.h"
+#include <GL/glut.h>
+#include <math.h>
 #include "config.h"
+#include "assistant_referee.h"
+#include "player.h"
 
 pid_t teams[3];
+Config game_config;
 
 void handle_alarm(int signum) {
     printf("Referee: Maximum time reached. Ending game.\n");
@@ -21,32 +25,41 @@ void handle_alarm(int signum) {
     exit(EXIT_SUCCESS);
 }
 
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <config_file>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
 
-void referee_main(int *referee_pipe, Config *config) {
+    // Load configuration
+    if (load_config(argv[1], &game_config) != 0) {
+        fprintf(stderr, "Failed to load config file.\n");
+        return EXIT_FAILURE;
+    }
+
+
+    // Referee setup
     signal(SIGALRM, handle_alarm);
-    alarm(config->max_time);
-    close(referee_pipe[0]); // Close reading end in referee
+    alarm(game_config.max_time);
 
     int team_pipes[2];  // Pipes for each team
-    int team_scores[3] = {0, 0, 0};
 
     // Create a pipe for each team
     if (pipe(team_pipes) == -1) {
         perror("Pipe creation failed");
-        exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
-
 
     // Fork each team process
     for (int i = 0; i < 3; i++) {
         if ((teams[i] = fork()) == 0) {
             // Each child process represents a team
-            team_main(i, config, team_pipes);  // Pass the pipe for the team
+            assistant_referee_main(i, &game_config, team_pipes);  // Pass the pipe for the team
             exit(EXIT_SUCCESS);
         }
     }
 
-    
+    // Game loop
     while (1) {
         for (int i = 0; i < 3; i++) {
             printf("Referee: Team %d's turn\n", i + 1);
@@ -59,5 +72,6 @@ void referee_main(int *referee_pipe, Config *config) {
         }
     }
 
+    return EXIT_SUCCESS;
 }
 

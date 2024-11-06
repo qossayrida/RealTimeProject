@@ -5,7 +5,6 @@
 #include <signal.h>
 #include <string.h>
 #include <time.h>
-#include "team.h"
 #include "player.h"
 #include "config.h"
 
@@ -27,7 +26,7 @@ void handle_segterm(int signum) {
     exit(EXIT_SUCCESS);
 }
 
-void team_main(int id, Config *config, int *pipe) {
+void assistant_referee_main(int id, Config *config, int *pipe) {
 
 
     team_id = id;
@@ -49,12 +48,3 @@ void team_main(int id, Config *config, int *pipe) {
     while (1) pause();
 }
 
-
-
-//                                main (pipe r dis w dis)
-//
-//                               referee (pipe r dis w dis)  *pipe r dis w dis*
-//
-//       team1 *pipe r dis w dis*    team2 *pipe r dis w dis*   team3 *pipe r dis w dis*
-//
-//       player1 player2 player3    player1 player2 player3    player1 player2 player3
