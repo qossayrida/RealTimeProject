@@ -9,17 +9,13 @@
 
 int team_id;
 pid_t players[3];
+Team team_data;
 
-void handle_team_signal(int signum) {
-    if (signum == SIGUSR1) {
-        printf("Team %d: Received referee's signal, starting jump\n", team_id + 1);
-    }
-}
+void handle_team_signal(int signum);
 
 void assistant_referee_main(int id, Config *config, int *pipe_fd) {
 
     team_id = id;
-    Team team_data;
     team_data.team_id = id;
     team_data.score = 0;
     team_data.turn = 0;
@@ -42,4 +38,18 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
 
     while(1)
         pause();
+}
+
+
+void handle_team_signal(int signum) {
+    if (signum == SIGUSR1) {
+        printf("Assistant Referee for Team %d: Received signal from referee\n", team_id + 1);
+
+        // Send signal to the player with the current turn to allow them to jump
+        pid_t current_player = players[team_data.turn];
+        kill(current_player, SIGUSR1);
+
+        // Move to the next player's turn
+        team_data.turn = (team_data.turn + 1) % 3;
+    }
 }

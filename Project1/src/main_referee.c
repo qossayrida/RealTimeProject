@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
 
     // Set up alarm for maximum time
     signal(SIGALRM, handle_alarm);
+    printf("Referee: Maximum time set to %d seconds\n", game_config.max_time);
     alarm(game_config.max_time);
 
     // Create a single pipe for communication with all assistant referees

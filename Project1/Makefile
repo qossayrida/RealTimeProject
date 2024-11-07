@@ -35,5 +35,3 @@ $(BIN_DIR):
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
 
-# Phony targets
-.PHONY: all clean
