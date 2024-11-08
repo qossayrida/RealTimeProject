@@ -12,6 +12,7 @@ int global_team_id;
 int *global_pipe_read_fd;
 int is_turn = 0;  // Flag to check if the player is allowed to jump
 int energy;
+int is_second_player_leader = 0;
 
 void handle_player_signal(int signum);
 void jump(int team_id, int player_id, Config *config);
@@ -57,6 +58,10 @@ void handle_player_signal(int signum) {
 }
 
 void jump(int team_id, int player_id, Config *config) {
+    if(player_id == 1){
+        is_second_player_leader = 1;
+    }
+
     int stabilization_time, pull_time;
 
     stabilization_time = (rand() % (config->stabilization_time_max - config->stabilization_time_min))
@@ -81,21 +86,33 @@ void jump(int team_id, int player_id, Config *config) {
 
 void pull(int team_id, int player_id, Config *config, int fifo_fd) {
     int pull_time;
+    char buffer[50];
+
+    if (is_second_player_leader == 1){
+        printf("Team %d: LEADER is PLAYER 2\n", team_id + 1);
+        is_second_player_leader = 0;
+    }else if (player_id==2){
+        printf("Team %d: LEADER is PLAYER 3\n", team_id + 1);
+    }
+
+
 
     pull_time = (rand() % (config->pull_time_max - config->pull_time_min))
                 + config->pull_time_min;
+
+
     usleep(pull_time * 1000);
 
     // Decrease energy for jump and pull
     energy -= 10;
     if (energy <= 0) {
-        printf("Team %d: Player %d is out of energy\n", team_id + 1, player_id + 1);
-        fflush(stdout);
+        snprintf(buffer, sizeof(buffer), "ENERGY_OUT %d", player_id);
+        write(global_pipe_read_fd[1], buffer, strlen(buffer));
+        exit(EXIT_SUCCESS);
     }
 
-    char result[50];
-    snprintf(result, sizeof(result), "PULL_END");
-    if (write(global_pipe_read_fd[1], result, strlen(result)) == -1) {
+    snprintf(buffer, sizeof(buffer), "PULL_END");
+    if (write(global_pipe_read_fd[1], buffer, strlen(buffer)) == -1) {
         perror("Failed to write team data to referee");
     }
 }

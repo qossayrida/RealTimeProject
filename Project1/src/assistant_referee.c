@@ -14,7 +14,7 @@ Team team_data;
 pid_t players[3];
 int pipe_player[2];  // Pipe to communicate with players
 char fifo_name[20];
-int fifo_fd;
+int fifo_fd,pull_flag = 1;
 struct timespec start_time, end_time;
 
 
@@ -49,7 +49,7 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
     // Create player processes
     for (int i = 0; i < 3; i++) {
         if ((players[i] = fork()) == 0) {
-            fifo_fd = open(fifo_name, O_RDWR);
+            fifo_fd = open(fifo_name, O_RDWR | O_NONBLOCK);
             player_main(id, i, config, pipe_player, fifo_fd);  // Pass read end and FIFO
             exit(EXIT_SUCCESS);
         }
@@ -83,15 +83,20 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
             }
 
         }else if (strncmp(buffer, "PULL_END",8) == 0) {
-            printf("A7A");
-            fflush(stdout);
 
-            go_to_jump();
+            if (pull_flag) {
+                pull_flag--;
+            }else{
+                pull_flag ++;
+                go_to_jump();
+            }
+
         }else if (strncmp(buffer, "ENERGY_OUT",10) == 0) {
             // ENERGY_OUT 0
             char *token = strtok(buffer, " ");
             token = strtok(NULL, " ");
             int player_id = atoi(token);
+            team_data.players[player_id] = -1;
 
             char result[50];
             snprintf(result, sizeof(result), "%d: EO %d",team_data.team_id, player_id);
@@ -112,10 +117,24 @@ void handle_start_signal(int signum) {
 
 void go_to_jump(){
     // Send signal to the player with the current turn to allow them to jump
+
+    // p = team_data.players[team_data.turn] == -1
+    // a = team_data.players[(team_data.turn+1) %3] == -1
+    // q = team_data.players[(team_data.turn+2) %3] == -1
+    // (p && (a || q)) || (a && q)
+
+    if (team_data.players[team_data.turn] == -1 && (team_data.players[(team_data.turn+1) %3] == -1  || team_data.players[(team_data.turn+2) %3] == -1)
+    || team_data.players[(team_data.turn+1) %3] == -1  && team_data.players[(team_data.turn+2) %3] == -1){
+        exit(EXIT_SUCCESS);
+    else if( team_data.players[team_data.turn] == -1){
+        team_data.turn = (team_data.turn + 1) % 3;
+    }
+
     pid_t current_player = players[team_data.turn];
 
     // Record the start time
     clock_gettime(CLOCK_MONOTONIC, &start_time);
+
 
     kill(current_player, SIGUSR1);
 
@@ -125,10 +144,16 @@ void go_to_jump(){
 
 
 void go_to_pull(){
-    pid_t second_player = players[team_data.turn];
-    pid_t third_player = players[(team_data.turn+1) %3];
-    kill(second_player, SIGUSR2);
-    kill(third_player, SIGUSR2);
+    if(team_data.players[team_data.turn] != -1){
+        pid_t current_player = players[team_data.turn];
+        kill(current_player, SIGUSR2);
+    }
+    if(team_data.players[(team_data.turn+1) %3] != -1){
+        pid_t second_player = players[(team_data.turn+1) %3];
+        kill(second_player, SIGUSR2);
+    }
+    if (team_data.players[team_data.turn] == -1 && team_data.players[(team_data.turn+1) %3] == -1)
+        exit(EXIT_SUCCESS);
 }
 
 void handle_term_signal() {
@@ -141,3 +166,4 @@ void handle_term_signal() {
     signal(SIGTERM, SIG_DFL);
     raise(SIGTERM);
 }
+
