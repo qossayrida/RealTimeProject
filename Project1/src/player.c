@@ -9,6 +9,7 @@
 #include "config.h"
 
 int global_team_id;
+int global_player_id;
 int *global_pipe_read_fd;
 int is_turn = 0;  // Flag to check if the player is allowed to jump
 int energy;
@@ -20,6 +21,7 @@ void pull(int team_id, int player_id, Config *config, int fifo_fd);
 
 void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, int fifo_fd) {
     global_team_id = team_id;
+    global_player_id = player_id;
     global_pipe_read_fd = pipe_read_fd;
     srand(time(NULL) ^ (getpid() << 16));
 
@@ -29,7 +31,25 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
     signal(SIGUSR1, handle_player_signal);
     signal(SIGUSR2, handle_player_signal);
 
+
+    time_t previas_time = time(NULL);
+
     while (1) {
+
+        if (time(NULL) - previas_time > 5) {
+            printf("Team %d: Player %d ==> energy --> to %d\n", team_id + 1, player_id + 1,energy);
+            energy -= 2;
+            previas_time = time(NULL);
+
+            if (energy <= 0) {
+                char buffer[50];
+                snprintf(buffer, sizeof(buffer), "ENERGY_OUT %d", player_id);
+                write(global_pipe_read_fd[1], buffer, strlen(buffer));
+                exit(EXIT_SUCCESS);
+            }
+        }
+
+
         // Wait until it’s this player’s turn (indicated by `is_turn` flag)
         while (!is_turn) {
             pause();  // Wait for the signal to start the jump
@@ -40,6 +60,8 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
         } else if (is_turn == 2) {
             pull(team_id, player_id, config, fifo_fd);
         }
+
+
 
         is_turn = 0;  // Reset turn flag after receiving signal
     }

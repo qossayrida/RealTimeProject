@@ -76,8 +76,8 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
             double jump_interval = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
             go_to_pull();
 
-            char result[50];
-            snprintf(result, sizeof(result), "%d: JT %.2f",team_data.team_id, jump_interval);
+            char result[50]="/0";
+            snprintf(result, sizeof(result), " %d: JT %.2f",team_data.team_id+1, jump_interval);
             if (write(pipe_fd[1], result, strlen(result)) == -1) {
                 perror("Failed to write team data to referee");
             }
@@ -98,8 +98,8 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
             int player_id = atoi(token);
             team_data.players[player_id] = -1;
 
-            char result[50];
-            snprintf(result, sizeof(result), "%d: EO %d",team_data.team_id, player_id);
+            char result[50]="/0";
+            snprintf(result, sizeof(result), " %d: EO %d",team_data.team_id+1, player_id+1);
             if (write(pipe_fd[1], result, strlen(result)) == -1) {
                 perror("Failed to write team data to referee");
             }
@@ -123,12 +123,13 @@ void go_to_jump(){
     // q = team_data.players[(team_data.turn+2) %3] == -1
     // (p && (a || q)) || (a && q)
 
-    if (team_data.players[team_data.turn] == -1 && (team_data.players[(team_data.turn+1) %3] == -1  || team_data.players[(team_data.turn+2) %3] == -1)
-    || team_data.players[(team_data.turn+1) %3] == -1  && team_data.players[(team_data.turn+2) %3] == -1){
+    if (( team_data.players[team_data.turn] == -1 && (team_data.players[(team_data.turn+1) %3] == -1  || team_data.players[(team_data.turn+2) %3] == -1))
+    || (team_data.players[(team_data.turn+1) %3] == -1  && team_data.players[(team_data.turn+2) %3] == -1)) {
         exit(EXIT_SUCCESS);
-    else if( team_data.players[team_data.turn] == -1){
+    }else if( team_data.players[team_data.turn] == -1){
         team_data.turn = (team_data.turn + 1) % 3;
     }
+    printf("Team %d: Sending signal to Player %d to jump\n", team_data.team_id + 1, team_data.turn + 1);
 
     pid_t current_player = players[team_data.turn];
 

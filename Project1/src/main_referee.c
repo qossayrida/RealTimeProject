@@ -76,7 +76,7 @@ int main(int argc, char **argv) {
             perror("Failed to read from assistant referee");
             return EXIT_FAILURE;
         }
-        printf("Referee: Received message from Team %s\n", buffer);
+        printf("Referee: Received message from Team  %s\n", buffer);
     }
 
     return EXIT_SUCCESS;
