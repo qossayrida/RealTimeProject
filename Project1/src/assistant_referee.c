@@ -15,14 +15,16 @@ pid_t players[3];
 int pipe_player[2];  // Pipe to communicate with players
 char fifo_name[20];
 int fifo_fd;
+struct timespec start_time, end_time;
+
 
 void handle_start_signal(int signum);
 void handle_term_signal();
 void go_to_next_player();
+void go_to_pull();
 
 void assistant_referee_main(int id, Config *config, int *pipe_fd) {
     team_data.team_id = id;
-    team_data.score = 0;
     team_data.turn = 0;
 
     signal(SIGUSR1, handle_start_signal);
@@ -69,10 +71,19 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
             exit(EXIT_FAILURE);
         }
 
-        if (buffer.startsWith("JUMP_END")) {
 
-            
-        }else if (buffer.startsWith("PULL_END")){
+        if (strncmp(buffer, "JUMP_END",8) == 0) {
+            clock_gettime(CLOCK_MONOTONIC, &end_time);
+            double jump_interval = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
+            go_to_pull();
+
+            char result[50];
+            snprintf(result, sizeof(result), "%d: %.2f",team_data.team_id, jump_interval);
+            if (write(pipe_fd[1], result, strlen(result)) == -1) {
+                perror("Failed to write team data to referee");
+            }
+
+        }else if (strncmp(buffer, "PULL_END",8) == 0) {
 
 
             go_to_next_player();
@@ -92,12 +103,19 @@ void go_to_next_player(){
     // Send signal to the player with the current turn to allow them to jump
     pid_t current_player = players[team_data.turn];
 
+    // Record the start time
+    clock_gettime(CLOCK_MONOTONIC, &start_time);
+
     kill(current_player, SIGUSR1);
 
     // Move to the next player's turn
     team_data.turn = (team_data.turn + 1) % 3;
 }
 
+
+void go_to_pull(){
+
+}
 
 void handle_term_signal() {
     close(fifo_fd);

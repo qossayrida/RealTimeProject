@@ -19,7 +19,6 @@ typedef struct {
     int team_id;
     int score;
     int turn;
-    int players_energy[3];
     pid_t players[3];
 } Team;
 
