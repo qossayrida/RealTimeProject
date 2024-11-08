@@ -20,7 +20,7 @@ struct timespec start_time, end_time;
 
 void handle_start_signal(int signum);
 void handle_term_signal();
-void go_to_next_player();
+void go_to_jump();
 void go_to_pull();
 
 void assistant_referee_main(int id, Config *config, int *pipe_fd) {
@@ -71,22 +71,33 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
             exit(EXIT_FAILURE);
         }
 
-
         if (strncmp(buffer, "JUMP_END",8) == 0) {
             clock_gettime(CLOCK_MONOTONIC, &end_time);
             double jump_interval = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
             go_to_pull();
 
             char result[50];
-            snprintf(result, sizeof(result), "%d: %.2f",team_data.team_id, jump_interval);
+            snprintf(result, sizeof(result), "%d: JT %.2f",team_data.team_id, jump_interval);
             if (write(pipe_fd[1], result, strlen(result)) == -1) {
                 perror("Failed to write team data to referee");
             }
 
         }else if (strncmp(buffer, "PULL_END",8) == 0) {
+            printf("A7A");
+            fflush(stdout);
 
+            go_to_jump();
+        }else if (strncmp(buffer, "ENERGY_OUT",10) == 0) {
+            // ENERGY_OUT 0
+            char *token = strtok(buffer, " ");
+            token = strtok(NULL, " ");
+            int player_id = atoi(token);
 
-            go_to_next_player();
+            char result[50];
+            snprintf(result, sizeof(result), "%d: EO %d",team_data.team_id, player_id);
+            if (write(pipe_fd[1], result, strlen(result)) == -1) {
+                perror("Failed to write team data to referee");
+            }
         }
     }
 
@@ -95,11 +106,11 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
 void handle_start_signal(int signum) {
     if (signum == SIGUSR1) {
         printf("Assistant Referee for Team %d: Received signal from referee\n", team_data.team_id + 1);
-        go_to_next_player();
+        go_to_jump();
     }
 }
 
-void go_to_next_player(){
+void go_to_jump(){
     // Send signal to the player with the current turn to allow them to jump
     pid_t current_player = players[team_data.turn];
 
@@ -114,11 +125,19 @@ void go_to_next_player(){
 
 
 void go_to_pull(){
-
+    pid_t second_player = players[team_data.turn];
+    pid_t third_player = players[(team_data.turn+1) %3];
+    kill(second_player, SIGUSR2);
+    kill(third_player, SIGUSR2);
 }
 
 void handle_term_signal() {
     close(fifo_fd);
-    if ( (unlink(fifo_name)) == 0 )
+    if (unlink(fifo_name) == 0) {
         printf("fifo: fifo%d has been removed\n", getpid());
+    }
+
+    // Reset SIGTERM to default and re-raise it
+    signal(SIGTERM, SIG_DFL);
+    raise(SIGTERM);
 }

@@ -87,7 +87,7 @@ void handle_alarm(int signum) {
 
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            kill(teams[i].players[j], SIGTERM);
+            kill(teams[i].players[j], SIGKILL);
         }
         kill(assistant_referees[i], SIGTERM);
     }

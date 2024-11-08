@@ -14,7 +14,8 @@ int is_turn = 0;  // Flag to check if the player is allowed to jump
 int energy;
 
 void handle_player_signal(int signum);
-void jump(int team_id, int player_id, Config *config, int fifo_fd);
+void jump(int team_id, int player_id, Config *config);
+void pull(int team_id, int player_id, Config *config, int fifo_fd);
 
 void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, int fifo_fd) {
     global_team_id = team_id;
@@ -25,6 +26,7 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
 
     // Set up signal handler for SIGUSR1
     signal(SIGUSR1, handle_player_signal);
+    signal(SIGUSR2, handle_player_signal);
 
     while (1) {
         // Wait until it’s this player’s turn (indicated by `is_turn` flag)
@@ -33,9 +35,9 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
         }
 
         if (is_turn == 1) {
-            jump(team_id, player_id, config, fifo_fd);
+            jump(team_id, player_id, config);
         } else if (is_turn == 2) {
-            printf("Team %d: Player %d pulling...\n", team_id + 1, player_id + 1);
+            pull(team_id, player_id, config, fifo_fd);
         }
 
         is_turn = 0;  // Reset turn flag after receiving signal
@@ -45,30 +47,54 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
 void handle_player_signal(int signum) {
     if (signum == SIGUSR1) {
         printf("Team %d: Received signal to jump from assistant referee\n", global_team_id + 1);
+        fflush(stdout);
         is_turn = 1;  // Set the turn flag to allow the player to jump
     } else if (signum == SIGUSR2) {
         printf("Team %d: Received signal to pull from another player\n", global_team_id + 1);
+        fflush(stdout);
         is_turn = 2;  // Set the turn flag to allow the player to pull
     }
 }
 
-void jump(int team_id, int player_id, Config *config, int fifo_fd) {
+void jump(int team_id, int player_id, Config *config) {
     int stabilization_time, pull_time;
 
     stabilization_time = (rand() % (config->stabilization_time_max - config->stabilization_time_min))
                          + config->stabilization_time_min;
     printf("Team %d: Player %d jumping... Stabilization time: %d\n", team_id + 1, player_id + 1, stabilization_time);
+    fflush(stdout);
     usleep(stabilization_time * 1000);
 
     // Decrease energy for jump and pull
     energy -= 10;
     if (energy <= 0) {
         printf("Team %d: Player %d is out of energy\n", team_id + 1, player_id + 1);
-        exit(0);
+        fflush(stdout);
     }
 
     char result[50];
     snprintf(result, sizeof(result), "JUMP_END");
+    if (write(global_pipe_read_fd[1], result, strlen(result)) == -1) {
+        perror("Failed to write team data to referee");
+    }
+}
+
+void pull(int team_id, int player_id, Config *config, int fifo_fd) {
+    int pull_time;
+
+    pull_time = (rand() % (config->pull_time_max - config->pull_time_min))
+                + config->pull_time_min;
+    usleep(pull_time * 1000);
+
+    // Decrease energy for jump and pull
+    energy -= 10;
+    if (energy <= 0) {
+        printf("Team %d: Player %d is out of energy\n", team_id + 1, player_id + 1);
+        fflush(stdout);
+    }
+
+    char result[50];
+    snprintf(result, sizeof(result), "PULL_END");
     if (write(global_pipe_read_fd[1], result, strlen(result)) == -1) {
         perror("Failed to write team data to referee");
     }
