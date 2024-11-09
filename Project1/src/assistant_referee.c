@@ -97,11 +97,13 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
             go_to_jump();
 
 
-        }else if (strncmp(buffer[0], "ENERGY_OUT",10) == 0) {
+        }else if (strncmp(buffer[0], "ENERGY",6) == 0) {
             // ENERGY_OUT 0
-            char *token = strtok(buffer[0], " ");
-            token = strtok(NULL, " ");
+            char *token = strtok(buffer[0], "#");
+            token = strtok(NULL, "#");
             int player_id = atoi(token);
+            token = strtok(NULL, "#");
+            int energy = atoi(token);
             team_data.players[player_id] = -1;
 
             snprintf(buffer[2], sizeof(buffer[2]), " %d: EO %d",team_data.team_id+1, player_id+1);

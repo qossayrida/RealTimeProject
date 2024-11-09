@@ -41,16 +41,11 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
     while (1) {
 
         if (time(NULL) - previas_time > 5) {
+            previas_time = time(NULL);
             printf("Team %d: Player %d ==> energy --> to %d\n", team_id + 1, player_id + 1,energy);
             energy -= 1;
-            previas_time = time(NULL);
-
-            if (energy == 0) {
-                char buffer[50];
-                snprintf(buffer, sizeof(buffer), "ENERGY_OUT %d", player_id);
-                write(global_pipe_read_fd[1], buffer, strlen(buffer));
-                exit(EXIT_SUCCESS);
-            }
+            snprintf(message[2], sizeof(message[2]), "ENERGY#%d#%d", global_player_id , energy);
+            write(global_pipe_read_fd[1], message[2], strlen(message[2]));
         }
 
 
@@ -108,13 +103,8 @@ void jump(int team_id, int player_id, Config *config) {
 
     // Decrease energy for jump and pull
     energy = (energy >= 10) ? (energy - 10) : 0;
-
-
-    if (energy == 0) {
-        snprintf(message[2], sizeof(message[2]), "ENERGY_OUT %d",global_player_id);
-        write(global_pipe_read_fd[1], message[2], strlen(message[2]));
-        exit(EXIT_SUCCESS);
-    }
+    snprintf(message[2], sizeof(message[2]), "ENERGY#%d#%d", global_player_id , energy);
+    write(global_pipe_read_fd[1], message[2], strlen(message[2]));
 
     char result[50];
     snprintf(result, sizeof(result), "JUMP_END");
@@ -148,13 +138,8 @@ void pull_leader(Config *config) {
 
     // Energy check
     energy = (energy >= 10) ? (energy - 10) : 0;
-
-
-    if (energy == 0) {
-        snprintf(message[2], sizeof(message[2]), "ENERGY_OUT %d",global_player_id);
-        write(global_pipe_read_fd[1], message[2], strlen(message[2]));
-        exit(EXIT_SUCCESS);
-    }
+    snprintf(message[2], sizeof(message[2]), "ENERGY#%d#%d", global_player_id , energy);
+    write(global_pipe_read_fd[1], message[2], strlen(message[2]));
 
     snprintf(message[2], sizeof(message[2]), "PULL_END");
     if (write(global_pipe_read_fd[1], message[2], strlen(message[2])) == -1) {
@@ -183,12 +168,7 @@ void pull_non_leader(Config *config) {
 
     // Energy check
     energy = (energy >= 10) ? (energy - 10) : 0;
-
-
-    if (energy == 0) {
-        snprintf(message[2], sizeof(message[2]), "ENERGY_OUT %d", global_player_id);
-        write(global_pipe_read_fd[1], message[2], strlen(message[2]));
-        exit(EXIT_SUCCESS);
-    }
+    snprintf(message[2], sizeof(message[2]), "ENERGY#%d#%d", global_player_id , energy);
+    write(global_pipe_read_fd[1], message[2], strlen(message[2]));
 }
 
