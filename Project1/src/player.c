@@ -15,6 +15,7 @@ int is_turn = 0;  // Flag to check if the player is allowed to jump
 int energy, is_will_pull_alone=0;
 int is_second_player_leader = 0;
 char message_fifo[2][50];
+char result[50];
 
 Config *global_config;
 
@@ -25,6 +26,7 @@ void jump(int team_id, int player_id, Config *config);
 void pull_leader(Config *config);
 void pull_non_leader(Config *config);
 void pull_alone();
+void send_message(int type, char *content);
 
 void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, int fifo_to_highest, int fifo_to_lowest){
     global_team_id = team_id;
@@ -51,19 +53,16 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
         if (time(NULL) - previas_time > 5) {
             previas_time = time(NULL);
             energy = (energy != 0) ? (energy - 1) : 0;
-            printf("Team %d: Player %d ==> energy --> to %d\n", team_id + 1, player_id + 1,energy);
 
-            Message msg1;
-            msg1.type = ENERGY_ID;
-            snprintf(msg1.content, sizeof(msg1.content), "%d#%d#%d",energy,global_player_id,global_team_id);
-            write(global_pipe_read_fd[1], &msg1, sizeof(Message));
+            memset(result, '\0', sizeof(result));
+            snprintf(result, sizeof(result), "%d",energy);
+            send_message(ENERGY_ID,result);
         }
 
         // Wait until it’s this player’s turn (indicated by `is_turn` flag)
         while (!is_turn) {
             pause();  // Wait for the signal to start the jump
         }
-
 
         if (is_turn == 2) {
             if (is_second_player_leader == 1){
@@ -81,8 +80,6 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
         } else if (is_turn == 3) {
             pull_alone(config);
         }
-
-
     }
 }
 
@@ -107,9 +104,6 @@ void jump(int team_id, int player_id, Config *config) {
         is_second_player_leader = 1;
     }
 
-    printf("I am here\n");
-    fflush(stdout);
-
     int stabilization_time;
 
     stabilization_time = (rand() % (config->stabilization_time_max - config->stabilization_time_min))
@@ -120,16 +114,11 @@ void jump(int team_id, int player_id, Config *config) {
 
     // Decrease energy for jump and pull
     energy = (energy >= 10) ? (energy - 10) : 0;
-    Message msg1;
-    msg1.type = ENERGY_ID;
-    snprintf(msg1.content, sizeof(msg1.content), "%d#%d#%d",energy,global_player_id,global_team_id);
-    write(global_pipe_read_fd[1], &msg1, sizeof(Message));
+    memset(result, '\0', sizeof(result));
+    snprintf(result, sizeof(result), "%d",energy);
+    send_message(ENERGY_ID,result);
 
-    Message msg2;
-    msg2.type = JUMP_ID;
-    if (write(global_pipe_read_fd[1], &msg2,sizeof(Message)) == -1) {
-        perror("Failed to write team data to referee");
-    }
+    send_message(JUMP_END_ID, "");
 }
 
 
@@ -157,16 +146,11 @@ void pull_leader(Config *config) {
 
     // Energy check
     energy = (energy >= 10) ? (energy - 10) : 0;
-    Message msg1;
-    msg1.type = ENERGY_ID;
-    snprintf(msg1.content, sizeof(msg1.content), "%d#%d#%d",energy,global_player_id,global_team_id);
-    write(global_pipe_read_fd[1], &msg1, sizeof(Message));
+    memset(result, '\0', sizeof(result));
+    snprintf(result, sizeof(result), "%d",energy);
+    send_message(ENERGY_ID,result);
 
-    Message msg2;
-    msg2.type = PULL_ID;
-    if (write(global_pipe_read_fd[1], &msg2,sizeof(Message)) == -1) {
-        perror("Failed to write team data to referee");
-    }
+    send_message(PULL_END_ID, "");
 }
 
 void pull_non_leader(Config *config) {
@@ -187,11 +171,9 @@ void pull_non_leader(Config *config) {
 
     // Energy check
     energy = (energy >= 10) ? (energy - 10) : 0;
-
-    Message msg1;
-    msg1.type = ENERGY_ID;
-    snprintf(msg1.content, sizeof(msg1.content), "%d#%d#%d",energy,global_player_id,global_team_id);
-    write(global_pipe_read_fd[1], &msg1, sizeof(Message));
+    memset(result, '\0', sizeof(result));
+    snprintf(result, sizeof(result), "%d",energy);
+    send_message(ENERGY_ID,result);
 }
 
 
@@ -201,16 +183,23 @@ void pull_alone(Config *config){
 
     energy = (energy >= 10) ? (energy - 10) : 0;
 
-    Message msg1;
-    msg1.type = ENERGY_ID;
-    snprintf(msg1.content, sizeof(msg1.content), "%d#%d#%d",energy,global_player_id,global_team_id);
-    write(global_pipe_read_fd[1], &msg1, sizeof(Message));
 
-    Message msg2;
-    msg2.type = PULL_ID;
-    if (write(global_pipe_read_fd[1], &msg2,sizeof(Message)) == -1) {
+    memset(result, '\0', sizeof(result));
+    snprintf(result, sizeof(result), "%d",energy);
+    send_message(ENERGY_ID,result);
+
+
+    send_message(PULL_END_ID, "");
+}
+
+void send_message(int type, char *content){
+    Message msg;
+    msg.type = type;
+    msg.player_id = global_player_id;
+    msg.team_id = global_team_id;
+    snprintf(msg.content, sizeof(msg.content), "%s", content);
+    if(write(global_pipe_read_fd[1], &msg, sizeof(Message))== -1)
         perror("Failed to write team data to referee");
-    }
 }
 
 

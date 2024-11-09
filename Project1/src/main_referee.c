@@ -74,15 +74,29 @@ int main(int argc, char **argv) {
         printf("Referee: Sent start signal to Team %d\n", i + 1);
     }
 
+    Message message_buffer[10];
 
     while (1){
-        char buffer[50];
-        memset(buffer, '\0', sizeof(buffer));
-        if(read(pipe_fd[0], buffer, sizeof(buffer)) == -1){
-            perror("Failed to read from assistant referee");
-            return EXIT_FAILURE;
+
+        int bytes_read = read(pipe_fd[0], message_buffer, sizeof(message_buffer));
+
+        if(bytes_read == -1){
+            perror("Failed to read from player");
+            exit(EXIT_FAILURE);
         }
-        //printf("Referee: Received message from Team  %s\n", buffer);
+
+        int num_messages = bytes_read / sizeof(Message);
+
+        for(int i = 0; i < num_messages; i++) {
+            if (message_buffer[i].type == JUMP_END_ID) {
+                printf("Team %d --> Player %d has finished jumping with time %s\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1,message_buffer[i].content);
+            } else if (message_buffer[i].type == PULL_END_ID) {
+                printf("Team %d --> Player %d has finished pulling\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
+            } else if (message_buffer[i].type == ENERGY_ID) {
+                printf("Team %d --> Player %d has %s energy\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1, message_buffer[i].content);
+            }
+        }
+
     }
 
     return EXIT_SUCCESS;

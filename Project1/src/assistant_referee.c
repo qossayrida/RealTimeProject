@@ -19,7 +19,6 @@ struct timespec start_time, end_time;
 char buffer[3][50];
 
 void handle_start_signal(int signum);
-//void handle_term_signal();
 void go_to_jump();
 void go_to_pull();
 void team_stop();
@@ -88,49 +87,43 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
         }
 
         int num_messages = bytes_read / sizeof(Message);
-        printf("%d\n", num_messages);
         for(int i = 0; i < num_messages; i++) {
 
-            char *message_content = message_buffer[i].content;
-
-            if (message_buffer[i].type == JUMP_ID) {
+            if (message_buffer[i].type == JUMP_END_ID) {
                 clock_gettime(CLOCK_MONOTONIC, &end_time);
-                double jump_interval =
-                        (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
+                double jump_interval = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
+
                 go_to_pull();
 
-
-                snprintf(buffer[1], sizeof(buffer[1]), " %d: JT %.2f", team_data.team_id + 1, jump_interval);
-                if (write(pipe_fd[1], buffer[1], strlen(buffer[1])) == -1) {
+                memset(message_buffer[i].content, '\0', sizeof(message_buffer[i].content));
+                snprintf(message_buffer[i].content, sizeof(message_buffer[i].content), "%.2f",jump_interval);
+                if(write(pipe_fd[1], &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
-                }
 
-            } else if (message_buffer[i].type == PULL_ID) {
-                printf("Team %d: Received signal pull end\n", team_data.team_id + 1);
+            } else if (message_buffer[i].type == PULL_END_ID) {
                 go_to_jump();
+
+                if(write(pipe_fd[1], &message_buffer[i], sizeof(message_buffer[i]))== -1)
+                    perror("Failed to write team data to referee");
+
             } else if (message_buffer[i].type == ENERGY_ID) {
 
-                char *token = strtok(message_content, "#");
-                int energy = atoi(token);
-                token = strtok(NULL, "#");
-                int player_id = atoi(token);
-
+                int energy = atoi(message_buffer[i].content);
 
                 if (energy == 0) {
-                    team_data.deceased[player_id] = 1;
-                    kill(team_data.players[player_id], SIGTERM);
+                    team_data.deceased[message_buffer[i].player_id] = 1;
+                    kill(team_data.players[message_buffer[i].player_id], SIGTERM);
 
                     if ((team_data.deceased[0] && team_data.deceased[1]) ||
                         (team_data.deceased[1] && team_data.deceased[2]) ||
                         (team_data.deceased[0] && team_data.deceased[2]))
                         team_stop();
 
-                    kill(players[(player_id + 1) % 3], SIGQUIT);
-                    kill(players[(player_id + 2) % 3], SIGQUIT);
+                    kill(players[(message_buffer[i].player_id + 1) % 3], SIGQUIT);
+                    kill(players[(message_buffer[i].player_id + 2) % 3], SIGQUIT);
                 }
 
-                snprintf(buffer[2], sizeof(buffer[2]), "ENERGY#%d#%d#%d", energy, player_id, id);
-                if (write(pipe_fd[1], buffer[2], strlen(buffer[2])) == -1)
+                if(write(pipe_fd[1], &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
             }
         }
@@ -138,26 +131,7 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
 
 }
 
-void handle_start_signal(int signum) {
-    if (signum == SIGUSR1) {
-        printf("Assistant Referee for Team %d: Received signal from referee\n", team_data.team_id + 1);
-        go_to_jump();
-    }
-}
-
 void go_to_jump(){
-    // Send signal to the player with the current turn to allow them to jump
-
-//    // p = team_data.players[team_data.turn] == -1
-//    // a = team_data.players[(team_data.turn+1) %3] == -1
-//    // q = team_data.players[(team_data.turn+2) %3] == -1
-//    // (p && (a || q)) || (a && q)
-//
-//    if (( team_data.deceased[team_data.turn] == 1 && (team_data.deceased[(team_data.turn+1) %3] == 1  || team_data.deceased[(team_data.turn+2) %3] == 1))
-//    || (team_data.deceased[(team_data.turn+1) %3] == 1  && team_data.deceased[(team_data.turn+2) %3] == 1) ) {
-//        team_stop();
-//    }else
-
     if( team_data.deceased[team_data.turn] == 1)
         team_data.turn = (team_data.turn + 1) % 3;
 
@@ -199,4 +173,9 @@ void team_stop(){
 }
 
 
-
+void handle_start_signal(int signum) {
+    if (signum == SIGUSR1) {
+        printf("Assistant Referee for Team %d: Received signal from referee\n", team_data.team_id + 1);
+        go_to_jump();
+    }
+}

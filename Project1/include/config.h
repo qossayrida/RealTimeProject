@@ -2,9 +2,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-
-#define JUMP_ID 0
-#define PULL_ID 1
+#define JUMP_END_ID 0
+#define PULL_END_ID 1
 #define ENERGY_ID 2
 
 typedef struct {
@@ -19,7 +18,6 @@ typedef struct {
     int pull_time_max;
 } Config;
 
-
 typedef struct {
     int team_id;
     int score;
@@ -31,6 +29,8 @@ typedef struct {
 
 typedef struct {
     int type;
+    int player_id;
+    int team_id;
     char content[50];
 } Message;
 
