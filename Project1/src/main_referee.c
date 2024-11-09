@@ -46,6 +46,9 @@ int main(int argc, char **argv) {
     // Create assistant referee processes
     for (int i = 0; i < 3; i++) {
         if ((assistant_referees[i] = fork()) == 0) {
+//            char name [50];
+//            snprintf(name, sizeof(name), "bungee_assistant_referee_%d", i+1);
+
             assistant_referee_main(i, &game_config, pipe_fd);
             exit(EXIT_SUCCESS);
         }
@@ -72,6 +75,7 @@ int main(int argc, char **argv) {
 
     while (1){
         char buffer[256];
+        memset(buffer, '\0', sizeof(buffer));
         if(read(pipe_fd[0], buffer, sizeof(buffer)) == -1){
             perror("Failed to read from assistant referee");
             return EXIT_FAILURE;

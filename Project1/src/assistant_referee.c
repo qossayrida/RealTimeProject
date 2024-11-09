@@ -13,9 +13,10 @@
 Team team_data;
 pid_t players[3];
 int pipe_player[2];  // Pipe to communicate with players
-char fifo_name[20];
-int fifo_fd,pull_flag = 1;
+char fifo_name[2][50];
+int fifo_to_highest,fifo_to_lowest;
 struct timespec start_time, end_time;
+char buffer[3][50];
 
 
 void handle_start_signal(int signum);
@@ -39,9 +40,15 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
 
     // Create a FIFO (named pipe) for inter-player communication
 
-    sprintf(fifo_name, "/tmp/team%d_fifo",  team_data.team_id);
-    if ( mknod(fifo_name, S_IFIFO | 0666, 0) < 0 ) {
-        perror(fifo_name);
+    sprintf(fifo_name[0], "/tmp/team%d_fifo_for_highest_player",  team_data.team_id + 1);
+    if ( mknod(fifo_name[0], S_IFIFO | 0666, 0) < 0 ) {
+        perror(fifo_name[0]);
+        exit(1);
+    }
+
+    sprintf(fifo_name[1], "/tmp/team%d_fifo_for_lowest_player",  team_data.team_id + 1);
+    if ( mknod(fifo_name[1], S_IFIFO | 0666, 0) < 0 ) {
+        perror(fifo_name[1]);
         exit(1);
     }
 
@@ -49,8 +56,12 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
     // Create player processes
     for (int i = 0; i < 3; i++) {
         if ((players[i] = fork()) == 0) {
-            fifo_fd = open(fifo_name, O_RDWR | O_NONBLOCK);
-            player_main(id, i, config, pipe_player, fifo_fd);  // Pass read end and FIFO
+//            char name [50];
+//            snprintf(name, sizeof(name), "bungee_team%d_player%d", id+1,i+1);
+
+            fifo_to_highest = open(fifo_name[0], O_RDWR);
+            fifo_to_lowest = open(fifo_name[1], O_RDWR);
+            player_main(id, i, config, pipe_player, fifo_to_highest,fifo_to_lowest);  // Pass read end and FIFO
             exit(EXIT_SUCCESS);
         }
         team_data.players[i] = players[i];
@@ -65,42 +76,36 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
     pause();
 
     while (1){
-        char buffer[256];
-        if(read(pipe_player[0], buffer, sizeof(buffer)) == -1){
+        if(read(pipe_player[0], buffer[0], sizeof(buffer[0])) == -1){
             perror("Failed to read from player");
             exit(EXIT_FAILURE);
         }
 
-        if (strncmp(buffer, "JUMP_END",8) == 0) {
+        if (strncmp(buffer[0], "JUMP_END",8) == 0) {
             clock_gettime(CLOCK_MONOTONIC, &end_time);
             double jump_interval = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
             go_to_pull();
 
-            char result[50]="/0";
-            snprintf(result, sizeof(result), " %d: JT %.2f",team_data.team_id+1, jump_interval);
-            if (write(pipe_fd[1], result, strlen(result)) == -1) {
+
+            snprintf(buffer[1], sizeof(buffer[1]), " %d: JT %.2f",team_data.team_id+1, jump_interval);
+            if (write(pipe_fd[1], buffer[1], strlen(buffer[1])) == -1) {
                 perror("Failed to write team data to referee");
             }
 
-        }else if (strncmp(buffer, "PULL_END",8) == 0) {
+        }else if (strncmp(buffer[0], "PULL_END",8) == 0) {
 
-            if (pull_flag) {
-                pull_flag--;
-            }else{
-                pull_flag ++;
-                go_to_jump();
-            }
+            go_to_jump();
 
-        }else if (strncmp(buffer, "ENERGY_OUT",10) == 0) {
+
+        }else if (strncmp(buffer[0], "ENERGY_OUT",10) == 0) {
             // ENERGY_OUT 0
-            char *token = strtok(buffer, " ");
+            char *token = strtok(buffer[0], " ");
             token = strtok(NULL, " ");
             int player_id = atoi(token);
             team_data.players[player_id] = -1;
 
-            char result[50]="/0";
-            snprintf(result, sizeof(result), " %d: EO %d",team_data.team_id+1, player_id+1);
-            if (write(pipe_fd[1], result, strlen(result)) == -1) {
+            snprintf(buffer[2], sizeof(buffer[2]), " %d: EO %d",team_data.team_id+1, player_id+1);
+            if (write(pipe_fd[1], buffer[2], strlen(buffer[2])) == -1) {
                 perror("Failed to write team data to referee");
             }
         }
@@ -158,8 +163,12 @@ void go_to_pull(){
 }
 
 void handle_term_signal() {
-    close(fifo_fd);
-    if (unlink(fifo_name) == 0) {
+    close(fifo_to_highest);
+    if (unlink(fifo_name[0]) == 0) {
+        printf("fifo: fifo%d has been removed\n", getpid());
+    }
+    close(fifo_to_lowest);
+    if (unlink(fifo_name[1]) == 0) {
         printf("fifo: fifo%d has been removed\n", getpid());
     }
 

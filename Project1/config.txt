@@ -2,10 +2,10 @@
 
 # Game settings
 max_score=50                  # Maximum score to end the game
-max_time=50                   # Maximum time (in seconds) for the game
+max_time=60                   # Maximum time (in seconds) for the game
 
 # Player energy levels
-initial_energy_team_a=50
+initial_energy_team_a=30
 initial_energy_team_b=100
 initial_energy_team_c=100
 
