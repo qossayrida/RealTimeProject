@@ -11,6 +11,7 @@
 #include "config.h"
 #include "assistant_referee.h"
 #include "player.h"
+#include <sys/prctl.h>
 
 Team teams[3];
 pid_t assistant_referees[3];
@@ -46,8 +47,9 @@ int main(int argc, char **argv) {
     // Create assistant referee processes
     for (int i = 0; i < 3; i++) {
         if ((assistant_referees[i] = fork()) == 0) {
-//            char name [50];
-//            snprintf(name, sizeof(name), "bungee_assistant_referee_%d", i+1);
+           char name [50];
+            snprintf(name, sizeof(name), "bungee_assistant_referee_%d", i+1);
+            prctl(PR_SET_NAME, (unsigned long) name, 0, 0, 0);
 
             assistant_referee_main(i, &game_config, pipe_fd);
             exit(EXIT_SUCCESS);
@@ -89,11 +91,14 @@ int main(int argc, char **argv) {
 void handle_alarm(int signum) {
     printf("Referee: Maximum time reached. Ending game.\n");
 
+    system("rm /tmp/team*_fifo*");
+    printf("Referee: Removed all FIFOs\n");
+
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
             kill(teams[i].players[j], SIGKILL);
         }
-        kill(assistant_referees[i], SIGTERM);
+        kill(assistant_referees[i], SIGKILL);
     }
 
     exit(EXIT_SUCCESS);

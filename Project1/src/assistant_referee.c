@@ -19,7 +19,7 @@ struct timespec start_time, end_time;
 char buffer[3][50];
 
 void handle_start_signal(int signum);
-void handle_term_signal();
+//void handle_term_signal();
 void go_to_jump();
 void go_to_pull();
 void team_stop();
@@ -30,7 +30,7 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
     memset(team_data.deceased, 0, sizeof(team_data.deceased));
 
     signal(SIGUSR1, handle_start_signal);
-    signal(SIGTERM, handle_term_signal);
+//    signal(SIGKILL, handle_term_signal);
 
 
     // Create a pipe for communication with the player processes
@@ -194,21 +194,9 @@ void team_stop(){
             kill(team_data.players[i], SIGTERM);
 
     printf("Team %d: ***** All players are deceased. Team is eliminated  *****\n", team_data.team_id + 1);
+    fflush(stdout);
     exit(EXIT_SUCCESS);
 }
 
-void handle_term_signal() {
-    close(fifo_to_highest);
-    if (unlink(fifo_name[0]) == 0) {
-        printf("Team %d: fifo: fifo%d has been removed\n",team_data.team_id+1, getpid());
-    }
-    close(fifo_to_lowest);
-    if (unlink(fifo_name[1]) == 0) {
-        printf("Team %d:fifo: fifo%d has been removed\n", team_data.team_id+1,getpid());
-    }
 
-    // Reset SIGTERM to default and re-raise it
-    signal(SIGTERM, SIG_DFL);
-    raise(SIGTERM);
-}
 
