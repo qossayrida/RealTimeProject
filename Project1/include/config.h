@@ -2,6 +2,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+
+#define JUMP_ID 0
+#define PULL_ID 1
+#define ENERGY_ID 2
+
 typedef struct {
     int max_score;
     int max_time;
@@ -19,8 +24,16 @@ typedef struct {
     int team_id;
     int score;
     int turn;
+    int deceased [3];
     pid_t players[3];
 } Team;
+
+
+typedef struct {
+    int type;
+    char content[50];
+} Message;
+
 
 int load_config(const char *filename, Config *config);
 

@@ -18,15 +18,16 @@ int fifo_to_highest,fifo_to_lowest;
 struct timespec start_time, end_time;
 char buffer[3][50];
 
-
 void handle_start_signal(int signum);
 void handle_term_signal();
 void go_to_jump();
 void go_to_pull();
+void team_stop();
 
 void assistant_referee_main(int id, Config *config, int *pipe_fd) {
     team_data.team_id = id;
     team_data.turn = 0;
+    memset(team_data.deceased, 0, sizeof(team_data.deceased));
 
     signal(SIGUSR1, handle_start_signal);
     signal(SIGTERM, handle_term_signal);
@@ -75,40 +76,62 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
     // Wait for signals indefinitely
     pause();
 
+    Message message_buffer[10];
+
     while (1){
-        if(read(pipe_player[0], buffer[0], sizeof(buffer[0])) == -1){
+
+        int bytes_read = read(pipe_player[0], message_buffer, sizeof(message_buffer));
+
+        if(bytes_read == -1){
             perror("Failed to read from player");
             exit(EXIT_FAILURE);
         }
 
-        if (strncmp(buffer[0], "JUMP_END",8) == 0) {
-            clock_gettime(CLOCK_MONOTONIC, &end_time);
-            double jump_interval = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
-            go_to_pull();
+        int num_messages = bytes_read / sizeof(Message);
+        printf("%d\n", num_messages);
+        for(int i = 0; i < num_messages; i++) {
+
+            char *message_content = message_buffer[i].content;
+
+            if (message_buffer[i].type == JUMP_ID) {
+                clock_gettime(CLOCK_MONOTONIC, &end_time);
+                double jump_interval =
+                        (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
+                go_to_pull();
 
 
-            snprintf(buffer[1], sizeof(buffer[1]), " %d: JT %.2f",team_data.team_id+1, jump_interval);
-            if (write(pipe_fd[1], buffer[1], strlen(buffer[1])) == -1) {
-                perror("Failed to write team data to referee");
-            }
+                snprintf(buffer[1], sizeof(buffer[1]), " %d: JT %.2f", team_data.team_id + 1, jump_interval);
+                if (write(pipe_fd[1], buffer[1], strlen(buffer[1])) == -1) {
+                    perror("Failed to write team data to referee");
+                }
 
-        }else if (strncmp(buffer[0], "PULL_END",8) == 0) {
+            } else if (message_buffer[i].type == PULL_ID) {
+                printf("Team %d: Received signal pull end\n", team_data.team_id + 1);
+                go_to_jump();
+            } else if (message_buffer[i].type == ENERGY_ID) {
 
-            go_to_jump();
+                char *token = strtok(message_content, "#");
+                int energy = atoi(token);
+                token = strtok(NULL, "#");
+                int player_id = atoi(token);
 
 
-        }else if (strncmp(buffer[0], "ENERGY",6) == 0) {
-            // ENERGY_OUT 0
-            char *token = strtok(buffer[0], "#");
-            token = strtok(NULL, "#");
-            int player_id = atoi(token);
-            token = strtok(NULL, "#");
-            int energy = atoi(token);
-            team_data.players[player_id] = -1;
+                if (energy == 0) {
+                    team_data.deceased[player_id] = 1;
+                    kill(team_data.players[player_id], SIGTERM);
 
-            snprintf(buffer[2], sizeof(buffer[2]), " %d: EO %d",team_data.team_id+1, player_id+1);
-            if (write(pipe_fd[1], buffer[2], strlen(buffer[2])) == -1) {
-                perror("Failed to write team data to referee");
+                    if ((team_data.deceased[0] && team_data.deceased[1]) ||
+                        (team_data.deceased[1] && team_data.deceased[2]) ||
+                        (team_data.deceased[0] && team_data.deceased[2]))
+                        team_stop();
+
+                    kill(players[(player_id + 1) % 3], SIGQUIT);
+                    kill(players[(player_id + 2) % 3], SIGQUIT);
+                }
+
+                snprintf(buffer[2], sizeof(buffer[2]), "ENERGY#%d#%d#%d", energy, player_id, id);
+                if (write(pipe_fd[1], buffer[2], strlen(buffer[2])) == -1)
+                    perror("Failed to write team data to referee");
             }
         }
     }
@@ -125,17 +148,19 @@ void handle_start_signal(int signum) {
 void go_to_jump(){
     // Send signal to the player with the current turn to allow them to jump
 
-    // p = team_data.players[team_data.turn] == -1
-    // a = team_data.players[(team_data.turn+1) %3] == -1
-    // q = team_data.players[(team_data.turn+2) %3] == -1
-    // (p && (a || q)) || (a && q)
+//    // p = team_data.players[team_data.turn] == -1
+//    // a = team_data.players[(team_data.turn+1) %3] == -1
+//    // q = team_data.players[(team_data.turn+2) %3] == -1
+//    // (p && (a || q)) || (a && q)
+//
+//    if (( team_data.deceased[team_data.turn] == 1 && (team_data.deceased[(team_data.turn+1) %3] == 1  || team_data.deceased[(team_data.turn+2) %3] == 1))
+//    || (team_data.deceased[(team_data.turn+1) %3] == 1  && team_data.deceased[(team_data.turn+2) %3] == 1) ) {
+//        team_stop();
+//    }else
 
-    if (( team_data.players[team_data.turn] == -1 && (team_data.players[(team_data.turn+1) %3] == -1  || team_data.players[(team_data.turn+2) %3] == -1))
-    || (team_data.players[(team_data.turn+1) %3] == -1  && team_data.players[(team_data.turn+2) %3] == -1)) {
-        exit(EXIT_SUCCESS);
-    }else if( team_data.players[team_data.turn] == -1){
+    if( team_data.deceased[team_data.turn] == 1)
         team_data.turn = (team_data.turn + 1) % 3;
-    }
+
     printf("Team %d: Sending signal to Player %d to jump\n", team_data.team_id + 1, team_data.turn + 1);
 
     pid_t current_player = players[team_data.turn];
@@ -152,26 +177,34 @@ void go_to_jump(){
 
 
 void go_to_pull(){
-    if(team_data.players[team_data.turn] != -1){
+    if(!team_data.deceased[team_data.turn]){
         pid_t current_player = players[team_data.turn];
         kill(current_player, SIGUSR2);
     }
-    if(team_data.players[(team_data.turn+1) %3] != -1){
+    if(!team_data.deceased[(team_data.turn+1) %3]){
         pid_t second_player = players[(team_data.turn+1) %3];
         kill(second_player, SIGUSR2);
     }
-    if (team_data.players[team_data.turn] == -1 && team_data.players[(team_data.turn+1) %3] == -1)
-        exit(EXIT_SUCCESS);
+}
+
+
+void team_stop(){
+    for (int i = 0; i < 3; i++)
+        if (team_data.deceased[i] != 1)
+            kill(team_data.players[i], SIGTERM);
+
+    printf("Team %d: ***** All players are deceased. Team is eliminated  *****\n", team_data.team_id + 1);
+    exit(EXIT_SUCCESS);
 }
 
 void handle_term_signal() {
     close(fifo_to_highest);
     if (unlink(fifo_name[0]) == 0) {
-        printf("fifo: fifo%d has been removed\n", getpid());
+        printf("Team %d: fifo: fifo%d has been removed\n",team_data.team_id+1, getpid());
     }
     close(fifo_to_lowest);
     if (unlink(fifo_name[1]) == 0) {
-        printf("fifo: fifo%d has been removed\n", getpid());
+        printf("Team %d:fifo: fifo%d has been removed\n", team_data.team_id+1,getpid());
     }
 
     // Reset SIGTERM to default and re-raise it

@@ -12,14 +12,16 @@ int global_team_id,global_player_id;
 int global_fifo_to_highest,global_fifo_to_lowest;
 int *global_pipe_read_fd;
 int is_turn = 0;  // Flag to check if the player is allowed to jump
-int energy;
+int energy, is_will_pull_alone=0;
 int is_second_player_leader = 0;
 char message[3][50];
 
 void handle_player_signal(int signum);
+void handle_pull_alone();
 void jump(int team_id, int player_id, Config *config);
 void pull_leader(Config *config);
 void pull_non_leader(Config *config);
+void pull_alone();
 
 void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, int fifo_to_highest, int fifo_to_lowest){
     global_team_id = team_id;
@@ -34,6 +36,7 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
     // Set up signal handler for SIGUSR1
     signal(SIGUSR1, handle_player_signal);
     signal(SIGUSR2, handle_player_signal);
+    signal(SIGQUIT, handle_pull_alone);
 
 
     time_t previas_time = time(NULL);
@@ -44,8 +47,11 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
             previas_time = time(NULL);
             printf("Team %d: Player %d ==> energy --> to %d\n", team_id + 1, player_id + 1,energy);
             energy -= 1;
-            snprintf(message[2], sizeof(message[2]), "ENERGY#%d#%d", global_player_id , energy);
-            write(global_pipe_read_fd[1], message[2], strlen(message[2]));
+
+            Message msg1;
+            msg1.type = ENERGY_ID;
+            snprintf(msg1.content, sizeof(msg1.content), "%d#%d#%d",energy,global_player_id,global_team_id);
+            write(global_pipe_read_fd[1], &msg1, sizeof(Message));
         }
 
 
@@ -71,7 +77,10 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
                 pull_non_leader(config);
             }
 
+        } else if (is_turn == 3) {
+            pull_alone(config);
         }
+
         is_turn = 0;  // Reset turn flag after receiving signal
     }
 }
@@ -84,7 +93,11 @@ void handle_player_signal(int signum) {
     } else if (signum == SIGUSR2) {
         printf("Team %d: Received signal to pull from another player\n", global_team_id + 1);
         fflush(stdout);
-        is_turn = 2;  // Set the turn flag to allow the player to pull
+        if(!is_will_pull_alone) {
+            is_turn = 2;
+        } else {
+            is_turn = 3;
+        }
     }
 }
 
@@ -103,12 +116,14 @@ void jump(int team_id, int player_id, Config *config) {
 
     // Decrease energy for jump and pull
     energy = (energy >= 10) ? (energy - 10) : 0;
-    snprintf(message[2], sizeof(message[2]), "ENERGY#%d#%d", global_player_id , energy);
-    write(global_pipe_read_fd[1], message[2], strlen(message[2]));
+    Message msg1;
+    msg1.type = ENERGY_ID;
+    snprintf(msg1.content, sizeof(msg1.content), "%d#%d#%d",energy,global_player_id,global_team_id);
+    write(global_pipe_read_fd[1], &msg1, sizeof(Message));
 
-    char result[50];
-    snprintf(result, sizeof(result), "JUMP_END");
-    if (write(global_pipe_read_fd[1], result, strlen(result)) == -1) {
+    Message msg2;
+    msg2.type = JUMP_ID;
+    if (write(global_pipe_read_fd[1], &msg2,sizeof(Message)) == -1) {
         perror("Failed to write team data to referee");
     }
 }
@@ -138,11 +153,14 @@ void pull_leader(Config *config) {
 
     // Energy check
     energy = (energy >= 10) ? (energy - 10) : 0;
-    snprintf(message[2], sizeof(message[2]), "ENERGY#%d#%d", global_player_id , energy);
-    write(global_pipe_read_fd[1], message[2], strlen(message[2]));
+    Message msg1;
+    msg1.type = ENERGY_ID;
+    snprintf(msg1.content, sizeof(msg1.content), "%d#%d#%d",energy,global_player_id,global_team_id);
+    write(global_pipe_read_fd[1], &msg1, sizeof(Message));
 
-    snprintf(message[2], sizeof(message[2]), "PULL_END");
-    if (write(global_pipe_read_fd[1], message[2], strlen(message[2])) == -1) {
+    Message msg2;
+    msg2.type = PULL_ID;
+    if (write(global_pipe_read_fd[1], &msg2,sizeof(Message)) == -1) {
         perror("Failed to write team data to referee");
     }
 }
@@ -156,11 +174,8 @@ void pull_non_leader(Config *config) {
         perror("Failed to write pull time to FIFO");
     }
 
-    int x =-1 ;
     // Wait to receive the adjusted pull time from the leader
-    if ((x=read(global_fifo_to_lowest, message[1], sizeof(message[1]))) > 0) {
-        printf("%d\n",x);
-        printf("%s\n",message[1]);
+    if (read(global_fifo_to_lowest, message[1], sizeof(message[1])) > 0) {
         int adjusted_pull_time = atoi(message[1]);
         printf("Team %d: Player %d received adjusted pull time: %d\n", global_team_id + 1, global_player_id + 1, adjusted_pull_time);
         usleep(adjusted_pull_time * 1000);
@@ -168,7 +183,33 @@ void pull_non_leader(Config *config) {
 
     // Energy check
     energy = (energy >= 10) ? (energy - 10) : 0;
-    snprintf(message[2], sizeof(message[2]), "ENERGY#%d#%d", global_player_id , energy);
-    write(global_pipe_read_fd[1], message[2], strlen(message[2]));
+
+    Message msg1;
+    msg1.type = ENERGY_ID;
+    snprintf(msg1.content, sizeof(msg1.content), "%d#%d#%d",energy,global_player_id,global_team_id);
+    write(global_pipe_read_fd[1], &msg1, sizeof(Message));
 }
 
+
+void pull_alone(Config *config){
+    int pull_time = (rand() % (config->pull_time_max - config->pull_time_min)) + config->pull_time_min;
+    usleep(pull_time * 1000);
+
+    energy = (energy >= 10) ? (energy - 10) : 0;
+
+    Message msg1;
+    msg1.type = ENERGY_ID;
+    snprintf(msg1.content, sizeof(msg1.content), "%d#%d#%d",energy,global_player_id,global_team_id);
+    write(global_pipe_read_fd[1], &msg1, sizeof(Message));
+
+    Message msg2;
+    msg2.type = PULL_ID;
+    if (write(global_pipe_read_fd[1], &msg2,sizeof(Message)) == -1) {
+        perror("Failed to write team data to referee");
+    }
+}
+
+
+void handle_pull_alone(){
+    is_will_pull_alone = 1;
+}

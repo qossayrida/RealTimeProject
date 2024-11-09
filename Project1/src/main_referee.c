@@ -74,13 +74,13 @@ int main(int argc, char **argv) {
 
 
     while (1){
-        char buffer[256];
+        char buffer[50];
         memset(buffer, '\0', sizeof(buffer));
         if(read(pipe_fd[0], buffer, sizeof(buffer)) == -1){
             perror("Failed to read from assistant referee");
             return EXIT_FAILURE;
         }
-        printf("Referee: Received message from Team  %s\n", buffer);
+        //printf("Referee: Received message from Team  %s\n", buffer);
     }
 
     return EXIT_SUCCESS;
