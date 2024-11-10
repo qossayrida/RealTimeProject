@@ -16,6 +16,8 @@ typedef struct {
     int initial_energy_min[3];
     int stabilization_time_min;
     int stabilization_time_max;
+    int rest_time_max;
+    int rest_time_min;
     int pull_time_min;
     int pull_time_max;
 } Config;

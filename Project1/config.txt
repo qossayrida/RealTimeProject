@@ -13,6 +13,10 @@ initial_energy_min_a=50
 initial_energy_min_b=50
 initial_energy_min_c=50
 
+#Rest time before next jump
+rest_time_max=200
+rest_time_min=100
+
 # Timing ranges (in milliseconds)
 stabilization_time_min=3000    # Minimum time for stabilization
 stabilization_time_max=6000    # Maximum time for stabilization

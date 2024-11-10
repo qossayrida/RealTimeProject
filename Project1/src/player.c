@@ -11,7 +11,7 @@
 int team_id,player_id;
 int global_fifo_to_highest,global_fifo_to_lowest;
 int fifo_to_assistant_referee;
-int is_turn = 0;  // Flag to check if the player is allowed to jump
+int is_turn = 0 ,is_first_time=1;  // Flag to check if the player is allowed to jump
 int energy,max_energy,is_will_pull_alone=0;
 int is_second_player_leader = 0;
 char message_fifo[2][50];
@@ -101,7 +101,15 @@ int main(int argc, char *argv[]) {
 }
 
 void handle_player_SIGUSR1() {
-    jump();
+    if (is_first_time && player_id == 0) {
+        jump();
+        is_first_time = 0;
+    }
+    else{
+        int rest_time = (rand() % (config.rest_time_max - config.rest_time_min)) + config.rest_time_min;
+        usleep(rest_time * 1000);
+        jump();
+    }
 }
 
 void handle_player_SIGUSR2() {
@@ -113,6 +121,7 @@ void handle_player_SIGUSR2() {
 }
 
 void jump() {
+
     send_message(JUMP_START_ID, "");
     if(player_id == 1){
         is_second_player_leader = 1;
@@ -124,7 +133,9 @@ void jump() {
     usleep(stabilization_time * 1000);
 
     // Decrease energy for jump and pull
-    energy = (energy >= 10) ? (energy - 10) : 0;
+    double energy_damping_factor =((double)stabilization_time / ((double)config.max_time * 1000.0));
+    int new_energy = (int) (energy * energy_damping_factor);
+    energy = (energy-new_energy >= 0) ? (energy-new_energy) : 0;
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d",energy);
     send_message(ENERGY_ID,result);
@@ -158,7 +169,9 @@ void pull_leader() {
     }
 
     // Energy check
-    energy = (energy >= 10) ? (energy - 10) : 0;
+    double energy_damping_factor =((double)pull_time / ( (double)config.max_time * 1000.0) );
+    int new_energy = (int) (energy * energy_damping_factor);
+    energy = (energy-new_energy >= 0) ? (energy-new_energy) : 0;
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d",energy);
     send_message(ENERGY_ID,result);
@@ -184,7 +197,9 @@ void pull_non_leader() {
     }
 
     // Energy check
-    energy = (energy >= 10) ? (energy - 10) : 0;
+    double energy_damping_factor =((double)pull_time / ((double)config.max_time * 1000.0) );
+    int new_energy = (int) (energy * energy_damping_factor);
+    energy = (energy-new_energy >= 0) ? (energy-new_energy) : 0;
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d",energy);
     send_message(ENERGY_ID,result);
@@ -197,9 +212,9 @@ void pull_alone(){
     int pull_time = (int) (((rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min) * energy_decrease);
     usleep(pull_time * 1000);
 
-    energy = (energy >= 10) ? (energy - 10) : 0;
-
-
+    double energy_damping_factor =((double)pull_time / ((double)config.max_time * 1000.0));
+    int new_energy = (int) (energy * energy_damping_factor);
+    energy = (energy-new_energy >= 0) ? (energy-new_energy) : 0;
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d",energy);
     send_message(ENERGY_ID,result);
