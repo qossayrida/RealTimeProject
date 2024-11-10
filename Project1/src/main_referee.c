@@ -50,7 +50,7 @@ void drawReferees(float x, float y, float r, float g, float b);
 void drawRope(Player *jumper, Player *left, Player *right);
 void drawRefereeWithFlag(float x, float y, float waveAngle);
 void timer(int value);
-void timer2(int value);
+//void timer2(int value);
 
 
 
@@ -123,6 +123,9 @@ int main(int argc, char **argv) {
         teams[team_data.team_id] = team_data;
     }
 
+    close(fifo_fd);
+    fifo_fd = open(fifo_name_str, O_RDONLY|O_NONBLOCK);
+
 
     // Send signal to assistant referees to start the game
     for (int i = 0; i < 3; i++) {
@@ -135,8 +138,8 @@ int main(int argc, char **argv) {
 
     init();
     glutDisplayFunc(display);
-    glutTimerFunc(1, timer, 0);
-    glutTimerFunc(1, timer2, 0);            // Repeat every 16ms (~60 FPS)
+    glutIdleFunc(timer);
+//    glutTimerFunc(1, timer2, 0);            // Repeat every 16ms (~60 FPS)
     glutMainLoop();
 
 
@@ -145,6 +148,15 @@ int main(int argc, char **argv) {
 
 void timer(int value){
 
+    int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
+
+    if(bytes_read != -1){
+        num_messages = bytes_read / sizeof(Message);
+        printf("Referee: Received %d messages\n", num_messages);
+    } else {
+        num_messages = 0;
+    }
+    
     for (int i = 0; i<num_messages; i++){
         if (message_buffer[i].type == JUMP_START_ID) {
             startJumping(message_buffer[i].team_id, message_buffer[i].player_id);
@@ -167,33 +179,10 @@ void timer(int value){
         } else if (message_buffer[i].type == TEAM_STOP) {
             printf("Team %d has stopped\n", message_buffer[i].team_id + 1);
         }
-
-        if (i == num_messages - 1) {
-            num_messages = 0;
-        }
     }
 
     glutPostRedisplay();                                      // Trigger a display update
-    glutTimerFunc(1, timer, 0);            // Repeat every 16ms (~60 FPS)
 }
-
-void timer2(int value){
-
-    if (num_messages == 0) {
-        int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
-
-        if(bytes_read == -1){
-            perror("Failed to read from player");
-            exit(EXIT_FAILURE);
-        }
-
-        num_messages = bytes_read / sizeof(Message);
-        printf("Referee: Received %d messages\n", num_messages);
-    }
-
-    glutTimerFunc(2000, timer2, 0);            // Repeat every 16ms (~60 FPS)
-}
-
 
 void handle_alarm(int signum) {
     printf("Referee: Maximum time reached. Ending game.\n");
