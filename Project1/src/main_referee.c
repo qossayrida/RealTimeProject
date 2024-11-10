@@ -29,7 +29,7 @@ Team teams[3];
 pid_t assistant_referees[3];
 Config game_config;
 int num_messages=0;
-int fifo_fd;
+int fifo_fd,num_messages;
 Message message_buffer[10];
 
 void handle_alarm(int signum);
@@ -37,6 +37,11 @@ void end_game();
 void init();
 void display();
 void drawBridge();
+void initiateSwap(int teamNumber, int jumpingPlayerIndex);
+void startJumping(int teamNumber, int playerNumber);
+void stopJumping(int teamNumber, int playerNumber);
+void startPulling(int teamNumber, int playerNumber);
+void stopPulling(int teamNumber, int playerNumber, const char *content, int score);
 void drawTree(float x, float y);
 void drawEnergyPlayer(float energy, float x, float y, int playerNumber);
 void drawScore();
@@ -45,6 +50,7 @@ void drawReferees(float x, float y, float r, float g, float b);
 void drawRope(Player *jumper, Player *left, Player *right);
 void drawRefereeWithFlag(float x, float y, float waveAngle);
 void timer(int value);
+void timer2(int value);
 
 
 
@@ -66,8 +72,7 @@ int main(int argc, char **argv) {
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1920, 1080);
     glutCreateWindow("Team Bungee Jump Game with Referee and Score");
-    init();
-    glutDisplayFunc(display);
+
 
 
     if (argc < 2) {
@@ -128,7 +133,10 @@ int main(int argc, char **argv) {
         printf("Referee: Sent start signal to Team %d\n", i + 1);
     }
 
+    init();
+    glutDisplayFunc(display);
     glutTimerFunc(1, timer, 0);
+    glutTimerFunc(1, timer2, 0);            // Repeat every 16ms (~60 FPS)
     glutMainLoop();
 
 
@@ -136,24 +144,19 @@ int main(int argc, char **argv) {
 }
 
 void timer(int value){
-    printf("***********************************\n");
-    int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
 
-    if(bytes_read == -1){
-        perror("Failed to read from player");
-        exit(EXIT_FAILURE);
-    }
-
-    int num_messages = bytes_read / sizeof(Message);
-    printf("Referee: Received %d messages\n", num_messages);
     for (int i = 0; i<num_messages; i++){
         if (message_buffer[i].type == JUMP_START_ID) {
+            startJumping(message_buffer[i].team_id, message_buffer[i].player_id);
             printf("Team %d --> Player %d is starting to jump\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
         } else if (message_buffer[i].type == PULL_START_ID) {
+            startPulling(message_buffer[i].team_id, message_buffer[i].player_id);
             printf("Team %d --> Player %d is starting to pull\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
         } else if (message_buffer[i].type == JUMP_END_ID) {
+            stopJumping(message_buffer[i].team_id, message_buffer[i].player_id);
             printf("Team %d --> Player %d has finished jumping\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
         } else if (message_buffer[i].type == PULL_END_ID) {
+            stopPulling(message_buffer[i].team_id, message_buffer[i].player_id, message_buffer[i].content, teams[message_buffer[i].team_id].score);
             teams[message_buffer[i].team_id].score += (int) (0.7 * (game_config.max_score * (game_config.stabilization_time_min/1000.0) / atof(message_buffer[i].content)));
             printf("Team %d --> Player %d has finished pulling with time %s with score %d\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1,message_buffer[i].content,teams[message_buffer[i].team_id].score);
             if (teams[message_buffer[i].team_id].score >= game_config.max_score) {
@@ -164,10 +167,31 @@ void timer(int value){
         } else if (message_buffer[i].type == TEAM_STOP) {
             printf("Team %d has stopped\n", message_buffer[i].team_id + 1);
         }
+
+        if (i == num_messages - 1) {
+            num_messages = 0;
+        }
     }
 
     glutPostRedisplay();                                      // Trigger a display update
-    glutTimerFunc(16, timer, 0);            // Repeat every 16ms (~60 FPS)
+    glutTimerFunc(1, timer, 0);            // Repeat every 16ms (~60 FPS)
+}
+
+void timer2(int value){
+
+    if (num_messages == 0) {
+        int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
+
+        if(bytes_read == -1){
+            perror("Failed to read from player");
+            exit(EXIT_FAILURE);
+        }
+
+        num_messages = bytes_read / sizeof(Message);
+        printf("Referee: Received %d messages\n", num_messages);
+    }
+
+    glutTimerFunc(2000, timer2, 0);            // Repeat every 16ms (~60 FPS)
 }
 
 
@@ -240,14 +264,6 @@ void display(){
         }
     }
 
-    // Draw the ropes if a player is jumping
-    Player *jumper = &teamsInterface[currentTeam][currentPlayer];
-    Player *left = &teamsInterface[currentTeam][(currentPlayer + 1) % 3];
-    Player *right = &teamsInterface[currentTeam][(currentPlayer + 2) % 3];
-    if (jumper->isJumping || left->isPulling || right->isPulling)
-    {
-        drawRope(jumper, left, right);
-    }
 
     // Draw trees at the bottom of the scene
     for (float x = -1.0f; x <= 1.0f; x += 1)
@@ -492,6 +508,117 @@ void drawScore()
         for (char *c = scoreStr; *c != '\0'; c++)
         {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+        }
+    }
+}
+
+
+
+void initiateSwap(int teamNumber, int jumpingPlayerIndex)
+{
+    Player *middlePlayer = &teamsInterface[teamNumber][1]; // Middle player at index 1
+    Player *jumpingPlayer = &teamsInterface[teamNumber][jumpingPlayerIndex];
+
+    middlePlayer->isMoving = 1;
+    middlePlayer->targetX = jumpingPlayer->x;
+
+    jumpingPlayer->isMoving = 1;
+    jumpingPlayer->targetX = middlePlayer->x; // Middle position
+
+    jumpingPlayer->isJumping = 0;
+}
+
+void startJumping(int teamNumber, int playerNumber)
+{
+    if (playerNumber != 1)
+    {
+        initiateSwap(teamNumber, playerNumber);
+    }
+    else
+    {
+        Player *current = &teamsInterface[teamNumber][playerNumber];
+        current->isJumping = 1;
+        current->velocity = 0.03f;
+    }
+}
+
+void stopJumping(int teamNumber, int playerNumber)
+{
+    Player *jumper = &teamsInterface[teamNumber][playerNumber];
+
+    jumper->isJumping = 0;
+    jumper->jumpHeight = -0.6f;
+    jumper->velocity = 0.0f;
+}
+
+void startPulling(int teamNumber, int playerNumber)
+{
+    Player *left = &teamsInterface[teamNumber][(playerNumber + 1) % 3];
+    Player *right = &teamsInterface[teamNumber][(playerNumber + 2) % 3];
+
+    left->isPulling = 1;
+    right->isPulling = 1;
+}
+
+void stopPulling(int teamNumber, int playerNumber, const char *content, int score)
+{
+    Player *jumper = &teamsInterface[teamNumber][playerNumber];
+    Player *left = &teamsInterface[teamNumber][(playerNumber + 1) % 3];
+    Player *right = &teamsInterface[teamNumber][(playerNumber + 2) % 3];
+
+    left->isPulling = 0;
+    right->isPulling = 0;
+    jumper->isPulling = 0;
+
+    left->jumpHeight = 0.0f;
+    right->jumpHeight = 0.0f;
+    jumper->jumpHeight = 0.0f;
+
+    left->energy = fmin(1.0f, left->energy + 0.002f);
+    right->energy = fmin(1.0f, right->energy + 0.002f);
+
+    left->x = jumper->x + 0.15f;
+    right->x = jumper->x - 0.15f;
+}
+
+void updateJump(int teamNumber, int playerNumber)
+{
+    Player *jumper = &teamsInterface[teamNumber][playerNumber];
+    Player *left = &teamsInterface[teamNumber][(playerNumber + 1) % 3];
+    Player *right = &teamsInterface[teamNumber][(playerNumber + 2) % 3];
+
+    if (jumper->isJumping)
+    {
+        jumper->velocity += gravity;
+        jumper->jumpHeight += jumper->velocity;
+        jumper->energy -= 0.001f; // Slight decrease in energy while jumping
+
+        if (jumper->jumpHeight < -0.6f)
+        {
+            jumper->velocity = -jumper->velocity * springFactor;
+            jumper->jumpHeight = -0.6f;
+
+            if (fabs(jumper->velocity) < 0.005f)
+            {
+                stopJumping(teamNumber, playerNumber);
+                startPulling(teamNumber, playerNumber);
+                teamsInterface[teamNumber][0].score++;
+            }
+        }
+
+        left->x = jumper->x + sideXOffset;
+        right->x = jumper->x - sideXOffset;
+    }
+
+    if (!jumper->isJumping && (left->isPulling || right->isPulling))
+    {
+        if (jumper->jumpHeight < 0.0f)
+        {
+            jumper->jumpHeight = fmin(0.0f, jumper->jumpHeight + pullUpSpeed);
+        }
+        else
+        {
+            stopPulling(teamNumber, playerNumber, "0", 0);
         }
     }
 }
