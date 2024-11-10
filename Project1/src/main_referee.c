@@ -16,6 +16,7 @@
 typedef struct{
     float x, y;       // Position of the player
     int isJumping;    // Flag to check if player is jumping
+    int isStuck;      // Flag to check if player is stuck
     float jumpHeight; // Current vertical offset (for bungee effect)
     float velocity;   // Velocity for bungee effect
     int isPulling;    // Flag for players who are pulling the rope
@@ -69,7 +70,7 @@ void drawHumanPlayer(float x, float y, float r, float g, float b, int playerNumb
 void drawReferees(float x, float y, float r, float g, float b);
 void drawRope(Player *jumper, Player *left, Player *right);
 void drawRefereeWithFlag(float x, float y, float waveAngle);
-void timer(int value);
+void timer();
 
 
 int main(int argc, char **argv) {
@@ -145,14 +146,13 @@ int main(int argc, char **argv) {
     init();
     glutDisplayFunc(display);
     glutIdleFunc(timer);
-//    glutTimerFunc(1, timer2, 0);            // Repeat every 16ms (~60 FPS)
     glutMainLoop();
 
 
     return EXIT_SUCCESS;
 }
 
-void timer(int value){
+void timer(){
 
     int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
 
@@ -259,24 +259,13 @@ void display() {
                 if (jumper->jumpHeight < -0.6f) {
                     jumper->velocity = -jumper->velocity * springFactor;
                     jumper->jumpHeight = -0.6f;
-
-                    if (fabs(jumper->velocity) < 0.005f) {
-                        stopJumping(t, p);
-                        startPulling(t);
-                        teamsInterface[t][0].score++;
-                    }
                 }
 
                 left->x = jumper->x + sideXOffset;
                 right->x = jumper->x - sideXOffset;
-            }
 
-            if (!jumper->isJumping && (left->isPulling || right->isPulling)) {
-                if (jumper->jumpHeight < 0.0f) {
-                    jumper->jumpHeight = fmin(0.0f, jumper->jumpHeight + pullUpSpeed);
-                } else {
-                    stopPulling(t);
-                }
+            }else if ( jumper->isStuck && (left->isPulling || right->isPulling)){
+                jumper->jumpHeight = fmin(0.0f, jumper->jumpHeight + pullUpSpeed);
             }
 
             float playerX = jumper->x;
@@ -566,6 +555,7 @@ void stopJumping(int teamIndex, int playerIndex){
     int jumpingPlayerIndex = jumping_player_is[teamIndex];
     Player *jumper = &teamsInterface[teamIndex][jumpingPlayerIndex];
     jumper->isJumping = 0;
+    jumper->isStuck = 1;
     jumper->jumpHeight = -0.6f;
     jumper->velocity = 0.0f;
 }
