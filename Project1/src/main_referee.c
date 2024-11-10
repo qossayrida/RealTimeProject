@@ -108,6 +108,8 @@ int main(int argc, char **argv) {
                 }
             } else if (message_buffer[i].type == ENERGY_ID) {
                 printf("Team %d --> Player %d has %s energy\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1, message_buffer[i].content);
+            } else if (message_buffer[i].type == TEAM_STOP) {
+                printf("Team %d has stopped\n", message_buffer[i].team_id + 1);
             }
         }
 

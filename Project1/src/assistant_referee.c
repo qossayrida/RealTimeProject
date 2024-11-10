@@ -111,32 +111,6 @@ int main(int argc, char *argv[]) {
         }
 
         int num_messages = bytes_read / sizeof(Message);
-        char print_buffer[1024];
-        int offset = 0;
-
-        offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "\n\n{ ");
-        offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "Team %d\n", team_data.team_id + 1);
-        offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "NumberOf command %d\n", num_messages);
-
-        for (int i = 0; i < num_messages; i++) {
-            if (message_buffer[i].type == PULL_START_ID) {
-                offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "PULL_START_ID\n");
-            } else if (message_buffer[i].type == JUMP_START_ID) {
-                offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "JUMP_START_ID\n");
-            } else if (message_buffer[i].type == JUMP_END_ID) {
-                offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "JUMP_END_ID\n");
-            } else if (message_buffer[i].type == PULL_END_ID) {
-                offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "PULL_END_ID\n");
-            } else if (message_buffer[i].type == ENERGY_ID) {
-                offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "ENERGY_ID %s\n", message_buffer[i].content);
-            }
-        }
-
-        offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "}\n\n");
-
-        printf("%s", print_buffer);
-        fflush(stdout);
-
         for(int i = 0; i < num_messages; i++) {
 
             if (message_buffer[i].type == PULL_START_ID){
@@ -228,15 +202,16 @@ void team_stop(){
         if (team_data.deceased[i] != 1)
             kill(team_data.players[i], SIGTERM);
 
-    printf("Team %d: ***** All players are deceased. Team is eliminated  *****\n", team_data.team_id + 1);
-    fflush(stdout);
+    Message msg;
+    msg.type = TEAM_STOP;
+    msg.team_id = team_data.team_id;
+    if(write(fifo_to_referee, &msg, sizeof(msg))== -1)
+        perror("Failed to write team data to referee");
     exit(EXIT_SUCCESS);
 }
 
 
 void handle_start_signal(int signum) {
-    if (signum == SIGUSR1) {
-        printf("Assistant Referee for Team %d: Received signal from referee\n", team_data.team_id + 1);
+    if (signum == SIGUSR1)
         go_to_jump();
-    }
 }

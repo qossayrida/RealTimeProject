@@ -8,6 +8,7 @@
 #define JUMP_END_ID 3
 #define PULL_END_ID 4
 #define ENERGY_ID 5
+#define TEAM_STOP 6
 
 typedef struct {
     int max_score;
