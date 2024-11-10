@@ -12,9 +12,6 @@
 #include <math.h>
 #include "config.h"
 
-
-
-
 Team teams[3];
 pid_t assistant_referees[3];
 Config game_config;
@@ -53,10 +50,6 @@ int main(int argc, char **argv) {
             char id_str[10];
             snprintf(name, sizeof(name), "bungee_assistant_referee_%d", i+1);
             snprintf(id_str, sizeof(id_str), "%d", i);
-
-//            printf("-->%d\n",i);
-//            fflush(stdout);
-
             execlp("./bin/assistant_referee", name, id_str,fifo_name_str, argv[1], NULL);
             perror("execlp failed for assistant_referee");
             exit(EXIT_FAILURE);

@@ -244,5 +244,3 @@ int generate_random_energy() {
     return (rand() % (max_energy - min_energy + 1)) + min_energy;
 }
 
-
- 

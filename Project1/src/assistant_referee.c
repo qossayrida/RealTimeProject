@@ -191,8 +191,11 @@ int main(int argc, char *argv[]) {
 }
 
 void go_to_jump(){
-    if( team_data.deceased[team_data.turn] == 1)
+    if( team_data.deceased[team_data.turn] == 1){
+        printf("Team %d: Player %d is deceased. Skipping turn to player %d\n", team_data.team_id + 1, team_data.turn, (team_data.turn + 1) % 3);
         team_data.turn = (team_data.turn + 1) % 3;
+    }
+
 
     pid_t current_player = players[team_data.turn];
 
