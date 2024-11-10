@@ -5,13 +5,15 @@
 #include <sys/wait.h>
 #include <signal.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include <time.h>
 #include <GL/glut.h>
 #include <math.h>
 #include "config.h"
-#include "assistant_referee.h"
-#include "player.h"
-#include <sys/prctl.h>
+
+
+
 
 Team teams[3];
 pid_t assistant_referees[3];
@@ -37,30 +39,36 @@ int main(int argc, char **argv) {
     printf("Referee: Maximum time set to %d seconds\n", game_config.max_time);
     alarm(game_config.max_time);
 
-    // Create a single pipe for communication with all assistant referees
-    int pipe_fd[2];
-    if (pipe(pipe_fd) == -1) {
-        perror("Pipe creation failed");
-        return EXIT_FAILURE;
+    char fifo_name_str[50];
+    sprintf(fifo_name_str, "/tmp/bungee_public");
+    if ( mknod(fifo_name_str, S_IFIFO | 0666, 0) < 0 ) {
+        perror(fifo_name_str);
+        exit(1);
     }
 
     // Create assistant referee processes
     for (int i = 0; i < 3; i++) {
         if ((assistant_referees[i] = fork()) == 0) {
-           char name [50];
+            char name [50];
+            char id_str[10];
             snprintf(name, sizeof(name), "bungee_assistant_referee_%d", i+1);
-            prctl(PR_SET_NAME, (unsigned long) name, 0, 0, 0);
+            snprintf(id_str, sizeof(id_str), "%d", i);
 
-            assistant_referee_main(i, &game_config, pipe_fd);
-            exit(EXIT_SUCCESS);
+//            printf("-->%d\n",i);
+//            fflush(stdout);
+
+            execlp("./bin/assistant_referee", name, id_str,fifo_name_str, argv[1], NULL);
+            perror("execlp failed for assistant_referee");
+            exit(EXIT_FAILURE);
         }
     }
-    close(pipe_fd[1]);  // Close write end in parent
+
+    int fifo_fd = open(fifo_name_str, O_RDONLY);
 
     // Receive team data from each assistant referee
     for (int i = 0; i < 3; i++){
         Team team_data;
-        if (read(pipe_fd[0], &team_data, sizeof(Team)) == -1) {
+        if (read(fifo_fd, &team_data, sizeof(Team)) == -1) {
             perror("Failed to read from assistant referee");
             return EXIT_FAILURE;
         }
@@ -78,7 +86,7 @@ int main(int argc, char **argv) {
 
     while (1){
 
-        int bytes_read = read(pipe_fd[0], message_buffer, sizeof(message_buffer));
+        int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
 
         if(bytes_read == -1){
             perror("Failed to read from player");
@@ -110,7 +118,7 @@ int main(int argc, char **argv) {
 void handle_alarm(int signum) {
     printf("Referee: Maximum time reached. Ending game.\n");
 
-    system("rm /tmp/team*_fifo*");
+    system("rm /tmp/bungee_*");
     printf("Referee: Removed all FIFOs\n");
 
     for (int i = 0; i < 3; i++) {

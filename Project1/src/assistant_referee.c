@@ -7,71 +7,80 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "player.h"
 #include "config.h"
 
 Team team_data;
 pid_t players[3];
-int pipe_player[2];  // Pipe to communicate with players
-char fifo_name[2][50];
+char fifo_name[3][50];
 int fifo_to_highest,fifo_to_lowest;
-int *global_pipe_fd;
 struct timespec start_time, end_time;
 char buffer[3][50];
-
-
+int fifo_to_referee;
 void handle_start_signal(int signum);
 void go_to_jump();
 void go_to_pull();
 void team_stop();
 
-void assistant_referee_main(int id, Config *config, int *pipe_fd) {
-    global_pipe_fd = pipe_fd;
-    team_data.team_id = id;
-    team_data.turn = 0;
-    memset(team_data.deceased, 0, sizeof(team_data.deceased));
-
-    signal(SIGUSR1, handle_start_signal);
-//    signal(SIGKILL, handle_term_signal);
-
-
-    // Create a pipe for communication with the player processes
-    if (pipe(pipe_player) == -1) {
-        perror("Pipe creation failed");
-        exit(EXIT_FAILURE);
+//int id, Config *config, int *pipe_fd
+int main(int argc, char *argv[]) {
+    if (argc < 4) {
+        fprintf(stderr, "Usage: %s <id> <fifo_name> <config_file>\n", argv[0]);
+        return EXIT_FAILURE;
     }
 
-    // Create a FIFO (named pipe) for inter-player communication
 
-    sprintf(fifo_name[0], "/tmp/team%d_fifo_for_highest_player",  team_data.team_id + 1);
+    team_data.team_id = atoi(argv[1]);
+    fifo_to_referee = open(argv[2], O_WRONLY);
+
+    team_data.turn = 0;
+    memset(team_data.deceased, 0, sizeof(team_data.deceased));
+    signal(SIGUSR1, handle_start_signal);
+
+
+    // Create a FIFO (named pipe) for inter-player communication
+    sprintf(fifo_name[0], "/tmp/bungee_team%d_fifo_for_highest",  team_data.team_id + 1);
     if ( mknod(fifo_name[0], S_IFIFO | 0666, 0) < 0 ) {
         perror(fifo_name[0]);
         exit(1);
     }
 
-    sprintf(fifo_name[1], "/tmp/team%d_fifo_for_lowest_player",  team_data.team_id + 1);
+    sprintf(fifo_name[1], "/tmp/bungee_team%d_for_lowest",  team_data.team_id + 1);
     if ( mknod(fifo_name[1], S_IFIFO | 0666, 0) < 0 ) {
         perror(fifo_name[1]);
         exit(1);
     }
 
+    sprintf(fifo_name[2], "/tmp/bungee_team%d",  team_data.team_id + 1);
+    if ( mknod(fifo_name[2], S_IFIFO | 0666, 0) < 0 ) {
+        perror(fifo_name[2]);
+        exit(1);
+    }
 
     // Create player processes
     for (int i = 0; i < 3; i++) {
         if ((players[i] = fork()) == 0) {
-//            char name [50];
-//            snprintf(name, sizeof(name), "bungee_team%d_player%d", id+1,i+1);
+            char name [50];
+            snprintf(name, sizeof(name), "bungee_team%d_player%d", team_data.team_id+1,i+1);
 
-            fifo_to_highest = open(fifo_name[0], O_RDWR);
-            fifo_to_lowest = open(fifo_name[1], O_RDWR);
-            player_main(id, i, config, pipe_player, fifo_to_highest,fifo_to_lowest);  // Pass read end and FIFO
-            exit(EXIT_SUCCESS);
+
+            char id_player_str[10],id_team_str[10];
+            snprintf(id_player_str, sizeof(id_player_str), "%d", i);
+            snprintf(id_team_str, sizeof(id_team_str), "%d", team_data.team_id);
+
+
+            // Pass both the pipe file descriptors and FIFO names
+            execlp("./bin/player", name, id_player_str,id_team_str,fifo_name[0], fifo_name[1],fifo_name[2],argv[3], NULL);
+
+            perror("execlp failed for player");
+            exit(EXIT_FAILURE);
         }
         team_data.players[i] = players[i];
     }
 
+    int fifo_fd = open(fifo_name[2], O_RDONLY);
+
     // Send team data to the main referee
-    if (write(pipe_fd[1], &team_data, sizeof(Team)) == -1) {
+    if (write(fifo_to_referee, &team_data, sizeof(Team)) == -1) {
         perror("Failed to write team data to referee");
     }
 
@@ -82,7 +91,7 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
 
     while (1){
 
-        int bytes_read = read(pipe_player[0], message_buffer, sizeof(message_buffer));
+        int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
 
         if(bytes_read == -1){
             perror("Failed to read from player");
@@ -90,6 +99,8 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
         }
 
         int num_messages = bytes_read / sizeof(Message);
+        printf("%d\n",num_messages);
+        fflush(stdout);
         for(int i = 0; i < num_messages; i++) {
 
             if (message_buffer[i].type == JUMP_END_ID) {
@@ -100,13 +111,13 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
 
                 memset(message_buffer[i].content, '\0', sizeof(message_buffer[i].content));
                 snprintf(message_buffer[i].content, sizeof(message_buffer[i].content), "%.2f",jump_interval);
-                if(write(pipe_fd[1], &message_buffer[i], sizeof(message_buffer[i]))== -1)
+                if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 
             } else if (message_buffer[i].type == PULL_END_ID) {
                 go_to_jump();
 
-                if(write(pipe_fd[1], &message_buffer[i], sizeof(message_buffer[i]))== -1)
+                if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 
             } else if (message_buffer[i].type == ENERGY_ID) {
@@ -126,7 +137,7 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
                     kill(players[(message_buffer[i].player_id + 2) % 3], SIGQUIT);
                 }
 
-                if(write(pipe_fd[1], &message_buffer[i], sizeof(message_buffer[i]))== -1)
+                if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
             }
         }

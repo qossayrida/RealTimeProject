@@ -5,37 +5,50 @@
 #include <string.h>
 #include <signal.h>
 #include <fcntl.h>
-#include "player.h"
+#include <sys/stat.h>
 #include "config.h"
 
-int global_team_id,global_player_id;
+int team_id,player_id;
 int global_fifo_to_highest,global_fifo_to_lowest;
-int *global_pipe_read_fd;
+int fifo_to_assistant_referee;
 int is_turn = 0;  // Flag to check if the player is allowed to jump
 int energy, is_will_pull_alone=0;
 int is_second_player_leader = 0;
 char message_fifo[2][50];
 char result[50];
 
-Config *global_config;
+Config config;
 
 void handle_player_SIGUSR1();
 void handle_player_SIGUSR2();
 void handle_pull_alone();
-void jump(int team_id, int player_id, Config *config);
-void pull_leader(Config *config);
-void pull_non_leader(Config *config);
+void jump();
+void pull_leader();
+void pull_non_leader();
 void pull_alone();
 int generate_random_energy();
 void send_message(int type, char *content);
 
-void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, int fifo_to_highest, int fifo_to_lowest){
-    global_team_id = team_id;
-    global_player_id = player_id;
-    global_pipe_read_fd = pipe_read_fd;
-    global_fifo_to_highest = fifo_to_highest;
-    global_fifo_to_lowest = fifo_to_lowest;
-    global_config = config;
+int main(int argc, char *argv[]) {
+    if (argc < 7) {
+        fprintf(stderr, "Usage: %s <id_player> <id_team> <fifo_name> <fifo_highest> <fifo_lowest> <config_file>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+
+    player_id = atoi(argv[1]);
+    team_id = atoi(argv[2]);
+    global_fifo_to_highest =  open(argv[3], O_RDWR);
+    global_fifo_to_lowest =  open(argv[4], O_RDWR);
+    fifo_to_assistant_referee = open(argv[5], O_WRONLY);
+
+
+
+    fflush(stdout);
+    if (load_config(argv[6], &config) != 0) {
+        fprintf(stderr, "Failed to load config file.\n");
+        return EXIT_FAILURE;
+    }
 
     srand(time(NULL) ^ (getpid() << 16));
 
@@ -53,11 +66,12 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
 
         if (time(NULL) - previas_time > 5) {
             previas_time = time(NULL);
-            energy = (energy != 0) ? (energy - 1) : 0;
-
-            memset(result, '\0', sizeof(result));
-            snprintf(result, sizeof(result), "%d",energy);
-            send_message(ENERGY_ID,result);
+            if (energy != 0) {
+                energy--;
+                memset(result, '\0', sizeof(result));
+                snprintf(result, sizeof(result), "%d", energy);
+                send_message(ENERGY_ID, result);
+            }
         }
 
         // Wait until it’s this player’s turn (indicated by `is_turn` flag)
@@ -67,31 +81,31 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
 
         if (is_turn == 2) {
             if (is_second_player_leader == 1){
-                printf("Team %d: LEADER is PLAYER 2\n", team_id + 1);
+                printf("Team %d: LEADER is PLAYER 2\n",team_id + 1);
                 fflush(stdout);
-                pull_leader(config);
+                pull_leader();
                 is_second_player_leader = 0;
             }else if (player_id==2){
-                printf("Team %d: LEADER is PLAYER 3\n", team_id + 1);
+                printf("Team %d: LEADER is PLAYER 3\n",team_id + 1);
                 fflush(stdout);
-                pull_leader(config);
+                pull_leader();
             }else{
-                pull_non_leader(config);
+                pull_non_leader();
             }
         } else if (is_turn == 3) {
-            pull_alone(config);
+            pull_alone();
         }
     }
 }
 
 void handle_player_SIGUSR1() {
-    printf("Team %d: Received signal to jump from assistant referee\n", global_team_id + 1);
+    printf("Team %d: Received signal to jump from assistant referee\n", team_id + 1);
     fflush(stdout);
-    jump(global_team_id, global_player_id, global_config);
+    jump();
 }
 
 void handle_player_SIGUSR2() {
-    printf("Team %d: Received signal to pull from another player\n", global_team_id + 1);
+    printf("Team %d: Received signal to pull from another player\n", team_id + 1);
     fflush(stdout);
     if(!is_will_pull_alone) {
         is_turn = 2;
@@ -100,15 +114,15 @@ void handle_player_SIGUSR2() {
     }
 }
 
-void jump(int team_id, int player_id, Config *config) {
+void jump() {
     if(player_id == 1){
         is_second_player_leader = 1;
     }
 
     int stabilization_time;
 
-    stabilization_time = (rand() % (config->stabilization_time_max - config->stabilization_time_min))
-                         + config->stabilization_time_min;
+    stabilization_time = (rand() % (config.stabilization_time_max - config.stabilization_time_min))
+                         + config.stabilization_time_min;
     printf("Team %d: Player %d jumping... Stabilization time: %d\n", team_id + 1, player_id + 1, stabilization_time);
     fflush(stdout);
     usleep(stabilization_time * 1000);
@@ -123,17 +137,17 @@ void jump(int team_id, int player_id, Config *config) {
 }
 
 
-void pull_leader(Config *config) {
+void pull_leader() {
     int received_pull_time;
 
     // Read the pull time from the non-leader
     if (read(global_fifo_to_highest, message_fifo[0], sizeof(message_fifo[0])) > 0) {
         if (sscanf(message_fifo[0], "PULL_TIME %d", &received_pull_time) == 1) {
-            printf("Team %d: Leader Player %d received pull time: %d\n", global_team_id + 1, global_player_id + 1, received_pull_time);
+            printf("Team %d: Leader Player %d received pull time: %d\n", team_id + 1, player_id + 1, received_pull_time);
 
             // Calculate adjusted pull time based on an equation
             int adjusted_pull_time = received_pull_time + (1);  // Change it to the equation Ya MOHAMED FREED
-            printf("Team %d: Leader Player %d calculated new pull time: %d\n", global_team_id + 1, global_player_id + 1, adjusted_pull_time);
+            printf("Team %d: Leader Player %d calculated new pull time: %d\n", team_id + 1,player_id + 1, adjusted_pull_time);
 
             // Send the adjusted pull time back to the non-leader
             snprintf(message_fifo[1], sizeof(message_fifo[1]), "%d", adjusted_pull_time);
@@ -154,8 +168,8 @@ void pull_leader(Config *config) {
     send_message(PULL_END_ID, "");
 }
 
-void pull_non_leader(Config *config) {
-    int pull_time = (rand() % (config->pull_time_max - config->pull_time_min)) + config->pull_time_min;
+void pull_non_leader() {
+    int pull_time = (rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min;
 
     // Send pull time to FIFO for leader to read
     snprintf(message_fifo[0], sizeof(message_fifo[0]), "PULL_TIME %d", pull_time);
@@ -166,7 +180,7 @@ void pull_non_leader(Config *config) {
     // Wait to receive the adjusted pull time from the leader
     if (read(global_fifo_to_lowest, message_fifo[1], sizeof(message_fifo[1])) > 0) {
         int adjusted_pull_time = atoi(message_fifo[1]);
-        printf("Team %d: Player %d received adjusted pull time: %d\n", global_team_id + 1, global_player_id + 1, adjusted_pull_time);
+        printf("Team %d: Player %d received adjusted pull time: %d\n", team_id + 1, player_id + 1, adjusted_pull_time);
         usleep(adjusted_pull_time * 1000);
     }
 
@@ -178,8 +192,8 @@ void pull_non_leader(Config *config) {
 }
 
 
-void pull_alone(Config *config){
-    int pull_time = (rand() % (config->pull_time_max - config->pull_time_min)) + config->pull_time_min;
+void pull_alone(){
+    int pull_time = (rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min;
     usleep(pull_time * 1000);
 
     energy = (energy >= 10) ? (energy - 10) : 0;
@@ -196,10 +210,10 @@ void pull_alone(Config *config){
 void send_message(int type, char *content){
     Message msg;
     msg.type = type;
-    msg.player_id = global_player_id;
-    msg.team_id = global_team_id;
+    msg.player_id = player_id;
+    msg.team_id = team_id;
     snprintf(msg.content, sizeof(msg.content), "%s", content);
-    if(write(global_pipe_read_fd[1], &msg, sizeof(Message))== -1)
+    if(write(fifo_to_assistant_referee, &msg, sizeof(Message))== -1)
         perror("Failed to write team data to referee");
 }
 
@@ -212,18 +226,18 @@ void handle_pull_alone(){
 int generate_random_energy() {
     int min_energy, max_energy;
 
-    switch (global_team_id) {
+    switch (team_id) {
         case 0:  // Team A
-            min_energy = global_config->initial_energy_min[0];
-            max_energy = global_config->initial_energy_max[0];
+            min_energy = config.initial_energy_min[0];
+            max_energy = config.initial_energy_max[0];
             break;
         case 1:  // Team B
-            min_energy = global_config->initial_energy_min[1];
-            max_energy = global_config->initial_energy_max[1];
+            min_energy = config.initial_energy_min[1];
+            max_energy = config.initial_energy_max[1];
             break;
         case 2:  // Team C
-            min_energy = global_config->initial_energy_min[2];
-            max_energy = global_config->initial_energy_max[2];
+            min_energy = config.initial_energy_min[2];
+            max_energy = config.initial_energy_max[2];
             break;
         default:
             fprintf(stderr, "Invalid team ID\n");
