@@ -53,6 +53,9 @@ int main(int argc, char *argv[]) {
     srand(time(NULL) ^ (getpid() << 16));
 
     energy = generate_random_energy();  // Adjust based on team
+    memset(result, '\0', sizeof(result));
+    snprintf(result, sizeof(result), "%d", energy);
+    send_message(READY_TO_PLAY, result);
 
     // Set up signal handler for SIGUSR1
     signal(SIGUSR1, handle_player_SIGUSR1);
@@ -63,7 +66,6 @@ int main(int argc, char *argv[]) {
     time_t previas_time = time(NULL);
 
     while (1) {
-
         if (time(NULL) - previas_time > 5) {
             previas_time = time(NULL);
             if (energy != 0) {
@@ -81,12 +83,9 @@ int main(int argc, char *argv[]) {
 
         if (is_turn == 2) {
             if (is_second_player_leader == 1){
-                printf("Team %d: LEADER is PLAYER 2\n",team_id + 1);
-                fflush(stdout);
                 pull_leader();
                 is_second_player_leader = 0;
             }else if (player_id==2){
-                printf("Team %d: LEADER is PLAYER 3\n",team_id + 1);
                 fflush(stdout);
                 pull_leader();
             }else{
@@ -99,14 +98,10 @@ int main(int argc, char *argv[]) {
 }
 
 void handle_player_SIGUSR1() {
-    printf("Team %d: Received signal to jump from assistant referee\n", team_id + 1);
-    fflush(stdout);
     jump();
 }
 
 void handle_player_SIGUSR2() {
-    printf("Team %d: Received signal to pull from another player\n", team_id + 1);
-    fflush(stdout);
     if(!is_will_pull_alone) {
         is_turn = 2;
     } else {
@@ -115,16 +110,14 @@ void handle_player_SIGUSR2() {
 }
 
 void jump() {
+    send_message(JUMP_START_ID, "");
     if(player_id == 1){
         is_second_player_leader = 1;
     }
 
     int stabilization_time;
 
-    stabilization_time = (rand() % (config.stabilization_time_max - config.stabilization_time_min))
-                         + config.stabilization_time_min;
-    printf("Team %d: Player %d jumping... Stabilization time: %d\n", team_id + 1, player_id + 1, stabilization_time);
-    fflush(stdout);
+    stabilization_time = (rand() % (config.stabilization_time_max - config.stabilization_time_min))+config.stabilization_time_min;
     usleep(stabilization_time * 1000);
 
     // Decrease energy for jump and pull
@@ -138,16 +131,17 @@ void jump() {
 
 
 void pull_leader() {
+    send_message(PULL_START_ID, "");
     int received_pull_time;
 
     // Read the pull time from the non-leader
     if (read(global_fifo_to_highest, message_fifo[0], sizeof(message_fifo[0])) > 0) {
         if (sscanf(message_fifo[0], "PULL_TIME %d", &received_pull_time) == 1) {
-            printf("Team %d: Leader Player %d received pull time: %d\n", team_id + 1, player_id + 1, received_pull_time);
+//            printf("Team %d: Leader Player %d received pull time: %d\n", team_id + 1, player_id + 1, received_pull_time);
 
             // Calculate adjusted pull time based on an equation
             int adjusted_pull_time = received_pull_time + (1);  // Change it to the equation Ya MOHAMED FREED
-            printf("Team %d: Leader Player %d calculated new pull time: %d\n", team_id + 1,player_id + 1, adjusted_pull_time);
+//            printf("Team %d: Leader Player %d calculated new pull time: %d\n", team_id + 1,player_id + 1, adjusted_pull_time);
 
             // Send the adjusted pull time back to the non-leader
             snprintf(message_fifo[1], sizeof(message_fifo[1]), "%d", adjusted_pull_time);
@@ -180,7 +174,7 @@ void pull_non_leader() {
     // Wait to receive the adjusted pull time from the leader
     if (read(global_fifo_to_lowest, message_fifo[1], sizeof(message_fifo[1])) > 0) {
         int adjusted_pull_time = atoi(message_fifo[1]);
-        printf("Team %d: Player %d received adjusted pull time: %d\n", team_id + 1, player_id + 1, adjusted_pull_time);
+//        printf("Team %d: Player %d received adjusted pull time: %d\n", team_id + 1, player_id + 1, adjusted_pull_time);
         usleep(adjusted_pull_time * 1000);
     }
 
@@ -193,6 +187,7 @@ void pull_non_leader() {
 
 
 void pull_alone(){
+    send_message(PULL_START_ID, "");
     int pull_time = (rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min;
     usleep(pull_time * 1000);
 

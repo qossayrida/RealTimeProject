@@ -77,7 +77,17 @@ int main(int argc, char *argv[]) {
         team_data.players[i] = players[i];
     }
 
+
     int fifo_fd = open(fifo_name[2], O_RDONLY);
+
+    for (int i = 0; i < 3; i++) {
+        Message msg;
+        if (read(fifo_fd, &msg, sizeof(Message)) > 0) {
+            if (msg.type == READY_TO_PLAY) {
+                team_data.initial_energy[i] = atoi(msg.content);
+            }
+        }
+    }
 
     // Send team data to the main referee
     if (write(fifo_to_referee, &team_data, sizeof(Team)) == -1) {
@@ -86,6 +96,8 @@ int main(int argc, char *argv[]) {
 
     // Wait for signals indefinitely
     pause();
+
+
 
     Message message_buffer[10];
 
@@ -99,11 +111,44 @@ int main(int argc, char *argv[]) {
         }
 
         int num_messages = bytes_read / sizeof(Message);
-        printf("%d\n",num_messages);
+        char print_buffer[1024];
+        int offset = 0;
+
+        offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "\n\n{ ");
+        offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "Team %d\n", team_data.team_id + 1);
+        offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "NumberOf command %d\n", num_messages);
+
+        for (int i = 0; i < num_messages; i++) {
+            if (message_buffer[i].type == PULL_START_ID) {
+                offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "PULL_START_ID\n");
+            } else if (message_buffer[i].type == JUMP_START_ID) {
+                offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "JUMP_START_ID\n");
+            } else if (message_buffer[i].type == JUMP_END_ID) {
+                offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "JUMP_END_ID\n");
+            } else if (message_buffer[i].type == PULL_END_ID) {
+                offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "PULL_END_ID\n");
+            } else if (message_buffer[i].type == ENERGY_ID) {
+                offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "ENERGY_ID %s\n", message_buffer[i].content);
+            }
+        }
+
+        offset += snprintf(print_buffer + offset, sizeof(print_buffer) - offset, "}\n\n");
+
+        printf("%s", print_buffer);
         fflush(stdout);
+
         for(int i = 0; i < num_messages; i++) {
 
-            if (message_buffer[i].type == JUMP_END_ID) {
+            if (message_buffer[i].type == PULL_START_ID){
+                if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
+                    perror("Failed to write team data to referee");
+
+            }else if (message_buffer[i].type == JUMP_START_ID) {
+
+                if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
+                    perror("Failed to write team data to referee");
+
+            } else if (message_buffer[i].type == JUMP_END_ID) {
                 clock_gettime(CLOCK_MONOTONIC, &end_time);
                 double jump_interval = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
 

@@ -9,9 +9,9 @@ initial_energy_max_a=50
 initial_energy_max_b=50
 initial_energy_max_c=50
 
-initial_energy_min_a=30
-initial_energy_min_b=30
-initial_energy_min_c=30
+initial_energy_min_a=50
+initial_energy_min_b=50
+initial_energy_min_c=50
 
 # Timing ranges (in milliseconds)
 stabilization_time_min=3000    # Minimum time for stabilization
