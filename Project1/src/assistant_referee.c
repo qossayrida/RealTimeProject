@@ -15,8 +15,10 @@ pid_t players[3];
 int pipe_player[2];  // Pipe to communicate with players
 char fifo_name[2][50];
 int fifo_to_highest,fifo_to_lowest;
+int *global_pipe_fd;
 struct timespec start_time, end_time;
 char buffer[3][50];
+
 
 void handle_start_signal(int signum);
 void go_to_jump();
@@ -24,6 +26,7 @@ void go_to_pull();
 void team_stop();
 
 void assistant_referee_main(int id, Config *config, int *pipe_fd) {
+    global_pipe_fd = pipe_fd;
     team_data.team_id = id;
     team_data.turn = 0;
     memset(team_data.deceased, 0, sizeof(team_data.deceased));
@@ -134,8 +137,6 @@ void assistant_referee_main(int id, Config *config, int *pipe_fd) {
 void go_to_jump(){
     if( team_data.deceased[team_data.turn] == 1)
         team_data.turn = (team_data.turn + 1) % 3;
-
-    printf("Team %d: Sending signal to Player %d to jump\n", team_data.team_id + 1, team_data.turn + 1);
 
     pid_t current_player = players[team_data.turn];
 

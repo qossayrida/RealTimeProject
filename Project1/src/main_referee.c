@@ -88,7 +88,12 @@ int main(int argc, char **argv) {
         int num_messages = bytes_read / sizeof(Message);
 
         for(int i = 0; i < num_messages; i++) {
-            if (message_buffer[i].type == JUMP_END_ID) {
+
+            if (message_buffer[i].type == JUMP_START_ID) {
+                printf("Team %d --> Player %d is starting to jump\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
+            } else if (message_buffer[i].type == PULL_START_ID) {
+                printf("Team %d --> Player %d is starting to pull\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
+            } else if (message_buffer[i].type == JUMP_END_ID) {
                 printf("Team %d --> Player %d has finished jumping with time %s\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1,message_buffer[i].content);
             } else if (message_buffer[i].type == PULL_END_ID) {
                 printf("Team %d --> Player %d has finished pulling\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);

@@ -31,7 +31,10 @@ $(OBJ_DIR):
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
+# Run the program with a specified config file
+run: all
+	$(TARGET) config.txt
+
 # Clean up build files
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)
-

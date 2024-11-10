@@ -26,6 +26,7 @@ void jump(int team_id, int player_id, Config *config);
 void pull_leader(Config *config);
 void pull_non_leader(Config *config);
 void pull_alone();
+int generate_random_energy();
 void send_message(int type, char *content);
 
 void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, int fifo_to_highest, int fifo_to_lowest){
@@ -38,7 +39,7 @@ void player_main(int team_id, int player_id, Config *config, int *pipe_read_fd, 
 
     srand(time(NULL) ^ (getpid() << 16));
 
-    energy = config->initial_energy_team_a;  // Adjust based on team
+    energy = generate_random_energy();  // Adjust based on team
 
     // Set up signal handler for SIGUSR1
     signal(SIGUSR1, handle_player_SIGUSR1);
@@ -205,4 +206,29 @@ void send_message(int type, char *content){
 
 void handle_pull_alone(){
     is_will_pull_alone = 1;
+}
+
+
+int generate_random_energy() {
+    int min_energy, max_energy;
+
+    switch (global_team_id) {
+        case 0:  // Team A
+            min_energy = global_config->initial_energy_min[0];
+            max_energy = global_config->initial_energy_max[0];
+            break;
+        case 1:  // Team B
+            min_energy = global_config->initial_energy_min[1];
+            max_energy = global_config->initial_energy_max[1];
+            break;
+        case 2:  // Team C
+            min_energy = global_config->initial_energy_min[2];
+            max_energy = global_config->initial_energy_max[2];
+            break;
+        default:
+            fprintf(stderr, "Invalid team ID\n");
+            return -1;
+    }
+
+    return (rand() % (max_energy - min_energy + 1)) + min_energy;
 }

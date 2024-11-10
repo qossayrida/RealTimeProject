@@ -2,16 +2,17 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define JUMP_END_ID 0
-#define PULL_END_ID 1
-#define ENERGY_ID 2
+#define JUMP_START_ID 0
+#define PULL_START_ID 1
+#define JUMP_END_ID 2
+#define PULL_END_ID 3
+#define ENERGY_ID 4
 
 typedef struct {
     int max_score;
     int max_time;
-    int initial_energy_team_a;
-    int initial_energy_team_b;
-    int initial_energy_team_c;
+    int initial_energy_max[3];
+    int initial_energy_min[3];
     int stabilization_time_min;
     int stabilization_time_max;
     int pull_time_min;
