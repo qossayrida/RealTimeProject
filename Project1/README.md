@@ -57,7 +57,7 @@ bungee_simulation/
 2. **Run the Simulation**: Use the following command to run the simulation:
 
     ```bash
-    ./bin/bungee_simulation config.txt
+    make run
     ```
 
 3. **Clean Up**: Use the `make clean` command to remove object files and the executable:

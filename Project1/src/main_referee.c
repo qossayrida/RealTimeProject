@@ -17,6 +17,7 @@ pid_t assistant_referees[3];
 Config game_config;
 
 void handle_alarm(int signum);
+void end_game();
 
 int main(int argc, char **argv) {
 
@@ -98,9 +99,13 @@ int main(int argc, char **argv) {
             } else if (message_buffer[i].type == PULL_START_ID) {
                 printf("Team %d --> Player %d is starting to pull\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
             } else if (message_buffer[i].type == JUMP_END_ID) {
-                printf("Team %d --> Player %d has finished jumping with time %s\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1,message_buffer[i].content);
+                printf("Team %d --> Player %d has finished jumping\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
             } else if (message_buffer[i].type == PULL_END_ID) {
-                printf("Team %d --> Player %d has finished pulling\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
+                teams[message_buffer[i].team_id].score += (int) (0.7 * (game_config.max_score * (game_config.stabilization_time_min/1000.0) / atof(message_buffer[i].content)));
+                printf("Team %d --> Player %d has finished pulling with time %s with score %d\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1,message_buffer[i].content,teams[message_buffer[i].team_id].score);
+                if (teams[message_buffer[i].team_id].score >= game_config.max_score) {
+                    end_game();
+                }
             } else if (message_buffer[i].type == ENERGY_ID) {
                 printf("Team %d --> Player %d has %s energy\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1, message_buffer[i].content);
             }
@@ -113,15 +118,39 @@ int main(int argc, char **argv) {
 
 void handle_alarm(int signum) {
     printf("Referee: Maximum time reached. Ending game.\n");
+    end_game();
+}
+
+void end_game(){
+
+    int max_score = teams[0].score;
+    int winning_team_id = 0;
+    int is_draw = 1;
+
+    for (int j = 1; j < 3; j++) {
+        if (teams[j].score > max_score) {
+            max_score = teams[j].score;
+            winning_team_id = j;
+            is_draw = 0;  // There’s a unique highest score, so it’s not a draw
+        } else if (teams[j].score < max_score) {
+            is_draw = 0;  // Scores are not all equal
+        }
+    }
+
+    if (is_draw) {
+        printf("Referee: The game is a draw\n");
+    } else {
+        printf("Referee: Team %d has won the game with a score of %d\n", winning_team_id + 1, max_score);
+    }
 
     system("rm /tmp/bungee_*");
     printf("Referee: Removed all FIFOs\n");
 
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            kill(teams[i].players[j], SIGKILL);
+            kill(teams[i].players[j], SIGTERM);
         }
-        kill(assistant_referees[i], SIGKILL);
+        kill(assistant_referees[i], SIGTERM);
     }
 
     exit(EXIT_SUCCESS);

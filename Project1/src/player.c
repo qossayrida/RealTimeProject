@@ -12,7 +12,7 @@ int team_id,player_id;
 int global_fifo_to_highest,global_fifo_to_lowest;
 int fifo_to_assistant_referee;
 int is_turn = 0;  // Flag to check if the player is allowed to jump
-int energy, is_will_pull_alone=0;
+int energy,max_energy,is_will_pull_alone=0;
 int is_second_player_leader = 0;
 char message_fifo[2][50];
 char result[50];
@@ -53,6 +53,7 @@ int main(int argc, char *argv[]) {
     srand(time(NULL) ^ (getpid() << 16));
 
     energy = generate_random_energy();  // Adjust based on team
+    max_energy = energy;
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d", energy);
     send_message(READY_TO_PLAY, result);
@@ -129,21 +130,22 @@ void jump() {
     send_message(ENERGY_ID,result);
 
     send_message(JUMP_END_ID, "");
+    is_turn = 1;
 }
 
 
 void pull_leader() {
     send_message(PULL_START_ID, "");
     int received_pull_time;
+    double energy_decrease = 1+((max_energy-energy)/(double)max_energy);
+    int pull_time = (int) (((rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min) * energy_decrease);
 
     // Read the pull time from the non-leader
     if (read(global_fifo_to_highest, message_fifo[0], sizeof(message_fifo[0])) > 0) {
         if (sscanf(message_fifo[0], "PULL_TIME %d", &received_pull_time) == 1) {
-//            printf("Team %d: Leader Player %d received pull time: %d\n", team_id + 1, player_id + 1, received_pull_time);
 
             // Calculate adjusted pull time based on an equation
-            int adjusted_pull_time = received_pull_time + (1);  // Change it to the equation Ya MOHAMED FREED
-//            printf("Team %d: Leader Player %d calculated new pull time: %d\n", team_id + 1,player_id + 1, adjusted_pull_time);
+            int adjusted_pull_time = 2.0/((1.0 /received_pull_time) + (1.0/pull_time));  // Change it to the equation Ya MOHAMED FREED
 
             // Send the adjusted pull time back to the non-leader
             snprintf(message_fifo[1], sizeof(message_fifo[1]), "%d", adjusted_pull_time);
@@ -165,7 +167,8 @@ void pull_leader() {
 }
 
 void pull_non_leader() {
-    int pull_time = (rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min;
+    double energy_decrease = 1+((max_energy-energy)/(double)max_energy);
+    int pull_time = (int) (((rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min) * energy_decrease);
 
     // Send pull time to FIFO for leader to read
     snprintf(message_fifo[0], sizeof(message_fifo[0]), "PULL_TIME %d", pull_time);
@@ -190,7 +193,8 @@ void pull_non_leader() {
 
 void pull_alone(){
     send_message(PULL_START_ID, "");
-    int pull_time = (rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min;
+    double energy_decrease = 1+((max_energy-energy)/(double)max_energy);
+    int pull_time = (int) (((rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min) * energy_decrease);
     usleep(pull_time * 1000);
 
     energy = (energy >= 10) ? (energy - 10) : 0;

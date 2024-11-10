@@ -16,6 +16,7 @@ int fifo_to_highest,fifo_to_lowest;
 struct timespec start_time, end_time;
 char buffer[3][50];
 int fifo_to_referee;
+double jump_interval;
 void handle_start_signal(int signum);
 void go_to_jump();
 void go_to_pull();
@@ -70,7 +71,6 @@ int main(int argc, char *argv[]) {
 
             // Pass both the pipe file descriptors and FIFO names
             execlp("./bin/player", name, id_player_str,id_team_str,fifo_name[0], fifo_name[1],fifo_name[2],argv[3], NULL);
-
             perror("execlp failed for player");
             exit(EXIT_FAILURE);
         }
@@ -150,18 +150,19 @@ int main(int argc, char *argv[]) {
 
             } else if (message_buffer[i].type == JUMP_END_ID) {
                 clock_gettime(CLOCK_MONOTONIC, &end_time);
-                double jump_interval = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
+                jump_interval = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
 
                 go_to_pull();
 
-                memset(message_buffer[i].content, '\0', sizeof(message_buffer[i].content));
-                snprintf(message_buffer[i].content, sizeof(message_buffer[i].content), "%.2f",jump_interval);
+
                 if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 
             } else if (message_buffer[i].type == PULL_END_ID) {
                 go_to_jump();
 
+                memset(message_buffer[i].content, '\0', sizeof(message_buffer[i].content));
+                snprintf(message_buffer[i].content, sizeof(message_buffer[i].content), "%.2f",jump_interval);
                 if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 

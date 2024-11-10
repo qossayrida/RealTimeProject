@@ -1,17 +1,17 @@
 # Configuration for Bungee Jumping Simulation
 
 # Game settings
-max_score=50                  # Maximum score to end the game
+max_score=25                  # Maximum score to end the game
 max_time=60                   # Maximum time (in seconds) for the game
 
 # Player energy levels
-initial_energy_max_a=40
-initial_energy_max_b=40
-initial_energy_max_c=40
+initial_energy_max_a=50
+initial_energy_max_b=50
+initial_energy_max_c=50
 
-initial_energy_min_a=20
-initial_energy_min_b=20
-initial_energy_min_c=20
+initial_energy_min_a=50
+initial_energy_min_b=50
+initial_energy_min_c=50
 
 # Timing ranges (in milliseconds)
 stabilization_time_min=3000    # Minimum time for stabilization
