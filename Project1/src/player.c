@@ -94,6 +94,8 @@ int main(int argc, char *argv[]) {
         } else if (is_turn == 3) {
             pull_alone();
         }
+
+        is_turn = 0;
     }
 }
 
@@ -241,3 +243,6 @@ int generate_random_energy() {
 
     return (rand() % (max_energy - min_energy + 1)) + min_energy;
 }
+
+
+ 

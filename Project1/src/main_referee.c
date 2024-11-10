@@ -78,6 +78,9 @@ int main(int argc, char **argv) {
 
     // Send signal to assistant referees to start the game
     for (int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            printf("Team %d --> Player %d has initial energy %d\n", i + 1, j + 1 , teams[i].initial_energy[j]);
+        }
         kill(assistant_referees[i], SIGUSR1);
         printf("Referee: Sent start signal to Team %d\n", i + 1);
     }
