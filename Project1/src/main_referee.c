@@ -29,6 +29,7 @@ Team teams[3];
 pid_t assistant_referees[3];
 Config game_config;
 int num_messages=0;
+int fifo_fd;
 Message message_buffer[10];
 
 void handle_alarm(int signum);
@@ -59,20 +60,15 @@ const float sideXOffset = 0.1f;   // Reduced distance for left and right players
 const float scaleFactor = 0.6f; // Scale down elements to increase spacing
 const float baseBridgeHeight = -0.15f;
 
-
-
-
-
 int main(int argc, char **argv) {
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1920, 1080);
     glutCreateWindow("Team Bungee Jump Game with Referee and Score");
-    void init();
+    init();
     glutDisplayFunc(display);
-    glutTimerFunc(0, timer, 0);
-    glutMainLoop();
+
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <config_file>\n", argv[0]);
@@ -110,7 +106,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    int fifo_fd = open(fifo_name_str, O_RDONLY);
+    fifo_fd = open(fifo_name_str, O_RDONLY);
 
     // Receive team data from each assistant referee
     for (int i = 0; i < 3; i++){
@@ -132,27 +128,25 @@ int main(int argc, char **argv) {
         printf("Referee: Sent start signal to Team %d\n", i + 1);
     }
 
+    glutTimerFunc(1, timer, 0);
+    glutMainLoop();
 
-
-    while (1){
-
-        int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
-
-        if(bytes_read == -1){
-            perror("Failed to read from player");
-            exit(EXIT_FAILURE);
-        }
-
-        num_messages = bytes_read / sizeof(Message);
-    }
 
     return EXIT_SUCCESS;
 }
 
 void timer(int value){
+    printf("***********************************\n");
+    int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
 
+    if(bytes_read == -1){
+        perror("Failed to read from player");
+        exit(EXIT_FAILURE);
+    }
+
+    int num_messages = bytes_read / sizeof(Message);
+    printf("Referee: Received %d messages\n", num_messages);
     for (int i = 0; i<num_messages; i++){
-
         if (message_buffer[i].type == JUMP_START_ID) {
             printf("Team %d --> Player %d is starting to jump\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
         } else if (message_buffer[i].type == PULL_START_ID) {
@@ -171,7 +165,6 @@ void timer(int value){
             printf("Team %d has stopped\n", message_buffer[i].team_id + 1);
         }
     }
-    num_messages = 0;
 
     glutPostRedisplay();                                      // Trigger a display update
     glutTimerFunc(16, timer, 0);            // Repeat every 16ms (~60 FPS)
@@ -228,16 +221,16 @@ void display(){
     drawScore();
 
     // Draw players and energy bars
-    for (int t = 0; t < 3; t++)
-    {
+    for (int t = 0; t < 3; t++){
+
         float r = (t == 0) ? 1.0f : 0.0f;
         float g = (t == 1) ? 1.0f : 0.0f;
         float b = (t == 2) ? 1.0f : 0.0f;
 
         drawReferees(teamsInterface[t][1].x - 0.25, teamsInterface[t][1].y, r, g, b);
 
-        for (int p = 0; p < 3; p++)
-        {
+        for (int p = 0; p < 3; p++){
+
             float playerX = teamsInterface[t][p].x;
             float playerY = teamsInterface[t][p].y + teamsInterface[t][p].jumpHeight;
             drawHumanPlayer(playerX, playerY, r, g, b, p);
