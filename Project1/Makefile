@@ -20,7 +20,7 @@ PLAYER_TARGET = $(BIN_DIR)/player
 all: $(MAIN_TARGET) $(ASSISTANT_TARGET) $(PLAYER_TARGET)
 
 # Build the main referee executable
-$(MAIN_TARGET): $(OBJ_DIR)/main_referee.o $(OBJ_DIR)/config.o | $(BIN_DIR)
+$(MAIN_TARGET): $(OBJ_DIR)/main_referee.o  $(OBJ_DIR)/config.o  $(OBJ_DIR)/gui.o | $(BIN_DIR)
 	$(CC) $^ -o $(MAIN_TARGET) -lGL -lGLU -lglut -lm # Linking OpenGL libraries
 
 # Build the assistant referee executable (no main function)
@@ -41,7 +41,7 @@ $(OBJ_DIR):
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
-	
+
 # Run the main_referee executable with the config file
 run: $(MAIN_TARGET)
 	$(MAIN_TARGET) config.txt
