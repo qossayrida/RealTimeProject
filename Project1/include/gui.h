@@ -19,7 +19,7 @@ typedef struct{
 
 void drawRefereeWithFlag(float x, float y, float waveAngle);
 void drawReferees(float x, float y, float r, float g, float b, int print, char message[]);
-void drawHumanPlayer(float x, float y, float r, float g, float b, int playerNumber);
+void drawHumanPlayer(float x, float y, float r, float g, float b, float alpha, int playerNumber);
 void drawTree(float x, float y);
 void drawRope(Player *jumper, Player *left, Player *right);
 void drawBridge();

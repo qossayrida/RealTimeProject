@@ -8,9 +8,12 @@
 float scaleFactor= 0.6f; // Scale down elements to increase spacing
 float baseBridgeHeight = -0.15f;
 
-void drawHumanPlayer(float x, float y, float r, float g, float b, int playerNumber){
+void drawHumanPlayer(float x, float y, float r, float g, float b, float alpha, int playerNumber) {
+    // Enable blending for transparency
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glColor3f(r, g, b);
+    glColor4f(r, g, b, alpha); // Set color with transparency
     glPushMatrix();
     glTranslatef(x, y * scaleFactor, 0.0f);
     glScalef(scaleFactor, scaleFactor, scaleFactor); // Scale down each player
@@ -22,14 +25,14 @@ void drawHumanPlayer(float x, float y, float r, float g, float b, int playerNumb
     glPopMatrix();
 
     // Draw the player's number above their head
-    glColor3f(0, 0, 0);           // Black color for the number
+    glColor4f(0, 0, 0, 1.0f); // Black color for the number with no transparency
     glRasterPos2f(-0.02f, 0.22f); // Position text slightly above the head
     char numStr[12]; // Increased buffer size to handle larger numbers safely
     sprintf(numStr, "%d", playerNumber + 1);
-
     glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, numStr[0]);
 
     // Body
+    glColor4f(0, 0, 0, 1.0f); // Reset to the player color with transparency
     glBegin(GL_LINES);
     glVertex2f(0.0f, 0.1f);
     glVertex2f(0.0f, -0.05f);
@@ -50,7 +53,11 @@ void drawHumanPlayer(float x, float y, float r, float g, float b, int playerNumb
     glEnd();
 
     glPopMatrix();
+
+    // Disable blending after drawing the player to avoid affecting other objects
+    glDisable(GL_BLEND);
 }
+
 
 void drawRefereeWithFlag(float x, float y, float waveAngle){
     // Change scale factor to increase overall size
@@ -221,23 +228,41 @@ void drawRope(Player *jumper, Player *left, Player *right){
     glEnd();
 }
 
-void drawTree(float x, float y){
-    // Draw tree trunk
+void drawTree(float x, float y) {
+    float scale = 0.5f; // Scale down the tree size
+    // Draw tapered tree trunk
     glColor3f(0.5f, 0.3f, 0.0f); // Brown color for the trunk
-    glBegin(GL_QUADS);
-    glVertex2f(x - 0.05f, y);        // Left bottom
-    glVertex2f(x + 0.05f, y);        // Right bottom
-    glVertex2f(x + 0.05f, y + 0.2f); // Right top
-    glVertex2f(x - 0.05f, y + 0.2f); // Left top
-    glEnd();
-
-    // Draw tree foliage
-    glColor3f(0.0f, 0.7f, 0.0f); // Green color for the foliage
     glPushMatrix();
-    glTranslatef(x, y + 0.3f, 0.0f); // Position foliage above the trunk
-    glutSolidSphere(0.1, 20, 20);    // Foliage as a sphere
+    glTranslatef(x, y, 0.0f);
+    glScalef(scale, scale, 1.0f); // Scale the trunk
+    glBegin(GL_QUADS);
+    glVertex2f(-0.04f, 0.0f);       // Left bottom
+    glVertex2f(0.04f, 0.0f);        // Right bottom
+    glVertex2f(0.03f, 0.2f);        // Right top (tapered)
+    glVertex2f(-0.03f, 0.2f);       // Left top (tapered)
+    glEnd();
+    glPopMatrix();
+
+    // Draw layered, conical foliage
+    glColor3f(0.0f, 0.6f, 0.1f); // Darker green for lower foliage
+    glPushMatrix();
+    glTranslatef(x, y + 0.25f * scale, 0.0f);
+    glutSolidCone(0.12f * scale, 0.2f * scale, 20, 20); // Bottom foliage layer
+    glPopMatrix();
+
+    glColor3f(0.0f, 0.8f, 0.2f); // Lighter green for upper foliage
+    glPushMatrix();
+    glTranslatef(x, y + 0.4f * scale, 0.0f);
+    glutSolidCone(0.09f * scale, 0.15f * scale, 20, 20); // Middle foliage layer
+    glPopMatrix();
+
+    glColor3f(0.0f, 0.9f, 0.3f); // Bright green for top foliage
+    glPushMatrix();
+    glTranslatef(x, y + 0.5f * scale, 0.0f);
+    glutSolidCone(0.06f * scale, 0.1f * scale, 20, 20); // Top foliage layer
     glPopMatrix();
 }
+
 
 void drawBridge(){
     glColor3f(0.3, 0.2, 0.1); // Brown color for bridge

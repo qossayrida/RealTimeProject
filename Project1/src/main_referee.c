@@ -252,7 +252,7 @@ void display() {
 
                 float playerX = jumper->x;
                 float playerY = jumper->y + jumper->jumpHeight;
-                drawHumanPlayer(playerX, playerY, r, g, b, p);
+                drawHumanPlayer(playerX, playerY, r, g, b,1.0f, p);
             }else if (jumper->isStuck && (left->isPulling || right->isPulling)) {
                 char message[50];
                 sprintf(message, "Jumping time = %.2f", jump_interval[t]);
@@ -266,11 +266,11 @@ void display() {
                 }
                 jumper->x = teamStartPositions[t] + (p - 1) * sideXOffset;
                 jumper->y = jumper->jumpHeight;
-                drawHumanPlayer(jumper->x, jumper->y, r, g, b, p);
+                drawHumanPlayer(jumper->x, jumper->y, r, g, b,0.2f, p);
             }else{
                 jumper->x = teamStartPositions[t] + (p - 1) * sideXOffset;
                 jumper->y = baseBridgeHeight;
-                drawHumanPlayer(jumper->x, jumper->y, r, g, b, p);
+                drawHumanPlayer(jumper->x, jumper->y, r, g, b,0.2f, p);
             }
 
         }
@@ -290,7 +290,7 @@ void display() {
     }
 
     // Draw trees in the background
-    for (float x = -1.0f; x <= 1.0f; x++) {
+    for (float x = -1.0f; x <= 1.0f; x+=0.25f) {
         drawTree(x, -1.0f);
     }
 
