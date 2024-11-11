@@ -38,6 +38,7 @@ Message message_buffer[10];
 Player teamsInterface[3][3];    // 3 teams, each with 3 players
 int currentTeam ;
 int currentPlayer ;
+const float teamStartPositions[3] = {-0.5, 0.0, 0.5};
 const float gravity = -0.002f;
 const float springFactor = 0.8f;  // Damping factor for bounce
 const float pullUpSpeed = 0.005f; // Speed of pulling up the rope (smaller to fit scaling)
@@ -172,7 +173,6 @@ void timer(){
             startPulling(message_buffer[i].team_id);
             printf("Team %d --> Player %d is starting to pull\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
         } else if (message_buffer[i].type == JUMP_END_ID) {
-            jumping_player_is[message_buffer[i].team_id] = -1;
             stopJumping(message_buffer[i].team_id, message_buffer[i].player_id);
             printf("Team %d --> Player %d has finished jumping\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
         } else if (message_buffer[i].type == PULL_END_ID) {
@@ -251,6 +251,7 @@ void display() {
             Player* left = &teamsInterface[t][(p + 1) % 3];
             Player* right = &teamsInterface[t][(p + 2) % 3];
 
+            // Check if player is jumping and apply jump physics
             if (jumper->isJumping) {
                 jumper->velocity += gravity;
                 jumper->jumpHeight += jumper->velocity;
@@ -261,25 +262,28 @@ void display() {
                     jumper->jumpHeight = -0.6f;
                 }
 
-                left->x = jumper->x + sideXOffset;
-                right->x = jumper->x - sideXOffset;
-
-            }else if ( jumper->isStuck && (left->isPulling || right->isPulling)){
-                jumper->jumpHeight = fmin(0.0f, jumper->jumpHeight + pullUpSpeed);
+                float playerX = jumper->x;
+                float playerY = jumper->y + jumper->jumpHeight;
+                drawHumanPlayer(playerX, playerY, r, g, b, p);
+            }else if (jumper->isStuck && (left->isPulling || right->isPulling)) {
+                jumper->x = teamStartPositions[t] + (p - 1) * sideXOffset;
+                jumper->y = baseBridgeHeight;
+                drawHumanPlayer(jumper->x, jumper->y, r, g, b, p);
+            }else{
+                jumper->x = teamStartPositions[t] + (p - 1) * sideXOffset;
+                jumper->y = baseBridgeHeight;
+                drawHumanPlayer(jumper->x, jumper->y, r, g, b, p);
             }
 
-            float playerX = jumper->x;
-            float playerY = jumper->y + jumper->jumpHeight;
-            drawHumanPlayer(playerX, playerY, r, g, b, p);
-            drawEnergyPlayer(jumper->energy, teamsInterface[t][1].x - 0.02f, 1.0f - (0.2f + p * 0.06f), p);
         }
     }
 
+    // Draw ropes for jumping or pulling players
     for (int t = 0; t < 3; t++) {
-        if(jumping_player_is[t] != -1){
+        if (jumping_player_is[t] != -1) {
             Player *jumper = &teamsInterface[t][jumping_player_is[t]];
-            Player *left = &teamsInterface[t][(jumping_player_is[t]  + 1) % 3];
-            Player *right = &teamsInterface[t][(jumping_player_is[t]  + 2) % 3];
+            Player *left = &teamsInterface[t][(jumping_player_is[t] + 1) % 3];
+            Player *right = &teamsInterface[t][(jumping_player_is[t] + 2) % 3];
 
             if (jumper->isJumping || left->isPulling || right->isPulling) {
                 drawRope(jumper, left, right);
@@ -287,6 +291,7 @@ void display() {
         }
     }
 
+    // Draw trees in the background
     for (float x = -1.0f; x <= 1.0f; x++) {
         drawTree(x, -1.0f);
     }
@@ -294,9 +299,9 @@ void display() {
     glutSwapBuffers();
 }
 
+
 void init() {
     glClearColor(0.5, 0.8, 1.0, 1.0);
-    const float teamStartPositions[3] = {-0.5, 0.0, 0.5};
     for (int t = 0; t < 3; t++) {
         for (int p = 0; p < 3; p++) {
             teamsInterface[t][p].x = teamStartPositions[t] + (p - 1) * sideXOffset;
@@ -524,6 +529,7 @@ void drawScore(){
 
 void startPulling(int teamIndex){
     int jumpingPlayerIndex = jumping_player_is[teamIndex];
+    jumping_player_is[teamIndex] = -1;
     Player *left = &teamsInterface[teamIndex][(jumpingPlayerIndex + 1) % 3];
     Player *right = &teamsInterface[teamIndex][(jumpingPlayerIndex + 2) % 3];
     left->isPulling = 1;
