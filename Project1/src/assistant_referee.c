@@ -128,7 +128,8 @@ int main(int argc, char *argv[]) {
 
                 go_to_pull();
 
-
+                memset(message_buffer[i].content, '\0', sizeof(message_buffer[i].content));
+                snprintf(message_buffer[i].content, sizeof(message_buffer[i].content), "%.2f",jump_interval);
                 if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 

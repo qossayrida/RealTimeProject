@@ -117,7 +117,7 @@ void drawRefereeWithFlag(float x, float y, float waveAngle){
     char numStr[20];
     sprintf(numStr, "Main Referee");
     for (char *c = numStr; *c != '\0'; c++){
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+        glutBitmapCharacter(GLUT_BITMAP_9_BY_15, *c);
     }
 
     glPopMatrix();
@@ -175,7 +175,7 @@ void drawReferees(float x, float y, float r, float g, float b, int print, char m
     char numStr[20];
     sprintf(numStr, "Assistant Referee");
     for (char *c = numStr; *c != '\0'; c++) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+        glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
     }
 
     // If print is 1, display a message in a speech bubble
@@ -215,9 +215,9 @@ void drawRope(Player *jumper, Player *left, Player *right){
     glColor3f(0.6f, 0.4f, 0.2f); // Brown color for rope
     glBegin(GL_LINES);
     glVertex2f(left->x, left->y * scaleFactor + 0.15f);                          // Left player's hand position
-    glVertex2f(jumper->x, jumper->y * scaleFactor + jumper->jumpHeight + 0.15f); // Jumper’s head position
+    glVertex2f(jumper->x, baseBridgeHeight * scaleFactor + jumper->jumpHeight + 0.22f);
     glVertex2f(right->x, right->y * scaleFactor + 0.15f);                        // Right player's hand position
-    glVertex2f(jumper->x, jumper->y * scaleFactor + jumper->jumpHeight + 0.15f);
+    glVertex2f(jumper->x, baseBridgeHeight * scaleFactor + jumper->jumpHeight + 0.22f);
     glEnd();
 }
 
