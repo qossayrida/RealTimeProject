@@ -38,7 +38,7 @@ Message message_buffer[10];
 Player teamsInterface[3][3];    // 3 teams, each with 3 players
 int currentTeam ;
 int currentPlayer ;
-const float teamStartPositions[3] = {-0.5, 0.0, 0.5};
+const float teamStartPositions[3] = {-0.6, 0.0, 0.6};
 const float gravity = -0.002f;
 const float springFactor = 0.8f;  // Damping factor for bounce
 const float pullUpSpeed = 0.005f; // Speed of pulling up the rope (smaller to fit scaling)
@@ -68,7 +68,7 @@ void drawTree(float x, float y);
 void drawEnergyPlayer(float energy, float x, float y, int playerNumber);
 void drawScore();
 void drawHumanPlayer(float x, float y, float r, float g, float b, int playerNumber);
-void drawReferees(float x, float y, float r, float g, float b);
+void drawReferees(float x, float y, float r, float g, float b, int print, char message[]);
 void drawRope(Player *jumper, Player *left, Player *right);
 void drawRefereeWithFlag(float x, float y, float waveAngle);
 void timer();
@@ -177,7 +177,7 @@ void timer(){
             printf("Team %d --> Player %d has finished jumping\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
         } else if (message_buffer[i].type == PULL_END_ID) {
             stopPulling(message_buffer[i].team_id);
-            teams[message_buffer[i].team_id].score += (int) (0.7 * (game_config.max_score * (game_config.stabilization_time_min/1000.0) / atof(message_buffer[i].content)));
+            teams[message_buffer[i].team_id].score += (int) (0.5 * (game_config.max_score * (game_config.stabilization_time_min/1000.0) / atof(message_buffer[i].content)));
             printf("Team %d --> Player %d has finished pulling with time %s with score %d\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1,message_buffer[i].content,teams[message_buffer[i].team_id].score);
             if (teams[message_buffer[i].team_id].score >= game_config.max_score) {
                 end_game();
@@ -235,9 +235,12 @@ void end_game(){
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     drawBridge();
+    drawReferees(-0.82f, baseBridgeHeight, 1.0f, 1.0f, 0.0f,0,"");
+    drawReferees(-0.22f, baseBridgeHeight, 1.0f, 1.0f, 0.0f,1,"Qossay");
+    drawReferees(0.38f, baseBridgeHeight, 1.0f, 1.0f, 0.0f,1,"Jump time: 5s");
 
     float waveAngle = 10 * sin(glutGet(GLUT_ELAPSED_TIME) / 100.0); // Waving flag angle
-    drawRefereeWithFlag(0.8f, 0.4f, waveAngle);
+    drawRefereeWithFlag(-0.9f, 1.1f, waveAngle);
 
     drawScore();
 
@@ -318,7 +321,6 @@ void init() {
 
 
 void drawBridge(){
-
     glColor3f(0.3, 0.2, 0.1); // Brown color for bridge
     glBegin(GL_QUADS);
     glVertex2f(-1.0f, baseBridgeHeight * scaleFactor - 0.1f); // Bridge height adjusted for smaller scale
@@ -383,10 +385,9 @@ void drawRope(Player *jumper, Player *left, Player *right){
     glEnd();
 }
 
-
 void drawRefereeWithFlag(float x, float y, float waveAngle){
     // Change scale factor to increase overall size
-    float refereeScale = 1.5f;   // Increase the size
+    float refereeScale = 1.3f;   // Increase the size
     glColor3f(1.0f, 1.0f, 0.0f); // Yellow color for referee
     glPushMatrix();
     glTranslatef(x, y * scaleFactor, 0.0f);
@@ -434,15 +435,33 @@ void drawRefereeWithFlag(float x, float y, float waveAngle){
     glVertex2f(0.06f, -0.2f); // Increase leg length and width
     glEnd();
 
+    // Base under the referee
+    glColor3f(0.3f, 0.3f, 0.3f); // Gray color for the base
+    glBegin(GL_QUADS);
+    glVertex2f(-0.1f, -0.22f); // Width of base
+    glVertex2f(0.1f, -0.22f);
+    glVertex2f(0.1f, -0.25f);  // Height of base
+    glVertex2f(-0.1f, -0.25f);
+    glEnd();
+
+    // Draw the referee's title slightly above the head
+    glColor3f(0, 0, 0);           // Black color for the text
+    glRasterPos2f(-0.06f, 0.3f); // Position text above the head
+    char numStr[20];
+    sprintf(numStr, "Main Referee");
+    for (char *c = numStr; *c != '\0'; c++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+
     glPopMatrix();
 }
 
 
-void drawReferees(float x, float y, float r, float g, float b){
-    glColor3f(r, g, b); // Yellow color for referee
+void drawReferees(float x, float y, float r, float g, float b, int print, char message[]) {
+    glColor3f(r, g, b); // Color for referee
     glPushMatrix();
     glTranslatef(x, y * scaleFactor, 0.0f);
-    glScalef(scaleFactor, scaleFactor, scaleFactor); // Scale down the referee
+    glScalef(scaleFactor, scaleFactor, scaleFactor); // Scale the referee
 
     // Head
     glPushMatrix();
@@ -450,7 +469,7 @@ void drawReferees(float x, float y, float r, float g, float b){
     glutSolidSphere(0.05, 20, 20);
     glPopMatrix();
 
-    glColor3f(0, 0, 0); // Black color for the number
+    glColor3f(0, 0, 0); // Black color for the body and limbs
     // Body
     glBegin(GL_LINES);
     glVertex2f(0.0f, 0.1f);
@@ -473,17 +492,56 @@ void drawReferees(float x, float y, float r, float g, float b){
     glVertex2f(0.05f, -0.15f);
     glEnd();
 
-    // Draw the player's number above their head
-    glColor3f(0, 0, 0);           // Black color for the number
-    glRasterPos2f(-0.02f, 0.22f); // Position text slightly above the head
-    char numStr[8];
-    sprintf(numStr, "Referee");
-    for (char *c = numStr; *c != '\0'; c++)
-    {
+    // Base under the referee
+    glColor3f(0.3f, 0.3f, 0.3f); // Gray color for the base
+    glBegin(GL_QUADS);
+    glVertex2f(-0.08f, -0.17f); // Adjust base width
+    glVertex2f(0.08f, -0.17f);
+    glVertex2f(0.08f, -0.20f);  // Adjust base height
+    glVertex2f(-0.08f, -0.20f);
+    glEnd();
+
+    // Draw the referee's title slightly above the head
+    glColor3f(0, 0, 0);           // Black color for the text
+    glRasterPos2f(-0.12f, 0.25f); // Position text slightly above the head
+    char numStr[20];
+    sprintf(numStr, "Assistant Referee");
+    for (char *c = numStr; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
     }
+
+    // If print is 1, display a message in a speech bubble
+    if (print == 1) {
+        // Speech bubble background
+        glColor3f(1.0f, 1.0f, 1.0f); // White color for bubble background
+        glPushMatrix();
+        glTranslatef(-0.05f, 0.45f, 0.0f); // Position the bubble above and to the side of the referee
+        glBegin(GL_POLYGON);
+        glVertex2f(-0.1f, -0.05f);
+        glVertex2f(0.15f, -0.05f);
+        glVertex2f(0.15f, 0.1f);
+        glVertex2f(-0.1f, 0.1f);
+        glEnd();
+
+        // Triangle tail of the speech bubble
+        glBegin(GL_TRIANGLES);
+        glVertex2f(-0.05f, -0.05f);
+        glVertex2f(-0.02f, -0.12f);
+        glVertex2f(0.0f, -0.05f);
+        glEnd();
+
+        // Display message inside the speech bubble
+        glColor3f(0, 0, 0); // Black color for the message text
+        glRasterPos2f(-0.09f, 0.0f); // Position text inside the bubble
+        for (char *c = message; *c != '\0'; c++) {
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *c);
+        }
+        glPopMatrix();
+    }
+
     glPopMatrix();
 }
+
 
 void drawTree(float x, float y){
     // Draw tree trunk
