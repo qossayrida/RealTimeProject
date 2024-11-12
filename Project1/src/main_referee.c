@@ -20,7 +20,8 @@ int num_messages=0,is_game_over=0;
 int fifo_fd,num_messages;
 int jumping_player_is[3] = {-1, -1, -1};
 double jump_interval[3] = {0, 0, 0};
-Message message_buffer[10];
+Message message_buffer[20];
+char result_game_buffer[100];
 
 
 Player teamsInterface[3][3];    // 3 teams, each with 3 players
@@ -32,17 +33,18 @@ const float gravity = -0.002f;
 const float springFactor = 0.8f;  // Damping factor for bounce
 const float pullUpSpeed = 0.005f; // Speed of pulling up the rope (smaller to fit scaling)
 const float sideXOffset = 0.1f;   // Reduced distance for left and right players when they come to the middle
-
+float player_color[3][3] = {{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}};
 // Signal timers (in milliseconds)
 int jumpSignalTimer[3];
 int pullSignalTimer[3];
 int stopPullSignalTimer[3];
 
 void handle_alarm();
-void end_game();
+void handle_alarm_to_end();
+void end_game(int winner);
 void init();
 void display();
-void initiateSwap(int teamNumber, int jumpingPlayerIndex);
+void display_result();
 void startJumping(int teamIndex, int playerIndex);
 void stopJumping(int teamIndex, int playerIndex);
 void startPulling(int teamIndex);
@@ -128,11 +130,19 @@ int main(int argc, char **argv) {
     glutIdleFunc(timer);
     glutMainLoop();
 
-
     return EXIT_SUCCESS;
 }
 
 void timer(){
+
+    if (is_game_over==3) {
+        exit(EXIT_SUCCESS);
+    } else if (is_game_over==2){
+        return;
+    } else if (is_game_over==1){
+        end_game(-1);
+        is_game_over=2;
+    }
 
     int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
 
@@ -141,10 +151,6 @@ void timer(){
         printf("Referee: Received %d messages\n", num_messages);
     } else {
         num_messages = 0;
-    }
-
-    if (is_game_over) {
-        end_game();
     }
 
     for (int i = 0; i<num_messages; i++){
@@ -164,9 +170,14 @@ void timer(){
             teams[message_buffer[i].team_id].score += (int) (0.5 * (game_config.max_score * (game_config.stabilization_time_min/1000.0) / atof(message_buffer[i].content)));
             printf("Team %d --> Player %d has finished pulling with time %s with score %d\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1,message_buffer[i].content,teams[message_buffer[i].team_id].score);
             if (teams[message_buffer[i].team_id].score >= game_config.max_score) {
-                end_game();
+                is_game_over=2;
+                end_game(message_buffer[i].team_id);
+                break;
             }
         } else if (message_buffer[i].type == ENERGY_ID) {
+            if (atoi(message_buffer[i].content) == 0) {
+                player_color[message_buffer[i].team_id][message_buffer[i].player_id] = 0.2f;
+            }
             teamsInterface[message_buffer[i].team_id][message_buffer[i].player_id].energy = atoi(message_buffer[i].content);
             printf("Team %d --> Player %d has %s energy\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1, message_buffer[i].content);
         } else if (message_buffer[i].type == TEAM_STOP) {
@@ -182,26 +193,40 @@ void handle_alarm() {
     is_game_over=1;
 }
 
-void end_game(){
+void handle_alarm_to_end(){
+    is_game_over=3;
+}
+
+void end_game(int winner) {
 
     int max_score = teams[0].score;
     int winning_team_id = 0;
-    int is_draw = 1;
+    int draw_count = 0;
+    int draw_teams[3] = {0, -1, -1};
 
     for (int j = 1; j < 3; j++) {
         if (teams[j].score > max_score) {
             max_score = teams[j].score;
             winning_team_id = j;
-            is_draw = 0;  // There’s a unique highest score, so it’s not a draw
-        } else if (teams[j].score < max_score) {
-            is_draw = 0;  // Scores are not all equal
+            draw_count = 0;
+            draw_teams[0] = j;
+            draw_teams[1] = -1;
+            draw_teams[2] = -1;
+        } else if (teams[j].score == max_score) {
+            draw_teams[++draw_count] = j;
         }
     }
 
-    if (is_draw) {
-        printf("Referee: The game is a draw\n");
+    if (winner == -1) {
+        if (draw_count == 0) {
+            snprintf(result_game_buffer, sizeof(result_game_buffer), "Team %d has won the game with a score of %d", winning_team_id + 1, max_score);
+        } else if (draw_count == 1) {
+            snprintf(result_game_buffer, sizeof(result_game_buffer), "Teams %d and %d have drawn the game with a score of %d", draw_teams[0] + 1, draw_teams[1] + 1, max_score);
+        } else {
+            snprintf(result_game_buffer, sizeof(result_game_buffer), "The game is a draw with a score of %d", max_score);
+        }
     } else {
-        printf("Referee: Team %d has won the game with a score of %d\n", winning_team_id + 1, max_score);
+        snprintf(result_game_buffer, sizeof(result_game_buffer), "Team %d has won the game with a score of %d", winner + 1, teams[winner].score);
     }
 
     system("rm /tmp/bungee_*");
@@ -213,7 +238,16 @@ void end_game(){
         }
         kill(assistant_referees[i], SIGKILL);
     }
-    exit(EXIT_SUCCESS);
+
+    signal(SIGALRM, handle_alarm_to_end);
+    alarm(8);
+    glutDisplayFunc(display_result);
+}
+
+void display_result(){
+    glClear(GL_COLOR_BUFFER_BIT);
+    drawGameResult(result_game_buffer);
+    glutSwapBuffers();
 }
 
 void display() {
@@ -251,7 +285,7 @@ void display() {
 
                 float playerX = jumper->x;
                 float playerY = jumper->y + jumper->jumpHeight;
-                drawHumanPlayer(playerX, playerY, r, g, b,1.0f, p);
+                drawHumanPlayer(playerX, playerY, r, g, b,player_color[t][p], p);
             }else if (jumper->isStuck && (left->isPulling || right->isPulling)) {
                 char message[50];
                 sprintf(message, "Jumping time = %.2f", jump_interval[t]);
@@ -265,11 +299,11 @@ void display() {
                 }
                 jumper->x = teamStartPositions[t] + (p - 1) * sideXOffset;
                 jumper->y = jumper->jumpHeight;
-                drawHumanPlayer(jumper->x, jumper->y, r, g, b,0.2f, p);
+                drawHumanPlayer(jumper->x, jumper->y, r, g, b,player_color[t][p], p);
             }else{
                 jumper->x = teamStartPositions[t] + (p - 1) * sideXOffset;
                 jumper->y = baseBridgeHeight;
-                drawHumanPlayer(jumper->x, jumper->y, r, g, b,0.2f, p);
+                drawHumanPlayer(jumper->x, jumper->y, r, g, b,player_color[t][p], p);
             }
 
         }

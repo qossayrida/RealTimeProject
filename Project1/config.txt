@@ -5,13 +5,13 @@ max_score=50                  # Maximum score to end the game
 max_time=40                   # Maximum time (in seconds) for the game
 
 # Player energy levels
-initial_energy_max_a=50
+initial_energy_max_a=60
 initial_energy_max_b=50
-initial_energy_max_c=50
+initial_energy_max_c=20
 
-initial_energy_min_a=30
+initial_energy_min_a=10
 initial_energy_min_b=30
-initial_energy_min_c=30
+initial_energy_min_c=5
 
 #Rest time before next jump
 rest_time_max=200

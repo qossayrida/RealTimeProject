@@ -274,21 +274,72 @@ void drawBridge(){
     glEnd();
 }
 
+void drawRoundedRectangle(float x, float y, float width, float height, float radius) {
+    // Draw a rounded rectangle by combining four corner arcs and four straight edges.
+    glBegin(GL_POLYGON);
+    for (int i = 0; i <= 360; i++) {
+        float theta = (i * 3.14159f) / 180.0f;
+        float dx = radius * cosf(theta);
+        float dy = radius * sinf(theta);
+        if (i < 90) {
+            glVertex2f(x + width / 2 - radius + dx, y + height / 2 - radius + dy);
+        } else if (i < 180) {
+            glVertex2f(x - width / 2 + radius + dx, y + height / 2 - radius + dy);
+        } else if (i < 270) {
+            glVertex2f(x - width / 2 + radius + dx, y - height / 2 + radius + dy);
+        } else {
+            glVertex2f(x + width / 2 - radius + dx, y - height / 2 + radius + dy);
+        }
+    }
+    glEnd();
+}
 
-void drawGameResult(const char* resultMessage, float x, float y, float r, float g, float b, float alpha) {
+void drawGameResult(const char* resultMessage) {
+    float x = 0.0f;
+    float y = 0.0f;
+
     // Enable blending for transparency
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Set color for the text
-    glColor4f(r, g, b, alpha);
+    // Draw a semi-transparent rounded background box with soft blue color
+    glColor4f(0.2f, 0.5f, 0.8f, 0.9f); // Slightly brighter and more transparent
+    float boxWidth = 0.7f;
+    float boxHeight = 0.25f;
+    float cornerRadius = 0.05f;
+    drawRoundedRectangle(x, y, boxWidth, boxHeight, cornerRadius);
 
-    // Set position for the result message
-    glRasterPos2f(x, y);
+    // Set color for the main text
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // White text
+    glRasterPos2f(x - 0.2f, y); // Adjust position slightly to center text
 
     // Render each character of the result message
     for (const char* c = resultMessage; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+
+    // Draw smaller, animated twinkling stars around the result message
+    int numStars = 50; // Increase the number of stars
+    float starRadius = 0.007f; // Smaller star size
+    float maxStarDistance = 0.5f; // Max distance from the center for stars
+    for (int i = 0; i < numStars; i++) {
+        float angle = (float)i / numStars * 2.0f * 3.14159f;
+        float distance = ((float)rand() / RAND_MAX) * maxStarDistance;
+        float starX = x + cos(angle) * distance;
+        float starY = y + sin(angle) * distance;
+        float starAlpha = 0.3f + 0.2f * sin((float)glutGet(GLUT_ELAPSED_TIME) / 100.0f + i); // Pulsing twinkle effect
+
+        glColor4f(1.0f, 1.0f, 1.0f, starAlpha); // Dimmer stars
+        glPushMatrix();
+        glTranslatef(starX, starY, 0.0f);
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(0.0f, 0.0f); // Center of the star
+        for (int j = 0; j <= 10; j++) {
+            float starAngle = j * 2.0f * 3.14159f / 10;
+            glVertex2f(cos(starAngle) * starRadius, sin(starAngle) * starRadius);
+        }
+        glEnd();
+        glPopMatrix();
     }
 
     // Disable blending after drawing the result to avoid affecting other objects

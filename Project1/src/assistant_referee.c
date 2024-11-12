@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
         Message msg;
         if (read(fifo_fd, &msg, sizeof(Message)) > 0) {
             if (msg.type == READY_TO_PLAY) {
-                team_data.initial_energy[i] = atoi(msg.content);
+                team_data.initial_energy[msg.player_id] = atoi(msg.content);
             }
         }
     }

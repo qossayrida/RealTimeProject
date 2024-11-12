@@ -23,7 +23,7 @@ void drawHumanPlayer(float x, float y, float r, float g, float b, float alpha, i
 void drawTree(float x, float y);
 void drawRope(Player *jumper, Player *left, Player *right);
 void drawBridge();
-void drawGameResult(const char* resultMessage, float x, float y, float r, float g, float b, float alpha);
+void drawGameResult(const char* resultMessage);
 
 
 #endif // GUI_H

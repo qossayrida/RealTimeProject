@@ -27,6 +27,7 @@ void pull_leader();
 void pull_non_leader();
 void pull_alone();
 int generate_random_energy();
+void handle_alarm();
 void send_message(int type, char *content);
 
 int main(int argc, char *argv[]) {
@@ -53,6 +54,7 @@ int main(int argc, char *argv[]) {
     srand(time(NULL) ^ (getpid() << 16));
 
     energy = generate_random_energy();  // Adjust based on team
+    printf("%d   %d\n",player_id+1,energy);
     max_energy = energy;
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d", energy);
@@ -62,21 +64,11 @@ int main(int argc, char *argv[]) {
     signal(SIGUSR1, handle_player_SIGUSR1);
     signal(SIGUSR2, handle_player_SIGUSR2);
     signal(SIGQUIT, handle_pull_alone);
+    signal(SIGALRM, handle_alarm);
+    alarm(5);
 
-
-    time_t previas_time = time(NULL);
 
     while (1) {
-        if (time(NULL) - previas_time > 5) {
-            previas_time = time(NULL);
-            if (energy != 0) {
-                energy--;
-                memset(result, '\0', sizeof(result));
-                snprintf(result, sizeof(result), "%d", energy);
-                send_message(ENERGY_ID, result);
-            }
-        }
-
         // Wait until it’s this player’s turn (indicated by `is_turn` flag)
         while (!is_turn) {
             pause();  // Wait for the signal to start the jump
@@ -261,5 +253,17 @@ int generate_random_energy() {
     }
 
     return (rand() % (max_energy - min_energy + 1)) + min_energy;
+}
+
+void handle_alarm() {
+    if (energy != 0) {
+        energy--;
+        //printf("%d  %d  %d\n",team_id,player_id,energy);
+        memset(result, '\0', sizeof(result));
+        snprintf(result, sizeof(result), "%d", energy);
+        send_message(ENERGY_ID, result);
+    }
+    alarm(5);
+
 }
 
