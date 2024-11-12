@@ -13,7 +13,6 @@
 #include "config.h"
 #include "gui.h"
 
-
 Team teams[3];
 pid_t assistant_referees[3];
 Config game_config;

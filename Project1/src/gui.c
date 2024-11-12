@@ -273,3 +273,24 @@ void drawBridge(){
     glVertex2f(-1.0f, baseBridgeHeight * scaleFactor);
     glEnd();
 }
+
+
+void drawGameResult(const char* resultMessage, float x, float y, float r, float g, float b, float alpha) {
+    // Enable blending for transparency
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Set color for the text
+    glColor4f(r, g, b, alpha);
+
+    // Set position for the result message
+    glRasterPos2f(x, y);
+
+    // Render each character of the result message
+    for (const char* c = resultMessage; *c != '\0'; c++) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+
+    // Disable blending after drawing the result to avoid affecting other objects
+    glDisable(GL_BLEND);
+}
