@@ -1,7 +1,6 @@
 # Name
 
 
-
 ## Project Structure
 
 The project has the following structure:
