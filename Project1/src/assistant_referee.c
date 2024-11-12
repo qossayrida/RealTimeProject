@@ -21,6 +21,7 @@ void handle_start_signal(int signum);
 void go_to_jump();
 void go_to_pull();
 void team_stop();
+void countine_with_two_player(int dead_player);
 
 int main(int argc, char *argv[]) {
     if (argc < 4) {
@@ -134,6 +135,10 @@ int main(int argc, char *argv[]) {
                 if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 
+
+                if(team_data.deceased[message_buffer[i].player_id] == 1)
+                    countine_with_two_player(message_buffer[i].player_id);
+
             } else if (message_buffer[i].type == PULL_END_ID) {
                 is_pull=-1;
                 go_to_jump();
@@ -142,8 +147,12 @@ int main(int argc, char *argv[]) {
                 if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 
+                if(team_data.deceased[message_buffer[i].player_id] == 1)
+                    countine_with_two_player(message_buffer[i].player_id);
+
             } else if (message_buffer[i].type == ENERGY_ID) {
                 int energy = atoi(message_buffer[i].content);
+
                 if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 
@@ -156,13 +165,11 @@ int main(int argc, char *argv[]) {
                         (team_data.deceased[0] && team_data.deceased[2]))
                         team_stop();
 
-                    if (is_jump != message_buffer[i].player_id || is_pull != message_buffer[i].player_id)
-                        kill(team_data.players[message_buffer[i].player_id], SIGTERM);
-
+                    if ((is_jump != message_buffer[i].player_id) && (is_pull != message_buffer[i].player_id ))
+                        countine_with_two_player(message_buffer[i].player_id);
                 }
             }
-        }
-    }
+        }    }
 
 }
 
@@ -197,6 +204,11 @@ void go_to_pull(){
     }
 }
 
+void countine_with_two_player(int dead_player){
+    kill(team_data.players[dead_player], SIGTERM);
+    kill(team_data.players[(dead_player+1)%3], SIGQUIT);
+    kill(team_data.players[(dead_player+2)%3], SIGQUIT);
+}
 
 void team_stop(){
     for (int i = 0; i < 3; i++)
