@@ -1,13 +1,14 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#define READY_TO_PLAY 0
-#define JUMP_START_ID 1
-#define PULL_START_ID 2
-#define JUMP_END_ID 3
-#define PULL_END_ID 4
-#define ENERGY_ID 5
-#define TEAM_STOP 6
+enum {
+    READY_TO_PLAY,
+    JUMP_START_ID,
+    PULL_START_ID,
+    JUMP_END_ID,
+    PULL_END_ID,
+    ENERGY_ID
+};
 
 typedef struct {
     int max_score;
@@ -36,7 +37,7 @@ typedef struct {
     int type;
     int player_id;
     int team_id;
-    char content[50];
+    char content[20];
 } Message;
 
 

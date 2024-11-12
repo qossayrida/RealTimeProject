@@ -203,11 +203,6 @@ void team_stop(){
         if (team_data.deceased[i] != 1)
             kill(team_data.players[i], SIGTERM);
 
-    Message msg;
-    msg.type = TEAM_STOP;
-    msg.team_id = team_data.team_id;
-    if(write(fifo_to_referee, &msg, sizeof(msg))== -1)
-        perror("Failed to write team data to referee");
     exit(EXIT_SUCCESS);
 }
 

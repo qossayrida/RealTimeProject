@@ -27,8 +27,9 @@ void pull_leader();
 void pull_non_leader();
 void pull_alone();
 int generate_random_energy();
-void handle_alarm();
 void send_message(int type, char *content);
+void handle_alarm();
+void busy_wait(int ms);
 
 int main(int argc, char *argv[]) {
     if (argc < 7) {
@@ -54,7 +55,7 @@ int main(int argc, char *argv[]) {
     srand(time(NULL) ^ (getpid() << 16));
 
     energy = generate_random_energy();  // Adjust based on team
-    printf("%d   %d\n",player_id+1,energy);
+
     max_energy = energy;
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d", energy);
@@ -66,7 +67,6 @@ int main(int argc, char *argv[]) {
     signal(SIGQUIT, handle_pull_alone);
     signal(SIGALRM, handle_alarm);
     alarm(5);
-
 
     while (1) {
         // Wait until it’s this player’s turn (indicated by `is_turn` flag)
@@ -99,7 +99,7 @@ void handle_player_SIGUSR1() {
     }
     else{
         int rest_time = (rand() % (config.rest_time_max - config.rest_time_min)) + config.rest_time_min;
-        usleep(rest_time * 1000);
+        busy_wait(rest_time);
         jump();
     }
 }
@@ -122,7 +122,7 @@ void jump() {
     int stabilization_time;
 
     stabilization_time = (rand() % (config.stabilization_time_max - config.stabilization_time_min))+config.stabilization_time_min;
-    usleep(stabilization_time * 1000);
+    busy_wait(stabilization_time);
 
     // Decrease energy for jump and pull
     double energy_damping_factor =((double)stabilization_time / ((double)config.max_time * 1000.0));
@@ -156,7 +156,7 @@ void pull_leader() {
                 perror("Failed to send adjusted pull time to FIFO");
             }
 
-            usleep(adjusted_pull_time * 1000);
+            busy_wait(adjusted_pull_time);
         }
     }
 
@@ -185,7 +185,7 @@ void pull_non_leader() {
     if (read(global_fifo_to_lowest, message_fifo[1], sizeof(message_fifo[1])) > 0) {
         int adjusted_pull_time = atoi(message_fifo[1]);
 //        printf("Team %d: Player %d received adjusted pull time: %d\n", team_id + 1, player_id + 1, adjusted_pull_time);
-        usleep(adjusted_pull_time * 1000);
+        busy_wait(adjusted_pull_time);
     }
 
     // Energy check
@@ -202,7 +202,7 @@ void pull_alone(){
     send_message(PULL_START_ID, "");
     double energy_decrease = 1+((max_energy-energy)/(double)max_energy);
     int pull_time = (int) (((rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min) * energy_decrease);
-    usleep(pull_time * 1000);
+    busy_wait(pull_time);
 
     double energy_damping_factor =((double)pull_time / ((double)config.max_time * 1000.0));
     int new_energy = (int) (energy * energy_damping_factor);
@@ -264,6 +264,9 @@ void handle_alarm() {
         send_message(ENERGY_ID, result);
     }
     alarm(5);
-
 }
 
+void busy_wait(int ms) {
+    clock_t start = clock();
+    while ((clock() - start) * 1000 / CLOCKS_PER_SEC < ms);
+}

@@ -20,7 +20,7 @@ int num_messages=0,is_game_over=0;
 int fifo_fd,num_messages;
 int jumping_player_is[3] = {-1, -1, -1};
 double jump_interval[3] = {0, 0, 0};
-Message message_buffer[20];
+Message message_buffer[50];
 char result_game_buffer[100];
 
 
@@ -138,10 +138,13 @@ void timer(){
     if (is_game_over==3) {
         exit(EXIT_SUCCESS);
     } else if (is_game_over==2){
+        glutPostRedisplay();
         return;
     } else if (is_game_over==1){
         end_game(-1);
         is_game_over=2;
+        glutPostRedisplay();
+        return;
     }
 
     int bytes_read = read(fifo_fd, message_buffer, sizeof(message_buffer));
@@ -153,7 +156,7 @@ void timer(){
         num_messages = 0;
     }
 
-    for (int i = 0; i<num_messages; i++){
+    for (int i = 0; i<num_messages ; i++){
         if (message_buffer[i].type == JUMP_START_ID) {
             startJumping(message_buffer[i].team_id, message_buffer[i].player_id);
             jumping_player_is[message_buffer[i].team_id] = message_buffer[i].player_id;
@@ -167,11 +170,11 @@ void timer(){
             printf("Team %d --> Player %d has finished jumping\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1);
         } else if (message_buffer[i].type == PULL_END_ID) {
             stopPulling(message_buffer[i].team_id);
-            teams[message_buffer[i].team_id].score += (int) (0.5 * (game_config.max_score * (game_config.stabilization_time_min/1000.0) / atof(message_buffer[i].content)));
+            teams[message_buffer[i].team_id].score += (int) (0.1 * (game_config.max_score * (game_config.stabilization_time_min/1000.0) / atof(message_buffer[i].content)));
             printf("Team %d --> Player %d has finished pulling with time %s with score %d\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1,message_buffer[i].content,teams[message_buffer[i].team_id].score);
             if (teams[message_buffer[i].team_id].score >= game_config.max_score) {
-                is_game_over=2;
                 end_game(message_buffer[i].team_id);
+                is_game_over=2;
                 break;
             }
         } else if (message_buffer[i].type == ENERGY_ID) {
@@ -180,8 +183,6 @@ void timer(){
             }
             teamsInterface[message_buffer[i].team_id][message_buffer[i].player_id].energy = atoi(message_buffer[i].content);
             printf("Team %d --> Player %d has %s energy\n", message_buffer[i].team_id + 1, message_buffer[i].player_id + 1, message_buffer[i].content);
-        } else if (message_buffer[i].type == TEAM_STOP) {
-            printf("Team %d has stopped\n", message_buffer[i].team_id + 1);
         }
     }
 
@@ -198,7 +199,7 @@ void handle_alarm_to_end(){
 }
 
 void end_game(int winner) {
-
+    glutDisplayFunc(display_result);
     int max_score = teams[0].score;
     int winning_team_id = 0;
     int draw_count = 0;
@@ -241,7 +242,6 @@ void end_game(int winner) {
 
     signal(SIGALRM, handle_alarm_to_end);
     alarm(8);
-    glutDisplayFunc(display_result);
 }
 
 void display_result(){

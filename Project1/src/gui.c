@@ -21,7 +21,32 @@ void drawHumanPlayer(float x, float y, float r, float g, float b, float alpha, i
     // Head
     glPushMatrix();
     glTranslatef(0.0f, 0.15f, 0.0f);
-    glutSolidSphere(0.05, 20, 20);
+    glutSolidSphere(0.05, 20, 20); // Head sphere
+
+    // Smiley face details
+    glColor3f(0, 0, 0); // Black color for eyes and mouth
+
+    // Left eye
+    glPushMatrix();
+    glTranslatef(-0.015f, 0.02f, 0.0f); // Position left eye on the head
+    glutSolidSphere(0.005, 10, 10); // Small circle for the eye
+    glPopMatrix();
+
+    // Right eye
+    glPushMatrix();
+    glTranslatef(0.015f, 0.02f, 0.0f); // Position right eye on the head
+    glutSolidSphere(0.005, 10, 10); // Small circle for the eye
+    glPopMatrix();
+
+    // Mouth (smile)
+    glBegin(GL_LINE_STRIP);
+    for (float angle = 0; angle <= 180; angle += 10) {
+        float rad = -1 * angle * (3.14159f / 180.0f);
+        float x = 0.015f * cos(rad);
+        float y = -0.01f + 0.01f * sin(rad);
+        glVertex2f(x, y);
+    }
+    glEnd();
     glPopMatrix();
 
     // Draw the player's number above their head
@@ -69,13 +94,38 @@ void drawRefereeWithFlag(float x, float y, float waveAngle){
 
     // Head
     glPushMatrix();
-    glTranslatef(0.0f, 0.2f, 0.0f); // Move head up slightly
-    glutSolidSphere(0.08, 20, 20);  // Increase head size
+    glTranslatef(0.0f, 0.15f, 0.0f);
+    glutSolidSphere(0.06, 20, 20); // Head sphere
+
+    // Smiley face details
+    glColor3f(0, 0, 0); // Black color for eyes and mouth
+
+    // Left eye
+    glPushMatrix();
+    glTranslatef(-0.015f, 0.02f, 0.0f); // Position left eye on the head
+    glutSolidSphere(0.005, 10, 10); // Small circle for the eye
+    glPopMatrix();
+
+    // Right eye
+    glPushMatrix();
+    glTranslatef(0.015f, 0.02f, 0.0f); // Position right eye on the head
+    glutSolidSphere(0.005, 10, 10); // Small circle for the eye
+    glPopMatrix();
+
+    // Mouth (smile)
+    glBegin(GL_LINE_STRIP);
+    for (float angle = 0; angle <= 180; angle += 10) {
+        float rad = -1 * angle * (3.14159f / 180.0f);
+        float x = 0.015f * cos(rad);
+        float y = -0.01f + 0.01f * sin(rad);
+        glVertex2f(x, y);
+    }
+    glEnd();
     glPopMatrix();
 
     // Body
     glBegin(GL_LINES);
-    glVertex2f(0.0f, 0.12f);
+    glVertex2f(0.0f, 0.09f);
     glVertex2f(0.0f, -0.08f); // Increase body length
     glEnd();
 
@@ -101,7 +151,7 @@ void drawRefereeWithFlag(float x, float y, float waveAngle){
     glPopMatrix();
 
     // Legs
-    glColor3f(1.0f, 1.0f, 0.0f);
+    glColor3f(0.0f, 0.0f, 0.0f);
     glBegin(GL_LINES);
     glVertex2f(0.0f, -0.08f);
     glVertex2f(-0.06f, -0.2f); // Increase leg length and width
@@ -131,7 +181,6 @@ void drawRefereeWithFlag(float x, float y, float waveAngle){
 }
 
 
-
 void drawReferees(float x, float y, float r, float g, float b, int print, char message[]) {
     glColor3f(r, g, b); // Color for referee
     glPushMatrix();
@@ -141,7 +190,32 @@ void drawReferees(float x, float y, float r, float g, float b, int print, char m
     // Head
     glPushMatrix();
     glTranslatef(0.0f, 0.15f, 0.0f);
-    glutSolidSphere(0.05, 20, 20);
+    glutSolidSphere(0.05, 20, 20); // Head sphere
+
+    // Smiley face details
+    glColor3f(0, 0, 0); // Black color for eyes and mouth
+
+    // Left eye
+    glPushMatrix();
+    glTranslatef(-0.015f, 0.02f, 0.0f); // Position left eye on the head
+    glutSolidSphere(0.005, 10, 10); // Small circle for the eye
+    glPopMatrix();
+
+    // Right eye
+    glPushMatrix();
+    glTranslatef(0.015f, 0.02f, 0.0f); // Position right eye on the head
+    glutSolidSphere(0.005, 10, 10); // Small circle for the eye
+    glPopMatrix();
+
+    // Mouth (smile)
+    glBegin(GL_LINE_STRIP);
+    for (float angle = 0; angle <= 180; angle += 10) {
+        float rad = -1 * angle * (3.14159f / 180.0f);
+        float x = 0.015f * cos(rad);
+        float y = -0.01f + 0.01f * sin(rad);
+        glVertex2f(x, y);
+    }
+    glEnd();
     glPopMatrix();
 
     glColor3f(0, 0, 0); // Black color for the body and limbs
@@ -213,6 +287,18 @@ void drawReferees(float x, float y, float r, float g, float b, int print, char m
         }
         glPopMatrix();
     }
+
+    // Draw a small timer in the right hand
+    glColor3f(1.0f, 1.0f, 1.0f); // White for timer face
+    glPushMatrix();
+    glTranslatef(0.05f, 0.06f, 0.0f); // Position in right hand
+    glutSolidSphere(0.02, 20, 20);    // Timer circle
+    glColor3f(0.0f, 0.0f, 0.0f);      // Black for timer hand
+    glBegin(GL_LINES);
+    glVertex2f(0.0f, 0.0f);
+    glVertex2f(0.01f, 0.01f);         // Line for timer hand
+    glEnd();
+    glPopMatrix();
 
     glPopMatrix();
 }
