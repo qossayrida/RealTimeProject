@@ -7,15 +7,18 @@ max_time=50                   # Maximum time (in seconds) for the game
 # Player energy levels
 initial_energy_max_a=60
 initial_energy_max_b=50
-initial_energy_max_c=10
+initial_energy_max_c=50
 
-initial_energy_min_a=10
-initial_energy_min_b=30
+initial_energy_min_a=2
+initial_energy_min_b=2
 initial_energy_min_c=2
 
 #Rest time before next jump
 rest_time_max=200
 rest_time_min=100
+
+#Max energy to damp in one round
+max_energy_per_round=10
 
 # Timing ranges (in milliseconds)
 stabilization_time_min=8000    # Minimum time for stabilization

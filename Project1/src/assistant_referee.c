@@ -15,14 +15,13 @@ char fifo_name[3][50];
 int fifo_to_highest,fifo_to_lowest;
 struct timespec start_time, end_time;
 char buffer[3][50];
-int fifo_to_referee;
+int fifo_to_referee,is_jump = -1,is_pull = -1;
 double jump_interval;
 void handle_start_signal(int signum);
 void go_to_jump();
 void go_to_pull();
 void team_stop();
 
-//int id, Config *config, int *pipe_fd
 int main(int argc, char *argv[]) {
     if (argc < 4) {
         fprintf(stderr, "Usage: %s <id> <fifo_name> <config_file>\n", argv[0]);
@@ -114,15 +113,17 @@ int main(int argc, char *argv[]) {
         for(int i = 0; i < num_messages; i++) {
 
             if (message_buffer[i].type == PULL_START_ID){
+                is_pull = message_buffer[i].player_id;
                 if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 
             }else if (message_buffer[i].type == JUMP_START_ID) {
-
+                is_jump = message_buffer[i].player_id;
                 if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 
             } else if (message_buffer[i].type == JUMP_END_ID) {
+                is_jump=-1;
                 clock_gettime(CLOCK_MONOTONIC, &end_time);
                 jump_interval = (end_time.tv_sec - start_time.tv_sec) + (end_time.tv_nsec - start_time.tv_nsec) / 1e9;
 
@@ -134,32 +135,31 @@ int main(int argc, char *argv[]) {
                     perror("Failed to write team data to referee");
 
             } else if (message_buffer[i].type == PULL_END_ID) {
+                is_pull=-1;
                 go_to_jump();
-
                 memset(message_buffer[i].content, '\0', sizeof(message_buffer[i].content));
                 snprintf(message_buffer[i].content, sizeof(message_buffer[i].content), "%.2f",jump_interval);
                 if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
                     perror("Failed to write team data to referee");
 
             } else if (message_buffer[i].type == ENERGY_ID) {
-
                 int energy = atoi(message_buffer[i].content);
+                if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
+                    perror("Failed to write team data to referee");
 
                 if (energy == 0) {
                     team_data.deceased[message_buffer[i].player_id] = 1;
-                    kill(team_data.players[message_buffer[i].player_id], SIGTERM);
+
 
                     if ((team_data.deceased[0] && team_data.deceased[1]) ||
                         (team_data.deceased[1] && team_data.deceased[2]) ||
                         (team_data.deceased[0] && team_data.deceased[2]))
                         team_stop();
 
-                    kill(players[(message_buffer[i].player_id + 1) % 3], SIGQUIT);
-                    kill(players[(message_buffer[i].player_id + 2) % 3], SIGQUIT);
-                }
+                    if (is_jump != message_buffer[i].player_id || is_pull != message_buffer[i].player_id)
+                        kill(team_data.players[message_buffer[i].player_id], SIGTERM);
 
-                if(write(fifo_to_referee, &message_buffer[i], sizeof(message_buffer[i]))== -1)
-                    perror("Failed to write team data to referee");
+                }
             }
         }
     }
@@ -167,7 +167,7 @@ int main(int argc, char *argv[]) {
 }
 
 void go_to_jump(){
-    if( team_data.deceased[team_data.turn] == 1){
+    if(team_data.deceased[team_data.turn] == 1){
         printf("Team %d: Player %d is deceased. Skipping turn to player %d\n", team_data.team_id + 1, team_data.turn, (team_data.turn + 1) % 3);
         team_data.turn = (team_data.turn + 1) % 3;
     }

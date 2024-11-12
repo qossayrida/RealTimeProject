@@ -30,13 +30,13 @@ int generate_random_energy();
 void send_message(int type, char *content);
 void handle_alarm();
 void busy_wait(int ms);
+void update_energy(int time);
 
 int main(int argc, char *argv[]) {
     if (argc < 7) {
         fprintf(stderr, "Usage: %s <id_player> <id_team> <fifo_name> <fifo_highest> <fifo_lowest> <config_file>\n", argv[0]);
         return EXIT_FAILURE;
     }
-
 
     player_id = atoi(argv[1]);
     team_id = atoi(argv[2]);
@@ -125,9 +125,7 @@ void jump() {
     busy_wait(stabilization_time);
 
     // Decrease energy for jump and pull
-    double energy_damping_factor =((double)stabilization_time / ((double)config.max_time * 1000.0));
-    int new_energy = (int) (energy * energy_damping_factor);
-    energy = (energy-new_energy >= 0) ? (energy-new_energy) : 0;
+    update_energy(stabilization_time);
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d",energy);
     send_message(ENERGY_ID,result);
@@ -161,9 +159,7 @@ void pull_leader() {
     }
 
     // Energy check
-    double energy_damping_factor =((double)pull_time / ( (double)config.max_time * 1000.0) );
-    int new_energy = (int) (energy * energy_damping_factor);
-    energy = (energy-new_energy >= 0) ? (energy-new_energy) : 0;
+    update_energy(pull_time);
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d",energy);
     send_message(ENERGY_ID,result);
@@ -189,9 +185,7 @@ void pull_non_leader() {
     }
 
     // Energy check
-    double energy_damping_factor =((double)pull_time / ((double)config.max_time * 1000.0) );
-    int new_energy = (int) (energy * energy_damping_factor);
-    energy = (energy-new_energy >= 0) ? (energy-new_energy) : 0;
+    update_energy(pull_time);
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d",energy);
     send_message(ENERGY_ID,result);
@@ -204,9 +198,7 @@ void pull_alone(){
     int pull_time = (int) (((rand() % (config.pull_time_max - config.pull_time_min)) + config.pull_time_min) * energy_decrease);
     busy_wait(pull_time);
 
-    double energy_damping_factor =((double)pull_time / ((double)config.max_time * 1000.0));
-    int new_energy = (int) (energy * energy_damping_factor);
-    energy = (energy-new_energy >= 0) ? (energy-new_energy) : 0;
+    update_energy(pull_time);
     memset(result, '\0', sizeof(result));
     snprintf(result, sizeof(result), "%d",energy);
     send_message(ENERGY_ID,result);
@@ -269,4 +261,10 @@ void handle_alarm() {
 void busy_wait(int ms) {
     clock_t start = clock();
     while ((clock() - start) * 1000 / CLOCKS_PER_SEC < ms);
+}
+
+void update_energy(int time){
+    double energy_damping_factor = 3 * ((double)time / ((double)config.max_time * 1000.0));
+    int new_energy = (int) (config.max_energy_per_round * energy_damping_factor);
+    energy = (energy-new_energy >= 0) ? (energy-new_energy) : 0;
 }

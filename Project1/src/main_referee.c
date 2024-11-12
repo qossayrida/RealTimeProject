@@ -34,7 +34,6 @@ const float springFactor = 0.8f;  // Damping factor for bounce
 const float pullUpSpeed = 0.005f; // Speed of pulling up the rope (smaller to fit scaling)
 const float sideXOffset = 0.1f;   // Reduced distance for left and right players when they come to the middle
 float player_color[3][3] = {{1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f, 1.0f}};
-// Signal timers (in milliseconds)
 int jumpSignalTimer[3];
 int pullSignalTimer[3];
 int stopPullSignalTimer[3];
@@ -50,10 +49,10 @@ void stopJumping(int teamIndex, int playerIndex);
 void startPulling(int teamIndex);
 void stopPulling(int teamIndex);
 void timer();
-
 void drawBridge();
 void drawScore();
 void drawEnergy();
+void drawSetting();
 
 int main(int argc, char **argv) {
 
@@ -262,6 +261,7 @@ void display() {
 
     drawScore();
     drawEnergy();
+    drawSetting();
 
     for (int t = 0; t < 3; t++) {
         float r = (t == 0) ? 1.0f : 0.0f;
@@ -372,21 +372,36 @@ void drawScore(){
     }
 }
 
+void drawSetting(){
+    glColor3f(0, 0, 0);
+    glRasterPos2f(0.85f, 0.9f);
+    char scoreStr[30];
+    sprintf(scoreStr, "Max Score %d", game_config.max_score);
+    for (char *c = scoreStr; *c != '\0'; c++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+
+    glColor3f(0, 0, 0);
+    glRasterPos2f(0.86f, 0.8f);
+    char timeStr[30];
+    sprintf(timeStr, "Max Time %d",game_config.max_time);
+    for (char *c = timeStr; *c != '\0'; c++){
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+}
 
 
 void startPulling(int teamIndex){
-    int jumpingPlayerIndex = jumping_player_is[teamIndex];
-    Player *left = &teamsInterface[teamIndex][(jumpingPlayerIndex + 1) % 3];
-    Player *right = &teamsInterface[teamIndex][(jumpingPlayerIndex + 2) % 3];
+    Player *left = &teamsInterface[teamIndex][(jumping_player_is[teamIndex] + 1) % 3];
+    Player *right = &teamsInterface[teamIndex][(jumping_player_is[teamIndex] + 2) % 3];
     left->isPulling = 1;
     right->isPulling = 1;
 }
 
 void stopPulling(int teamIndex){
-    int jumpingPlayerIndex = jumping_player_is[teamIndex];
-    Player *jumper = &teamsInterface[teamIndex][jumpingPlayerIndex];
-    Player *left = &teamsInterface[teamIndex][(jumpingPlayerIndex + 1) % 3];
-    Player *right = &teamsInterface[teamIndex][(jumpingPlayerIndex + 2) % 3];
+    Player *jumper = &teamsInterface[teamIndex][jumping_player_is[teamIndex]];
+    Player *left = &teamsInterface[teamIndex][(jumping_player_is[teamIndex] + 1) % 3];
+    Player *right = &teamsInterface[teamIndex][(jumping_player_is[teamIndex] + 2) % 3];
     jumping_player_is[teamIndex] = -1;
     jumper->isStuck = 0;
     left->isPulling = 0;

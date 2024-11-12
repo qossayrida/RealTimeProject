@@ -27,6 +27,7 @@ int load_config(const char *filename, Config *config) {
             else if (strcmp(key, "initial_energy_min_c") == 0) config->initial_energy_min[2] = value;
             else if (strcmp(key, "stabilization_time_min") == 0) config->stabilization_time_min = value;
             else if (strcmp(key, "stabilization_time_max") == 0) config->stabilization_time_max = value;
+            else if (strcmp(key, "max_energy_per_round") == 0) config->max_energy_per_round = value;
             else if (strcmp(key, "rest_time_max") == 0) config->rest_time_max = value;
             else if (strcmp(key, "rest_time_min") == 0) config->rest_time_min = value;
             else if (strcmp(key, "pull_time_min") == 0) config->pull_time_min = value;

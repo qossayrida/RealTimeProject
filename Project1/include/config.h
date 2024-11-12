@@ -21,6 +21,7 @@ typedef struct {
     int rest_time_min;
     int pull_time_min;
     int pull_time_max;
+    int max_energy_per_round;
 } Config;
 
 typedef struct {
