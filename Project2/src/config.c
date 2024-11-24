@@ -40,3 +40,24 @@ int load_config(const char *filename, Config *config) {
     fclose(file);
     return 0;
 }
+
+void print_config(const Config *config) {
+    printf("Config Settings:\n");
+    printf("  num_file_generators: %d\n", config->num_file_generators);
+    printf("  num_file_calculators: %d\n", config->num_file_calculators);
+    printf("  num_file_movers: %d\n", config->num_file_movers);
+    printf("  num_type1_inspectors: %d\n", config->num_type1_inspectors);
+    printf("  num_type2_inspectors: %d\n", config->num_type2_inspectors);
+    printf("  num_type3_inspectors: %d\n", config->num_type3_inspectors);
+    printf("  default_rows: %d\n", config->default_rows);
+    printf("  default_columns: %d\n", config->default_columns);
+    printf("  miss_percentage: %d\n", config->miss_percentage);
+    printf("  file_age_limit: %d\n", config->file_age_limit);
+    printf("  processed_limit: %d\n", config->processed_limit);
+    printf("  unprocessed_limit: %d\n", config->unprocessed_limit);
+    printf("  backup_limit: %d\n", config->backup_limit);
+    printf("  delete_limit: %d\n", config->delete_limit);
+    printf("  runtime_limit: %d\n", config->runtime_limit);
+    printf("  value_range_min: %d\n", config->value_range_min);
+    printf("  value_range_max: %d\n", config->value_range_max);
+}
