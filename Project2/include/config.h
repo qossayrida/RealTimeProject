@@ -1,6 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+
+#define HOME_DIR "./home/" // Directory for generated files
+#define PROCESSED_DIR "./processed/"
+
 typedef struct {
     int num_file_generators;
     int num_file_calculators;

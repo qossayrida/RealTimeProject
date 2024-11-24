@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
 
     create_process("./bin/file_generator", shm_id, sem, config.num_file_generators);
-
+    create_process("./bin/file_calculator",shm_id, sem, config.num_file_calculators);
 
 
     // Monitor simulation and terminate after runtime limit
@@ -62,6 +62,9 @@ int main(int argc, char** argv) {
     printf("Simulation ended.\n");
     return 0;
 }
+
+
+
 
 void create_process(const char *program, int shm_id, sem_t *sem, int count) {
     for (int i = 0; i < count; i++) {

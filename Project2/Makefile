@@ -14,10 +14,10 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SOURCES))
 # Targets for executables
 MAIN_TARGET = $(BIN_DIR)/file_management_simulation
 GENERATOR_TARGET = $(BIN_DIR)/file_generator
-PLAYER_TARGET = $(BIN_DIR)/player
+CALCULATOR_TARGET = $(BIN_DIR)/file_calculator
 
 # Default target
-all: $(MAIN_TARGET) $(GENERATOR_TARGET)
+all: $(MAIN_TARGET) $(GENERATOR_TARGET) $(CALCULATOR_TARGET)
 
 # Build the main referee executable
 $(MAIN_TARGET): $(OBJ_DIR)/main.o  $(OBJ_DIR)/config.o  $(OBJ_DIR)/gui.o | $(BIN_DIR)
@@ -27,6 +27,12 @@ $(MAIN_TARGET): $(OBJ_DIR)/main.o  $(OBJ_DIR)/config.o  $(OBJ_DIR)/gui.o | $(BIN
 # Build the file generator executable 
 $(GENERATOR_TARGET): $(OBJ_DIR)/file_generator.o $(OBJ_DIR)/config.o | $(BIN_DIR)
 	$(CC) $^ -o $(GENERATOR_TARGET)
+
+
+# Build the file calculator executable 
+$(CALCULATOR_TARGET): $(OBJ_DIR)/file_calculator.o $(OBJ_DIR)/config.o | $(BIN_DIR)
+	$(CC) $^ -o $(CALCULATOR_TARGET)
+
 
 
 # Compile each source file to an object file
