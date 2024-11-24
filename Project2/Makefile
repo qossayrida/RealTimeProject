@@ -13,15 +13,20 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SOURCES))
 
 # Targets for executables
 MAIN_TARGET = $(BIN_DIR)/file_management_simulation
-ASSISTANT_TARGET = $(BIN_DIR)/assistant_referee
+GENERATOR_TARGET = $(BIN_DIR)/file_generator
 PLAYER_TARGET = $(BIN_DIR)/player
 
 # Default target
-all: $(MAIN_TARGET) 
+all: $(MAIN_TARGET) $(GENERATOR_TARGET)
 
 # Build the main referee executable
 $(MAIN_TARGET): $(OBJ_DIR)/main.o  $(OBJ_DIR)/config.o  $(OBJ_DIR)/gui.o | $(BIN_DIR)
 	$(CC) $^ -o $(MAIN_TARGET) -lGL -lGLU -lglut -lm # Linking OpenGL libraries
+
+
+# Build the file generator executable 
+$(GENERATOR_TARGET): $(OBJ_DIR)/file_generator.o $(OBJ_DIR)/config.o | $(BIN_DIR)
+	$(CC) $^ -o $(GENERATOR_TARGET)
 
 
 # Compile each source file to an object file

@@ -21,6 +21,19 @@ typedef struct {
     int value_range_max;
 } Config;
 
+typedef struct {
+    int total_generated_files;
+    int total_calculated_files;
+    int total_unprocessed_files;
+    int total_backup_files;
+    int total_deleted_files;
+    float min_average;
+    float max_average;
+    char min_avg_file[256];
+    char max_avg_file[256];
+    int simulation_running; // 1 if running, 0 if terminated
+} SharedData;
+
 int load_config(const char *filename, Config *config);
 void print_config(const Config *config);
 
