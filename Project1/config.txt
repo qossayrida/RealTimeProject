@@ -2,7 +2,7 @@
 
 # Game settings
 max_score=80                  # Maximum score to end the game
-max_time=50                   # Maximum time (in seconds) for the game
+max_time=80                   # Maximum time (in seconds) for the game
 
 # Player energy levels
 initial_energy_max_a=60
@@ -21,7 +21,7 @@ rest_time_min=100
 max_energy_per_round=10
 
 # Timing ranges (in milliseconds)
-stabilization_time_min=8000    # Minimum time for stabilization
-stabilization_time_max=10000    # Maximum time for stabilization
+stabilization_time_min=4000    # Minimum time for stabilization
+stabilization_time_max=20000    # Maximum time for stabilization
 pull_time_min=6000              # Minimum time for pulling the jumper
 pull_time_max=8000             # Maximum time for pulling the jumper
