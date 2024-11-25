@@ -27,11 +27,11 @@ int main() {
         if (msgrcv(msgid, &msg, sizeof(msg), 1, IPC_NOWAIT) > 0) {
             printf("Mover: Received %s.csv\n", msg.file_number);
 
-            char destination[30];
-            snprintf(destination, 30, "%s%s.csv", PROCESSED_DIR, msg.file_number);
+            char destination[MAX_PATH_LENGTH];
+            snprintf(destination, MAX_PATH_LENGTH, "%s%s.csv", PROCESSED_DIR, msg.file_number);
 
-            char source[30];
-            snprintf(source, 30, "%s%s.csv", HOME_DIR, msg.file_number);
+            char source[MAX_PATH_LENGTH];
+            snprintf(source, MAX_PATH_LENGTH, "%s%s.csv", HOME_DIR, msg.file_number);
 
             // Move file
             char command[512];

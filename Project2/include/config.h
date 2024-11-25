@@ -5,6 +5,9 @@
 #define HOME_DIR "./Home/"
 #define PROCESSED_DIR "./Processed/"
 #define UNPROCESSED_DIR "./UnProcessed/"
+#define BACKUP_DIR "./Backup/"
+
+#define MAX_PATH_LENGTH 40
 
 typedef struct {
     int num_file_generators;

@@ -68,7 +68,6 @@ int main() {
 }
 
 
-// Function to ensure HOME_DIR exists
 void ensure_directory(const char *path) {
     struct stat st;
     if (stat(path, &st) == -1) {
@@ -77,7 +76,6 @@ void ensure_directory(const char *path) {
     }
 }
 
-// Function to generate a random decimal value or mark as missing
 float generate_random_value(int miss_percentage) {
     int random_value = rand() % 100; // Generate a random value between 0-99
     if (random_value < miss_percentage) {

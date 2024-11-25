@@ -24,8 +24,11 @@ int main() {
 
         printf("File calculator: calculate file %d\n", shared_data->total_calculated_files);
 
-        char file_number[10];
-        snprintf(file_number, 10, "%d", shared_data->total_calculated_files);
+        // Calculate file
+
+
+        char file_number[MAX_PATH_LENGTH];
+        snprintf(file_number, MAX_PATH_LENGTH, "%d", shared_data->total_calculated_files);
 
         // Send message to Mover
         Message msg;
