@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <semaphore.h>
 #include <sys/shm.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 #include <string.h>
 #include "config.h"
 
@@ -12,10 +14,26 @@ int main() {
     sem_t *sem = sem_open("/sim_sem", 0); // Open semaphore
     SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
 
+
+    // Open message queue
+    key_t key = ftok("queuefile", 65);
+    int msgid = msgget(key, 0666 | IPC_CREAT);
+
     while (shared_data->simulation_running) {
         sem_wait(sem);
         shared_data->total_calculated_files++;
         printf("File calculator: calculate file %d\n", shared_data->total_calculated_files);
+
+        char file_number[10];
+        snprintf(file_number, 10, "%d", shared_data->total_calculated_files);
+
+        // Send message to Mover
+        Message msg;
+        msg.mtype = 1;  // Message type for movers
+        strncpy(msg.file_number, file_number, 10);
+
+        msgsnd(msgid, &msg, sizeof(msg), 0);
+
         sem_post(sem);
         sleep(rand() % 3 + 1); // Simulate random delay
     }

@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 
-#define HOME_DIR "./home/" // Directory for generated files
+#define HOME_DIR "./home/"
 #define PROCESSED_DIR "./processed/"
 
 typedef struct {
@@ -36,7 +36,15 @@ typedef struct {
     char min_avg_file[256];
     char max_avg_file[256];
     int simulation_running; // 1 if running, 0 if terminated
+    Config config;
 } SharedData;
+
+
+typedef struct {
+    long mtype;         // Message type
+    char file_number[10];  // File path
+} Message;
+
 
 int load_config(const char *filename, Config *config);
 void print_config(const Config *config);

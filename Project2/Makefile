@@ -15,9 +15,10 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SOURCES))
 MAIN_TARGET = $(BIN_DIR)/file_management_simulation
 GENERATOR_TARGET = $(BIN_DIR)/file_generator
 CALCULATOR_TARGET = $(BIN_DIR)/file_calculator
+MOVER_TARGET = $(BIN_DIR)/file_mover
 
 # Default target
-all: $(MAIN_TARGET) $(GENERATOR_TARGET) $(CALCULATOR_TARGET)
+all: $(MAIN_TARGET) $(GENERATOR_TARGET) $(CALCULATOR_TARGET) $(MOVER_TARGET)
 
 # Build the main referee executable
 $(MAIN_TARGET): $(OBJ_DIR)/main.o  $(OBJ_DIR)/config.o  $(OBJ_DIR)/gui.o | $(BIN_DIR)
@@ -33,6 +34,9 @@ $(GENERATOR_TARGET): $(OBJ_DIR)/file_generator.o $(OBJ_DIR)/config.o | $(BIN_DIR
 $(CALCULATOR_TARGET): $(OBJ_DIR)/file_calculator.o $(OBJ_DIR)/config.o | $(BIN_DIR)
 	$(CC) $^ -o $(CALCULATOR_TARGET)
 
+# Build the file mover executable 
+$(MOVER_TARGET): $(OBJ_DIR)/file_mover.o $(OBJ_DIR)/config.o | $(BIN_DIR)
+	$(CC) $^ -o $(MOVER_TARGET)
 
 
 # Compile each source file to an object file

@@ -37,21 +37,27 @@ int main(int argc, char** argv) {
 
     // Initialize shared memory
     shm_id = shmget(IPC_PRIVATE, sizeof(SharedData), IPC_CREAT | 0666);
-    shared_data = (SharedData *)shmat(shm_id, NULL, 0);
+    shared_data = (SharedData *) shmat(shm_id, NULL, 0);
     memset(shared_data, 0, sizeof(SharedData));
     shared_data->simulation_running = 1;
+    shared_data->config = config; // Add this lin
 
     // Initialize semaphore
     sem = sem_open("/sim_sem", O_CREAT, 0644, 1);
+    if (sem == SEM_FAILED) {
+        perror("sem_open failed");
+        exit(1);
+    }
 
 
     create_process("./bin/file_generator", shm_id, sem, config.num_file_generators);
     create_process("./bin/file_calculator",shm_id, sem, config.num_file_calculators);
-
+    create_process("./bin/file_mover",shm_id, sem, config.num_file_movers);
 
     // Monitor simulation and terminate after runtime limit
     sleep(config.runtime_limit);
     shared_data->simulation_running = 0;
+
     while (wait(NULL) > 0);
 
     // Cleanup resources
@@ -60,7 +66,6 @@ int main(int argc, char** argv) {
     sem_close(sem);
     sem_unlink("/sim_sem");
 
-    printf("Simulation ended.\n");
     return 0;
 }
 
