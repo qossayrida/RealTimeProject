@@ -27,6 +27,7 @@ int main(int argc, char** argv) {
     while(menu_state != 2) {
         glutMainLoopEvent();
     }
+
     print_config(&config);
 
 
@@ -62,8 +63,6 @@ int main(int argc, char** argv) {
     printf("Simulation ended.\n");
     return 0;
 }
-
-
 
 
 void create_process(const char *program, int shm_id, sem_t *sem, int count) {
