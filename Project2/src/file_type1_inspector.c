@@ -14,7 +14,7 @@ void move_to_unprocessed(const char *filename);
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-//  sem_t *sem = sem_open("/sim_sem", 0); // Open semaphore
+    sem_t *sem = sem_open("/sim_sem", 0); // Open semaphore
     SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
 
 
@@ -23,8 +23,30 @@ int main() {
 
 
     while (shared_data->simulation_running) {
+        sem_wait(sem); // Lock access to shared data
+
+        char file_number[MAX_PATH_LENGTH];
+        snprintf(file_number, MAX_PATH_LENGTH, "%d", shared_data->total_calculated_files + shared_data->total_unprocessed_files);
+
+        char source[MAX_PATH_LENGTH*2];
+        snprintf(source, MAX_PATH_LENGTH*2, "%s%s.csv", HOME_DIR, file_number);
 
 
+        ////////////////////////////////////////////////////////////////////////////////
+        // File inspection logic goes here (Make sure if find one check the next one)
+        ////////////////////////////////////////////////////////////////////////////////
+        struct stat file_stat;
+        if (stat(source, &file_stat) == 0) {
+            time_t current_time = time(NULL);
+            double file_age = difftime(current_time, file_stat.st_mtime); // File age in days
+
+            if (file_age > shared_data->config.file_age_limit) {
+                move_to_unprocessed(file_number);
+                shared_data->total_unprocessed_files++;
+            }
+        }
+
+        sem_post(sem); // Unlock access to shared data
     }
 
 
@@ -43,12 +65,15 @@ void ensure_directory(const char *path) {
 
 
 void move_to_unprocessed(const char *filename) {
-    char destination[600];
-    snprintf(destination, 600, "%s%s", UNPROCESSED_DIR, filename);
+    char destination[MAX_PATH_LENGTH];
+    snprintf(destination, MAX_PATH_LENGTH, "%s%s.csv", UNPROCESSED_DIR, filename);
 
-    if (rename(filename, destination) == 0) {
-        printf("Moved file: %s to UnProcessed directory\n", filename);
-    } else {
-        perror("Failed to move file");
-    }
+    char source[MAX_PATH_LENGTH];
+    snprintf(source, MAX_PATH_LENGTH, "%s%s.csv", HOME_DIR, filename);
+
+    // Move file
+    char command[512];
+    snprintf(command, sizeof(command), "mv %s %s",source, destination);
+    printf("Executing: %s \n", command);
+    system(command);
 }

@@ -9,10 +9,65 @@
 #include <sys/shm.h>
 #include "config.h"
 
+void ensure_directory(const char *path);
+void move(const char *filename);
 
 int main() {
+    int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
+    sem_t *sem = sem_open("/sim_sem", 0); // Open semaphore
+    SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
+
 
     printf("Type 2 Inspector: Started\n");
+    ensure_directory(BACKUP_DIR); // Ensure UnProcessed directory exists
+
+    while (shared_data->simulation_running) {
+        sem_wait(sem); // Lock access to shared data
+
+        char file_number[MAX_PATH_LENGTH];
+        snprintf(file_number, MAX_PATH_LENGTH, "%d", shared_data->total_calculated_files);
+
+        char source[MAX_PATH_LENGTH*2];
+        snprintf(source, MAX_PATH_LENGTH*2, "%s%s.csv", PROCESSED_DIR, file_number);
+
+
+        struct stat file_stat;
+        if (stat(source, &file_stat) == 0) {
+            time_t current_time = time(NULL);
+            double file_age = difftime(current_time, file_stat.st_mtime); // File age in days
+
+            if (file_age > shared_data->config.processed_limit) {
+                move(file_number);
+                shared_data->total_backup_files++;
+            }
+        }
+
+        sem_post(sem); // Unlock access to shared data
+    }
+
 
     return 0;
 }
+
+void ensure_directory(const char *path) {
+    struct stat st;
+    if (stat(path, &st) == -1) {
+        mkdir(path, 0700); // Create directory with read/write/execute permissions
+        printf("Created directory: %s\n", path);
+    }
+}
+
+void move(const char *filename) {
+    char destination[MAX_PATH_LENGTH];
+    snprintf(destination, MAX_PATH_LENGTH, "%s%s.csv",BACKUP_DIR, filename);
+
+    char source[MAX_PATH_LENGTH];
+    snprintf(source, MAX_PATH_LENGTH, "%s%s.csv",PROCESSED_DIR, filename);
+
+    // Move file
+    char command[512];
+    snprintf(command, sizeof(command), "mv %s %s",source, destination);
+    printf("Executing: %s \n", command);
+    system(command);
+}
+

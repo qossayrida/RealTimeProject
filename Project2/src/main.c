@@ -63,11 +63,21 @@ int main(int argc, char** argv) {
 
     while (wait(NULL) > 0);
 
+    printf("Simulation complete\n");
+    printf("Total generated files: %d\n", shared_data->total_generated_files);
+    printf("Total calculated files: %d\n", shared_data->total_calculated_files);
+    printf("Total unprocessed files: %d\n", shared_data->total_unprocessed_files);
+    printf("Total backup files: %d\n", shared_data->total_backup_files);
+    printf("Total deleted files: %d\n", shared_data->total_deleted_files);
+
     // Cleanup resources
     shmdt(shared_data);
     shmctl(shm_id, IPC_RMID, NULL);
     sem_close(sem);
     sem_unlink("/sim_sem");
+
+
+
 
     return 0;
 }

@@ -21,9 +21,7 @@ typedef struct {
     int miss_percentage;
     int file_age_limit;
     int processed_limit;
-    int unprocessed_limit;
     int backup_limit;
-    int delete_limit;
     int runtime_limit;
     int value_range_min;
     int value_range_max;

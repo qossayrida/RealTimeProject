@@ -28,9 +28,7 @@ int load_config(const char *filename, Config *config) {
             else if (strcmp(key, "miss_percentage") == 0) config->miss_percentage = value;
             else if (strcmp(key, "file_age_limit") == 0) config->file_age_limit = value;
             else if (strcmp(key, "processed_limit") == 0) config->processed_limit = value;
-            else if (strcmp(key, "unprocessed_limit") == 0) config->unprocessed_limit = value;
             else if (strcmp(key, "backup_limit") == 0) config->backup_limit = value;
-            else if (strcmp(key, "delete_limit") == 0) config->delete_limit = value;
             else if (strcmp(key, "runtime_limit") == 0) config->runtime_limit = value;
             else if (strcmp(key, "value_range_min") == 0) config->value_range_min = value;
             else if (strcmp(key, "value_range_max") == 0) config->value_range_max = value;
@@ -54,9 +52,7 @@ void print_config(const Config *config) {
     printf("  miss_percentage: %d\n", config->miss_percentage);
     printf("  file_age_limit: %d\n", config->file_age_limit);
     printf("  processed_limit: %d\n", config->processed_limit);
-    printf("  unprocessed_limit: %d\n", config->unprocessed_limit);
     printf("  backup_limit: %d\n", config->backup_limit);
-    printf("  delete_limit: %d\n", config->delete_limit);
     printf("  runtime_limit: %d\n", config->runtime_limit);
     printf("  value_range_min: %d\n", config->value_range_min);
     printf("  value_range_max: %d\n", config->value_range_max);

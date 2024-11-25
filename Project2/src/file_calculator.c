@@ -22,23 +22,26 @@ int main() {
     while (shared_data->simulation_running) {
         sem_wait(sem);
 
-        printf("File calculator: calculate file %d\n", shared_data->total_calculated_files);
-
-        // Calculate file
-
 
         char file_number[MAX_PATH_LENGTH];
-        snprintf(file_number, MAX_PATH_LENGTH, "%d", shared_data->total_calculated_files);
+        snprintf(file_number, MAX_PATH_LENGTH, "%d", shared_data->total_calculated_files + shared_data->total_unprocessed_files);
 
-        // Send message to Mover
-        Message msg;
-        msg.mtype = 1;  // Message type for movers
-        strncpy(msg.file_number, file_number, 10);
+        char source[MAX_PATH_LENGTH*2];
+        snprintf(source, MAX_PATH_LENGTH*2, "%s%s.csv", HOME_DIR, file_number);
 
-        msgsnd(msgid, &msg, sizeof(msg), 0);
+        if (access(source, F_OK) != -1) {
+            printf("File exists\n");
+            printf("File calculator: calculate file %d\n", shared_data->total_calculated_files + shared_data->total_unprocessed_files);
 
+            // Send message to Mover
+            Message msg;
+            msg.mtype = 1;  // Message type for movers
+            strncpy(msg.file_number, file_number, 10);
 
-        shared_data->total_calculated_files++;
+            msgsnd(msgid, &msg, sizeof(msg), 0);
+            shared_data->total_calculated_files++;
+        }
+
         sem_post(sem);
         sleep(rand() % 3 + 1); // Simulate random delay
     }
