@@ -5,9 +5,11 @@
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <sys/shm.h>
+#include <sys/stat.h>
 #include <string.h>
 #include "config.h"
 
+void ensure_directory(const char *path);
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
@@ -16,6 +18,8 @@ int main() {
 
     key_t key = ftok("queuefile", 65);
     int msgid = msgget(key, 0666 | IPC_CREAT);
+
+    ensure_directory(PROCESSED_DIR);
 
     Message msg;
     while (shared_data->simulation_running) {
@@ -33,10 +37,20 @@ int main() {
             char command[512];
             snprintf(command, sizeof(command), "mv %s %s",source, destination);
             printf("Executing: %s\n", command);
-            //system(command);  // Use `rename()` for safety in production
+            system(command);  // Use `rename()` for safety in production
         }
     }
 
     shmdt(shared_data);
     return 0;
+}
+
+
+// Function to ensure HOME_DIR exists
+void ensure_directory(const char *path) {
+    struct stat st;
+    if (stat(path, &st) == -1) {
+        mkdir(path, 0700); // Create directory with read/write/execute permissions
+        printf("Created directory: %s\n", path);
+    }
 }

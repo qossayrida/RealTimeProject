@@ -49,10 +49,13 @@ int main(int argc, char** argv) {
         exit(1);
     }
 
-
     create_process("./bin/file_generator", shm_id, sem, config.num_file_generators);
     create_process("./bin/file_calculator",shm_id, sem, config.num_file_calculators);
     create_process("./bin/file_mover",shm_id, sem, config.num_file_movers);
+    create_process("./bin/file_type1_inspector",shm_id, sem, config.num_type1_inspectors);
+    create_process("./bin/file_type2_inspector",shm_id, sem, config.num_type2_inspectors);
+    create_process("./bin/file_type3_inspector",shm_id, sem, config.num_type3_inspectors);
+
 
     // Monitor simulation and terminate after runtime limit
     sleep(config.runtime_limit);

@@ -172,7 +172,7 @@ void display_config() {
     } else if (menu_state == 1) { // Custom Input Menu
         char buffer[256];
         snprintf(buffer, sizeof(buffer), "%s%s", prompts[active_field], input_buffers[active_field]);
-        drawText(-0.7f, 0.2f, buffer);
+        drawText(-0.3f, 0.2f, buffer);
 
         drawText(-0.9f, -0.8f, "Press Enter to confirm input.");
 

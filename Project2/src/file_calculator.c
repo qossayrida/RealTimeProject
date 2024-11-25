@@ -21,7 +21,7 @@ int main() {
 
     while (shared_data->simulation_running) {
         sem_wait(sem);
-        shared_data->total_calculated_files++;
+
         printf("File calculator: calculate file %d\n", shared_data->total_calculated_files);
 
         char file_number[10];
@@ -34,6 +34,8 @@ int main() {
 
         msgsnd(msgid, &msg, sizeof(msg), 0);
 
+
+        shared_data->total_calculated_files++;
         sem_post(sem);
         sleep(rand() % 3 + 1); // Simulate random delay
     }

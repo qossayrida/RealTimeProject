@@ -2,8 +2,9 @@
 #define CONFIG_H
 
 
-#define HOME_DIR "./home/"
-#define PROCESSED_DIR "./processed/"
+#define HOME_DIR "./Home/"
+#define PROCESSED_DIR "./Processed/"
+#define UNPROCESSED_DIR "./UnProcessed/"
 
 typedef struct {
     int num_file_generators;
