@@ -70,7 +70,6 @@ int main(int argc, char** argv) {
     shmctl(shm_id, IPC_RMID, NULL);
 
 
-
     return 0;
 }
 

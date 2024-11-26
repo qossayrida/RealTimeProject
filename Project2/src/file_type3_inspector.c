@@ -21,7 +21,7 @@ int main() {
     printf("Type 3 Inspector: Started\n");
 
     while (shared_data->simulation_running) {
-
+        sem_wait(sem); // Lock access to shared data
 
 
         char *first_element = get_first_file();
@@ -29,8 +29,8 @@ int main() {
 
         if (first_element != NULL) {
             snprintf(source, MAX_PATH_LENGTH, "%s%s", BACKUP_DIR, first_element);
-        } else {
-            continue;
+        } else{
+            goto label;
         }
 
         struct stat file_stat;
@@ -39,11 +39,12 @@ int main() {
             double file_age = difftime(current_time, file_stat.st_mtime);
             if (file_age > shared_data->config.backup_limit) {
                 remove_file(source);
-                sem_wait(sem); // Lock access to shared data
                 shared_data->total_deleted_files++;
-                sem_post(sem); // Unlock access to shared data
             }
         }
+
+        label:
+        sem_post(sem); // Unlock access to shared data
     }
     return 0;
 }
@@ -59,7 +60,7 @@ void remove_file(const char *source) {
 
 char* get_first_file() {
     char command[512];
-    snprintf(command, sizeof(command), "ls %s | head -n 1", BACKUP_DIR);
+    snprintf(command, sizeof(command), "ls %s -v | head -n 1", BACKUP_DIR);
 
     FILE *fp = popen(command, "r");
     if (fp == NULL) {
@@ -77,7 +78,6 @@ char* get_first_file() {
     pclose(fp);
     return NULL;
 }
-
 
 void remove_spaces_and_newlines(char *str) {
     char *src = str, *dst = str;

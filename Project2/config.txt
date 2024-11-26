@@ -13,4 +13,3 @@ file_age_limit=1
 processed_limit=2
 backup_limit=5
 runtime_limit=30
-
