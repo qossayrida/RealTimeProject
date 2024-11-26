@@ -5,16 +5,16 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <semaphore.h>
 #include <sys/shm.h>
 #include "config.h"
+#include "sem.h"
 
 void ensure_directory(const char *path);
 void move(const char *filename);
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    sem_t *sem = sem_open("/sim_sem", 0); // Open semaphore
+    int sem= semget(1234, 1, 0666 );
     SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
 
 

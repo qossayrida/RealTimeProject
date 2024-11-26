@@ -1,17 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <semaphore.h>
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <string.h>
 #include "config.h"
-
+#include "sem.h"
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    sem_t *sem = sem_open("/sim_sem", 0); // Open semaphore
+    int sem= semget(1234, 1, 0666 );
     SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
 
 
@@ -30,7 +29,6 @@ int main() {
         snprintf(source, MAX_PATH_LENGTH*2, "%s%s.csv", HOME_DIR, file_number);
 
         if (access(source, F_OK) != -1) {
-            printf("File exists\n");
             printf("File calculator: calculate file %d\n", shared_data->total_calculated_files + shared_data->total_unprocessed_files);
 
             // Send message to Mover

@@ -4,14 +4,14 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/shm.h>
-#include <semaphore.h>
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <string.h>
 #include "gui.h"
 #include "config.h"
+#include "sem.h"
 
-void create_process(const char *program, int shm_id, sem_t *sem, int count);
+void create_process(const char *program, int shm_id, int count);
 
 int main(int argc, char** argv) {
     glutInit(&argc, argv);
@@ -33,7 +33,6 @@ int main(int argc, char** argv) {
 
     int shm_id;
     SharedData *shared_data;
-    sem_t *sem;
 
     // Initialize shared memory
     shm_id = shmget(IPC_PRIVATE, sizeof(SharedData), IPC_CREAT | 0666);
@@ -43,18 +42,14 @@ int main(int argc, char** argv) {
     shared_data->config = config; // Add this lin
 
     // Initialize semaphore
-    sem = sem_open("/sim_sem", O_CREAT, 0644, 1);
-    if (sem == SEM_FAILED) {
-        perror("sem_open failed");
-        exit(1);
-    }
+    init_semaphore();
 
-    create_process("./bin/file_generator", shm_id, sem, config.num_file_generators);
-    create_process("./bin/file_calculator",shm_id, sem, config.num_file_calculators);
-    create_process("./bin/file_mover",shm_id, sem, config.num_file_movers);
-    create_process("./bin/file_type1_inspector",shm_id, sem, config.num_type1_inspectors);
-    create_process("./bin/file_type2_inspector",shm_id, sem, config.num_type2_inspectors);
-    create_process("./bin/file_type3_inspector",shm_id, sem, config.num_type3_inspectors);
+    create_process("./bin/file_generator", shm_id, config.num_file_generators);
+    create_process("./bin/file_calculator",shm_id, config.num_file_calculators);
+    create_process("./bin/file_mover",shm_id, config.num_file_movers);
+    create_process("./bin/file_type1_inspector",shm_id, config.num_type1_inspectors);
+    create_process("./bin/file_type2_inspector",shm_id, config.num_type2_inspectors);
+    create_process("./bin/file_type3_inspector",shm_id, config.num_type3_inspectors);
 
 
     // Monitor simulation and terminate after runtime limit
@@ -73,9 +68,6 @@ int main(int argc, char** argv) {
     // Cleanup resources
     shmdt(shared_data);
     shmctl(shm_id, IPC_RMID, NULL);
-    sem_close(sem);
-    sem_unlink("/sim_sem");
-
 
 
 
@@ -83,7 +75,7 @@ int main(int argc, char** argv) {
 }
 
 
-void create_process(const char *program, int shm_id, sem_t *sem, int count) {
+void create_process(const char *program, int shm_id, int count) {
     for (int i = 0; i < count; i++) {
         pid_t pid = fork();
         if (pid == 0) { // Child process
