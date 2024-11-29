@@ -14,9 +14,10 @@
 #include "sem.h"
 
 
+
 void handle_alarm();
 void create_process(const char *program, int shm_id, int count);
-
+void try();
 
 Information info_buffer[50];
 SharedData *shared_data;
@@ -46,6 +47,9 @@ int main(int argc, char** argv) {
     memset(shared_data, 0, sizeof(SharedData));
     shared_data->simulation_running = 1;
     shared_data->config = config; // Add this lin
+    shared_data->list_of_averages = create_list_node();
+
+
 
     // Initialize semaphore
     init_semaphore();
@@ -67,8 +71,6 @@ int main(int argc, char** argv) {
     create_process("./bin/file_type1_inspector",shm_id, config.num_type1_inspectors);
     create_process("./bin/file_type2_inspector",shm_id, config.num_type2_inspectors);
     create_process("./bin/file_type3_inspector",shm_id, config.num_type3_inspectors);
-
-
 
 
     while(shared_data->simulation_running) {
@@ -105,6 +107,8 @@ int main(int argc, char** argv) {
     shmctl(shm_id, IPC_RMID, NULL);
     system("rm /tmp/file_fifo_public");
     printf("Main: Fifo removed\n");
+
+
     return 0;
 }
 
@@ -135,4 +139,26 @@ void create_process(const char *program, int shm_id, int count) {
     }
 }
 
+
+
+void try() {
+    ListNodePtr outer_linked_list = create_list_node();
+
+
+    AvgNodePtr avg_list = create_avg_node();
+    add_avg_node(avg_list,1, 5.5);
+    add_avg_node(avg_list,2, 6.5);
+
+    add_list_node(outer_linked_list, avg_list);
+
+
+
+    avg_list = create_avg_node();
+    add_avg_node(avg_list,2, 7.5);
+    add_avg_node(avg_list,4, 8.5);
+    add_list_node(outer_linked_list, avg_list);
+
+
+    print_linked_list(outer_linked_list);
+}
 

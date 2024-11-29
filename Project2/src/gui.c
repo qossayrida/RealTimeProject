@@ -5,9 +5,11 @@
 #include <unistd.h>
 #include "config.h"
 
+#define NUM_INPUT_FIELDS 7
+
 Config config;
 int menu_state = 0;         // 0: Main menu, 1: Custom input menu, 2: Display final configuration
-char input_buffers[5][50] = {"", "", "", "", ""}; // Buffers for user inputs
+char input_buffers[NUM_INPUT_FIELDS][50] = {"", "", "", "", ""}; // Buffers for user inputs
 int show_alert = 0;    // Alert flag for validation errors
 int active_field = 0; // Tracks which input field is currently active for keyboard input
 
@@ -15,21 +17,25 @@ int active_field = 0; // Tracks which input field is currently active for keyboa
 const char* prompts[] = {
         "Number of File Generators (1-100): ",
         "Number of File Calculators (1-100): ",
-        "Number of Rows (1-100000): ",
-        "Number of Columns (1-1000): ",
+        "Number of Rows (upper limit) (1-100000): ",
+        "Number of Rows (lower limit) (1-100000): ",
+        "Number of Columns (upper limit) (1-1000): ",
+        "Number of Columns (lower limit) (1-1000): ",
         "Miss Percentage (0-100): "
 };
 
 int* config_values[] = {
         &config.num_file_generators,
         &config.num_file_calculators,
-        &config.default_rows,
-        &config.default_columns,
+        &config.default_upper_rows,
+        &config.default_lower_rows,
+        &config.default_upper_columns,
+        &config.default_lower_columns,
         &config.miss_percentage
 };
 
-int min_values[] = {1, 1, 1, 1, 0};
-int max_values[] = {100, 100, 100000, 1000, 100};
+int min_values[] = {1, 1, 1, 1, 1, 1, 0};
+int max_values[] = {100, 100, 100000,100000,1000, 1000, 100};
 
 
 
@@ -43,7 +49,7 @@ void init() {
 void validateAndStoreInput() {
     show_alert = 0;
 
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < NUM_INPUT_FIELDS ; i++) {
         int value = atoi(input_buffers[i]);
         if (value >= min_values[i] && value <= max_values[i]) {
             *config_values[i] = value;
@@ -86,7 +92,7 @@ void mouse(int button, int state, int x, int y) {
                 glutPostRedisplay();
             }
         }else if (menu_state == 1) {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < NUM_INPUT_FIELDS; i++) {
                 float icon_x = -0.9f;
                 float icon_y = 0.72f - i * 0.2f;
                 float icon_size = 0.05f;
@@ -136,7 +142,7 @@ void keyboard(unsigned char key, int x, int y) {
                     *config_values[active_field] = value; // Store the validated value
                     active_field++; // Move to the next input field
                     show_alert = 0; // Reset alert
-                    if (active_field == 5) { // All inputs collected
+                    if (active_field == NUM_INPUT_FIELDS) { // All inputs collected
                         glutMouseFunc(NULL);
                         glutKeyboardFunc(NULL);
                         menu_state = 2; // Move to final configuration display

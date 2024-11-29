@@ -33,7 +33,7 @@ $(MAIN_TARGET): $(OBJ_DIR)/main.o  $(OBJ_DIR)/config.o  $(OBJ_DIR)/gui.o | $(BIN
 
 
 # Build the file generator executable 
-$(GENERATOR_TARGET): $(OBJ_DIR)/file_generator.o $(OBJ_DIR)/config.o | $(BIN_DIR)
+$(GENERATOR_TARGET): $(OBJ_DIR)/file_generator.o $(OBJ_DIR)/config.o  | $(BIN_DIR)
 	$(CC) $^ -o $(GENERATOR_TARGET)
 
 

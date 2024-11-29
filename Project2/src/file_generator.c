@@ -39,8 +39,8 @@ int main() {
         }
 
         // Get random rows and columns within config range
-        int rows = shared_data->config.default_rows;
-        int columns = shared_data->config.default_columns;
+        int rows = rand() % (shared_data->config.default_upper_rows - shared_data->config.default_lower_rows + 1) + shared_data->config.default_lower_rows;
+        int columns = rand() % (shared_data->config.default_upper_columns - shared_data->config.default_lower_columns + 1) + shared_data->config.default_lower_columns;
 
         // Generate and write data to the file
         for (int i = 0; i < rows; i++) {

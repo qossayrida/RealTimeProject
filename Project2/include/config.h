@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+
 #define FIFO_NAME "/tmp/file_fifo_public"
 
 #define HOME_DIR "./Home/"
@@ -19,6 +20,18 @@ enum {
 
 #define MAX_PATH_LENGTH 40
 
+
+typedef struct ListNode {
+    struct AvgNode* list_of_average;
+    struct ListNode* next;
+} ListNode, *ListNodePtr;
+
+typedef struct AvgNode {
+    int num_rows;
+    float average;
+    struct AvgNode* next;
+} AvgNode, *AvgNodePtr;
+
 typedef struct {
     int num_file_generators;
     int num_file_calculators;
@@ -26,8 +39,10 @@ typedef struct {
     int num_type1_inspectors;
     int num_type2_inspectors;
     int num_type3_inspectors;
-    int default_rows;
-    int default_columns;
+    int default_upper_rows;
+    int default_lower_rows;
+    int default_upper_columns;
+    int default_lower_columns;
     int miss_percentage;
     int file_age_limit;
     int processed_limit;
@@ -49,6 +64,7 @@ typedef struct {
     char max_avg_file[256];
     int simulation_running; // 1 if running, 0 if terminated
     Config config;
+    ListNodePtr list_of_averages;
 } SharedData;
 
 
@@ -63,8 +79,14 @@ typedef struct {
     char content[30];
 } Information;
 
+
 int load_config(const char *filename, Config *config);
 void print_config(const Config *config);
 void send_info(int fifo,int type ,int sender_id, char *content);
+ListNodePtr create_list_node();
+AvgNodePtr create_avg_node();
+void add_list_node(ListNodePtr outer_linked_list, AvgNodePtr avg_list);
+void add_avg_node(AvgNodePtr avg_list,int rows ,float new_avg);
+void print_linked_list(ListNodePtr outer_linked_list);
 
 #endif // CONFIG_H

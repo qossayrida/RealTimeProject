@@ -33,6 +33,7 @@ int main() {
         char source[MAX_PATH_LENGTH*2];
         snprintf(source, MAX_PATH_LENGTH*2, "%s%s.csv", HOME_DIR, file_number);
 
+
         if (access(source, F_OK) != -1) {
             send_info(fifo_fd, FILE_CALCULATOR, getpid(), file_number);
 
@@ -42,6 +43,55 @@ int main() {
             strncpy(msg.file_number, file_number, 10);
             msgsnd(msgid, &msg, sizeof(msg), 0);
             shared_data->total_calculated_files++;
+
+
+            FILE *file = fopen(source, "r");
+            if (!file){
+                perror("Failed to open file");
+                continue;
+            }
+
+            int columnCount = 0;
+            double sums[10] = {0};
+            int rows[100]={0};
+            char line[1024];
+
+
+            // Read each line from the file
+            while (fgets(line, sizeof(line), file)) {
+
+                char* token = strtok(line, ",");
+                columnCount = 0;
+                while (token != NULL) {
+                    if (strcmp(token, "MISSING") == 0) {
+                        // Skip this token (i.e., do not add it to the sum)
+                        token = strtok(NULL, ",");
+                        columnCount++;
+                        continue;
+                    }
+
+                    // Convert the token to a double and add to the corresponding column sum
+                    sums[columnCount] += atof(token);
+                    rows[columnCount]+=1;
+                    columnCount++;
+                    token = strtok(NULL, ",");
+                }
+
+            }
+
+            for (int i = 0; i < columnCount; i++) {
+                printf("Average of column %d: %.2f and number of rows are %d\n", i + 1, sums[i] / rows[i],rows[i]);
+            }
+
+
+//            AvgNodePtr avg_list = create_avg_node();
+//            for (int i = 0; i < columnCount; i++){
+//                add_avg_node(avg_list,rows[i], sums[i] / rows[i]);
+//            }
+//            add_list_node(shared_data->list_of_averages, avg_list);
+
+
+            fclose(file);
         }
 
         sem_post(sem);
