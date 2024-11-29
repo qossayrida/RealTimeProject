@@ -1,11 +1,21 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#define FIFO_NAME "/tmp/file_fifo_public"
 
 #define HOME_DIR "./Home/"
 #define PROCESSED_DIR "./Processed/"
 #define UNPROCESSED_DIR "./UnProcessed/"
 #define BACKUP_DIR "./Backup/"
+
+enum {
+    FILE_GENERATOR,
+    FILE_CALCULATOR,
+    FILE_MOVER,
+    TYPE1_INSPECTOR,
+    TYPE2_INSPECTOR,
+    TYPE3_INSPECTOR
+};
 
 #define MAX_PATH_LENGTH 40
 
@@ -47,8 +57,14 @@ typedef struct {
     char file_number[10];  // File path
 } Message;
 
+typedef struct {
+    int type;
+    int sender_id;
+    char content[30];
+} Information;
 
 int load_config(const char *filename, Config *config);
 void print_config(const Config *config);
+void send_info(int fifo,int type ,int sender_id, char *content);
 
 #endif // CONFIG_H

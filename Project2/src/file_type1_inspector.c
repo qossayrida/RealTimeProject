@@ -9,6 +9,7 @@
 #include "config.h"
 #include "sem.h"
 
+int fifo_fd;
 void ensure_directory(const char *path);
 void move_to_unprocessed(const char *filename);
 
@@ -16,7 +17,7 @@ int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     int sem= semget(1234, 1, 0666 );
     SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
-
+    fifo_fd = open(FIFO_NAME, O_WRONLY);
 
     printf("Type 1 Inspector: Started\n");
     ensure_directory(UNPROCESSED_DIR); // Ensure UnProcessed directory exists
@@ -42,6 +43,7 @@ int main() {
 
             if (file_age > shared_data->config.file_age_limit) {
                 move_to_unprocessed(file_number);
+                send_info(fifo_fd, TYPE1_INSPECTOR, getpid(), file_number);
                 shared_data->total_unprocessed_files++;
             }
         }
@@ -74,6 +76,5 @@ void move_to_unprocessed(const char *filename) {
     // Move file
     char command[512];
     snprintf(command, sizeof(command), "mv %s %s",source, destination);
-    printf("Executing: %s \n", command);
     system(command);
 }

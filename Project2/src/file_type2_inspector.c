@@ -9,6 +9,7 @@
 #include "config.h"
 #include "sem.h"
 
+int fifo_fd;
 void ensure_directory(const char *path);
 void move(const char *source, const char *destination);
 char* get_first_file();
@@ -18,7 +19,7 @@ int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     int sem= semget(1234, 1, 0666 );
     SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
-
+    fifo_fd = open(FIFO_NAME, O_WRONLY);
 
     printf("Type 2 Inspector: Started\n");
     ensure_directory(BACKUP_DIR); // Ensure UnProcessed directory exists
@@ -41,19 +42,17 @@ int main() {
         struct stat file_stat;
         if (stat(source, &file_stat) == 0) {
             time_t current_time = time(NULL);
-            double file_age = difftime(current_time, file_stat.st_mtime); // File age in days
+            double file_age = difftime(current_time, file_stat.st_ctime); // File age in days
 
             if (file_age > shared_data->config.processed_limit) {
                 move(source, destination);
-
+                send_info(fifo_fd, TYPE2_INSPECTOR, getpid(), first_element);
                 shared_data->total_backup_files++;
-
             }
         }
 
         label:
         sem_post(sem); // Unlock access to shared data
-
     }
 
 
@@ -71,7 +70,6 @@ void ensure_directory(const char *path) {
 void move(const char *source, const char *destination) {
     char command[512];
     snprintf(command, sizeof(command), "mv %s %s",source, destination);
-    printf("Executing: %s \n", command);
     system(command);
 }
 

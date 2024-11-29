@@ -9,6 +9,7 @@
 #include "config.h"
 #include "sem.h"
 
+int fifo_fd;
 void remove_file(const char *filename);
 char* get_first_file();
 void remove_spaces_and_newlines(char *str);
@@ -17,6 +18,7 @@ int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     int sem= semget(1234, 1, 0666 );
     SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
+    fifo_fd = open(FIFO_NAME, O_WRONLY);
 
     printf("Type 3 Inspector: Started\n");
 
@@ -36,9 +38,10 @@ int main() {
         struct stat file_stat;
         if (stat(source, &file_stat) == 0) {
             time_t current_time = time(NULL);
-            double file_age = difftime(current_time, file_stat.st_mtime);
+            double file_age = difftime(current_time, file_stat.st_ctime);
             if (file_age > shared_data->config.backup_limit) {
                 remove_file(source);
+                send_info(fifo_fd, TYPE3_INSPECTOR, getpid(), first_element);
                 shared_data->total_deleted_files++;
             }
         }
@@ -53,7 +56,6 @@ int main() {
 void remove_file(const char *source) {
     char command[512];
     snprintf(command, sizeof(command), "rm %s ",source);
-    printf("Executing: %s \n", command);
     system(command);
 }
 

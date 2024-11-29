@@ -8,6 +8,7 @@
 #include "config.h"
 #include "sem.h"
 
+int fifo_fd;
 void ensure_directory(const char *path);
 float generate_random_value(int miss_percentage);
 
@@ -15,6 +16,7 @@ int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     int sem= semget(1234, 1, 0666 );
     SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
+    fifo_fd = open(FIFO_NAME, O_WRONLY);
 
     srand(time(NULL) ^ getpid()); // Seed randomness with time and PID
     ensure_directory(HOME_DIR); // Ensure HOME_DIR exists
@@ -57,7 +59,7 @@ int main() {
         }
 
         fclose(file); // Close the file
-        printf("Generated file: %s\n", filename);
+        send_info(fifo_fd, FILE_GENERATOR, getpid(), filename);
 
         sleep(rand() % 3 + 1); // Simulate random delay
     }

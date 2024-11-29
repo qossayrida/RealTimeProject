@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <time.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
 #include "config.h"
 
 int load_config(const char *filename, Config *config) {
@@ -56,4 +60,13 @@ void print_config(const Config *config) {
     printf("  runtime_limit: %d\n", config->runtime_limit);
     printf("  value_range_min: %d\n", config->value_range_min);
     printf("  value_range_max: %d\n", config->value_range_max);
+}
+
+void send_info(int fifo ,int type ,int sender_id, char *content){
+    Information info;
+    info.type = type;
+    info.sender_id = sender_id;
+    snprintf(info.content, sizeof(info.content), "%s", content);
+    if(write(fifo, &info, sizeof(Information))== -1)
+        perror("Failed to write team data to referee");
 }
