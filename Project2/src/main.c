@@ -24,6 +24,7 @@ SharedData *shared_data;
 int fifo_fd, shm_id;
 
 int main(int argc, char** argv) {
+    try();
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1920, 1080);
@@ -99,6 +100,13 @@ int main(int argc, char** argv) {
                 printf("Main: Type 3 Inspector %d inspected file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
             }
         }
+        if(shared_data->total_calculated_files >= shared_data->config.max_processed_file||
+                shared_data->total_unprocessed_files >= shared_data->config.max_not_processed_file||
+                shared_data->total_backup_files >= shared_data->config.max_backup_file||
+                shared_data->total_deleted_files >= shared_data->config.max_deleted_file)
+        { // Check if any of the limits are reached
+            shared_data->simulation_running = 0;
+        }
 
     }
 
@@ -119,8 +127,11 @@ void handle_alarm() {
     printf("Total unprocessed files: %d\n", shared_data->total_unprocessed_files);
     printf("Total backup files: %d\n", shared_data->total_backup_files);
     printf("Total deleted files: %d\n", shared_data->total_deleted_files);
+    printf("Minimum average: %.2f in file %s\n", shared_data->min_average, shared_data->min_file);
+    printf("Maximum average: %.2f in file %s\n", shared_data->max_average, shared_data->max_file);
     shared_data->simulation_running = 0;
 }
+
 
 void create_process(const char *program, int shm_id, int count) {
     for (int i = 0; i < count; i++) {

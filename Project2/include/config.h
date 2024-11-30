@@ -50,6 +50,12 @@ typedef struct {
     int runtime_limit;
     int value_range_min;
     int value_range_max;
+    int max_processed_file;
+    int max_not_processed_file;
+    int max_backup_file;
+    int max_deleted_file;
+    int min_generate_time;
+    int max_generate_time;
 } Config;
 
 typedef struct {
@@ -60,10 +66,12 @@ typedef struct {
     int total_deleted_files;
     float min_average;
     float max_average;
-    char min_avg_file[256];
-    char max_avg_file[256];
+    char max_file[256];
+    char min_file[256];
     int simulation_running; // 1 if running, 0 if terminated
     Config config;
+    int avg_file[100][10];
+    int rows[100][10];
     ListNodePtr list_of_averages;
 } SharedData;
 

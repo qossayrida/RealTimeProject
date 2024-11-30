@@ -50,10 +50,15 @@ int main() {
                 perror("Failed to open file");
                 continue;
             }
-
             int columnCount = 0;
-            double sums[10] = {0};
-            int rows[100]={0};
+            double sums[shared_data->config.default_upper_columns];
+            int rows[shared_data->config.default_upper_rows]; // Declare the array
+            for (int i = 0; i < shared_data->config.default_upper_rows; i++) {
+                rows[i] = 0; // Initialize each element to 0
+            }
+            for (int i = 0; i < shared_data->config.default_upper_columns; i++) {
+                sums[i] = 0; // Initialize each element to 0
+            }
             char line[1024];
 
 
@@ -81,6 +86,20 @@ int main() {
 
             for (int i = 0; i < columnCount; i++) {
                 printf("Average of column %d: %.2f and number of rows are %d\n", i + 1, sums[i] / rows[i],rows[i]);
+                shared_data->avg_file[shared_data->total_calculated_files-1][i] = sums[i] / rows[i];
+                shared_data->rows[shared_data->total_calculated_files-1][i] = rows[i];
+
+                if(shared_data->max_average < sums[i] / rows[i]){
+                    shared_data->max_average = sums[i] / rows[i];
+                    snprintf(shared_data->max_file, sizeof(shared_data->max_file), "%s col %d", file_number,i);
+                }
+                if(shared_data->min_average ==0){
+                    shared_data->min_average = sums[i] / rows[i];
+                }
+                if(shared_data->min_average > sums[i] / rows[i]){
+                    shared_data->min_average = sums[i] / rows[i];
+                    snprintf(shared_data->min_file, sizeof(shared_data->min_file), "%s.csv col %d", file_number,i);
+                }
             }
 
 

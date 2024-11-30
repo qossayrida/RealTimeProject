@@ -36,8 +36,20 @@ int load_config(const char *filename, Config *config) {
             else if (strcmp(key, "processed_limit") == 0) config->processed_limit = value;
             else if (strcmp(key, "backup_limit") == 0) config->backup_limit = value;
             else if (strcmp(key, "runtime_limit") == 0) config->runtime_limit = value;
+
             else if (strcmp(key, "value_range_min") == 0) config->value_range_min = value;
             else if (strcmp(key, "value_range_max") == 0) config->value_range_max = value;
+
+            else if (strcmp(key, "max_processed_file") == 0) config->max_processed_file = value;
+            else if (strcmp(key, "max_not_processed_file") == 0) config->max_not_processed_file = value;
+            else if (strcmp(key, "max_backup_file") == 0) config->max_backup_file = value;
+            else if (strcmp(key, "max_deleted_file") == 0) config->max_deleted_file = value;
+
+            else if (strcmp(key, "min_generate_time") == 0) config->min_generate_time = value;
+            else if (strcmp(key, "max_generate_time") == 0) config->max_generate_time = value;
+
+
+
         }
     }
 
@@ -64,6 +76,10 @@ void print_config(const Config *config) {
     printf("  runtime_limit: %d\n", config->runtime_limit);
     printf("  value_range_min: %d\n", config->value_range_min);
     printf("  value_range_max: %d\n", config->value_range_max);
+    printf("  max_processed_file: %d\n", config->max_processed_file);
+    printf("  max_not_processed_file: %d\n", config->max_not_processed_file);
+    printf("  max_backup_file: %d\n", config->max_backup_file);
+    printf("  max_deleted_file: %d\n", config->max_deleted_file);
 }
 
 void send_info(int fifo ,int type ,int sender_id, char *content){

@@ -61,7 +61,7 @@ int main() {
         fclose(file); // Close the file
         send_info(fifo_fd, FILE_GENERATOR, getpid(), filename);
 
-        sleep(rand() % 3 + 1); // Simulate random delay
+        sleep((rand() % (shared_data->config.max_generate_time - shared_data->config.min_generate_time + 1)) + shared_data->config.min_generate_time); // Simulate random delay
     }
 
     // Cleanup
