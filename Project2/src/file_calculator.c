@@ -19,6 +19,7 @@ int main() {
     fifo_fd = open(FIFO_NAME, O_WRONLY);
 
 
+
     // Open message queue
     key_t key = ftok("queuefile", 65);
     int msgid = msgget(key, 0666 | IPC_CREAT);
@@ -27,22 +28,28 @@ int main() {
         sem_wait(sem);
 
 
+
+
+
+
         char file_number[MAX_PATH_LENGTH];
         snprintf(file_number, MAX_PATH_LENGTH, "%d", shared_data->total_calculated_files + shared_data->total_unprocessed_files);
 
         char source[MAX_PATH_LENGTH*2];
         snprintf(source, MAX_PATH_LENGTH*2, "%s%s.csv", HOME_DIR, file_number);
 
-
-        if (access(source, F_OK) != -1) {
+        if (access(source, F_OK) == 0) {
+          //  printf("File Calculator: Processing file %s\n", source);
+            add_node(shared_data);
             send_info(fifo_fd, FILE_CALCULATOR, getpid(), file_number);
 
             // Send message to Mover
             Message msg;
             msg.mtype = 1;  // Message type for movers
             strncpy(msg.file_number, file_number, 10);
-            msgsnd(msgid, &msg, sizeof(msg), 0);
-            shared_data->total_calculated_files++;
+
+
+
 
 
             FILE *file = fopen(source, "r");
@@ -85,9 +92,14 @@ int main() {
             }
 
             for (int i = 0; i < columnCount; i++) {
-                printf("Average of column %d: %.2f and number of rows are %d\n", i + 1, sums[i] / rows[i],rows[i]);
+                //  printf("Average of column %d: %.2f and number of rows are %d\n", i + 1, sums[i] / rows[i],rows[i]);
                 shared_data->avg_file[shared_data->total_calculated_files-1][i] = sums[i] / rows[i];
                 shared_data->rows[shared_data->total_calculated_files-1][i] = rows[i];
+
+               add_internal_node(shared_data, rows[i], sums[i] / rows[i],shared_data->head_offset);
+
+
+
 
                 if(shared_data->max_average < sums[i] / rows[i]){
                     shared_data->max_average = sums[i] / rows[i];
@@ -111,9 +123,12 @@ int main() {
 
 
             fclose(file);
+            msgsnd(msgid, &msg, sizeof(msg), 0);
+            shared_data->total_calculated_files++;
         }
 
         sem_post(sem);
+
         sleep(rand() % 3 + 1); // Simulate random delay
     }
 

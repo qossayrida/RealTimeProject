@@ -6,8 +6,10 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include "config.h"
+#include <semaphore.h>
 
 int load_config(const char *filename, Config *config) {
+    printf(".................................................\n");
     FILE *file = fopen(filename, "r");
     if (!file) {
         perror("Could not open configuration file");
@@ -141,5 +143,122 @@ void print_linked_list(ListNodePtr outer_linked_list) {
             current_avg_node = current_avg_node->next;
         }
         current_list_node = current_list_node->next;
+    }
+}
+
+
+
+
+
+
+
+void add_node(SharedData *shm) {
+
+
+
+    // Find a free slot in the memory pool
+    int offset = 0;
+    Node *node = (Node *)(shm->memory);
+
+    //printf("head offset %d\n", shm->head_offset);
+    //printf("offset %d\n", node->next_offset);
+
+    if (shm->head_offset == -1)
+    {
+        node = (Node *)(shm->memory + offset);
+        if (offset >= MAX_NODES * sizeof(Node)) {
+            printf("No space left in shared memory for a new node.\n");
+            return;
+        }}
+    else {
+        offset=shm->head_offset+sizeof(Node);
+        node = (Node *)(shm->memory+(offset));
+    }
+
+
+    // Add the new
+    node->data_head_offset=-1;   // Offset to the head of the inner linked list
+
+
+    node->next_offset = shm->head_offset; // Point to the current head node
+
+
+    shm->head_offset = offset;
+
+
+
+
+
+
+
+}
+
+
+void traverse_list(SharedData *shm) {
+
+    int offset = shm->head_offset;
+    int i=1;
+
+    while (offset != -1) {
+        Node *node = (Node *)(shm->memory + offset);
+        //sleep(3);
+
+        int offset2 = node->data_head_offset;
+
+
+        while (offset2 != -1) {
+            InnerNode *in_node = (InnerNode *)(shm->memory + offset2);
+            printf("%dNode data: %f\n", i++,in_node->data);
+            offset2 = in_node->next_offset;
+        }
+        offset = node->next_offset;
+    }
+
+}
+
+
+
+void add_internal_node(SharedData *shm, int rows,float average,int o) {
+
+    // Find a free slot in the memory pool
+    int offset = shm->in;
+
+    Node *node = (Node *)(shm->memory+o);
+    InnerNode *in_node = (InnerNode *)(shm->memory + MAX_NODES * sizeof(Node));
+
+
+
+
+    if (node->data_head_offset == -1)
+    {
+        in_node = (InnerNode *)(shm->memory + offset);
+    }
+    else {
+        offset=node->data_head_offset+sizeof(InnerNode);
+        in_node = (InnerNode *)(shm->memory+(offset));
+    }
+
+    // Add the new
+    in_node->data=average;    // Offset to the head of the inner linked list
+    in_node->rows=rows;
+
+
+    in_node->next_offset = node->data_head_offset;// Point to the current head node
+
+
+    node->data_head_offset = offset;
+    shm->in =offset+12;
+
+
+
+
+
+
+
+
+}
+void initialize_shared_memory(SharedData *shm) {
+    if (shm->head_offset == 0) {
+        shm->head_offset = -1; // No nodes in the list yet
     }
 }

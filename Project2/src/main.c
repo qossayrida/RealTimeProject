@@ -24,7 +24,7 @@ SharedData *shared_data;
 int fifo_fd, shm_id;
 
 int main(int argc, char** argv) {
-    try();
+    //try();
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1920, 1080);
@@ -43,12 +43,20 @@ int main(int argc, char** argv) {
 
 
     // Initialize shared memory
-    shm_id = shmget(IPC_PRIVATE, sizeof(SharedData), IPC_CREAT | 0666);
+    shm_id = shmget(IPC_PRIVATE, sizeof(SharedData)+100*MAX_NODES * sizeof(Node), IPC_CREAT | 0666);
     shared_data = (SharedData *) shmat(shm_id, NULL, 0);
     memset(shared_data, 0, sizeof(SharedData));
     shared_data->simulation_running = 1;
     shared_data->config = config; // Add this lin
     shared_data->list_of_averages = create_list_node();
+    shared_data->head_offset = -1;
+    shared_data->in = MAX_NODES * sizeof(Node);
+//    add_node(shared_data);
+//    add_internal_node(shared_data, 1, 5.5, shared_data->head_offset);
+//    add_internal_node(shared_data, 2, 6.5, shared_data->head_offset);
+    //traverse_list(shared_data);
+
+
 
 
 
@@ -101,9 +109,9 @@ int main(int argc, char** argv) {
             }
         }
         if(shared_data->total_calculated_files >= shared_data->config.max_processed_file||
-                shared_data->total_unprocessed_files >= shared_data->config.max_not_processed_file||
-                shared_data->total_backup_files >= shared_data->config.max_backup_file||
-                shared_data->total_deleted_files >= shared_data->config.max_deleted_file)
+           shared_data->total_unprocessed_files >= shared_data->config.max_not_processed_file||
+           shared_data->total_backup_files >= shared_data->config.max_backup_file||
+           shared_data->total_deleted_files >= shared_data->config.max_deleted_file)
         { // Check if any of the limits are reached
             shared_data->simulation_running = 0;
         }
@@ -129,7 +137,10 @@ void handle_alarm() {
     printf("Total deleted files: %d\n", shared_data->total_deleted_files);
     printf("Minimum average: %.2f in file %s\n", shared_data->min_average, shared_data->min_file);
     printf("Maximum average: %.2f in file %s\n", shared_data->max_average, shared_data->max_file);
+
     shared_data->simulation_running = 0;
+    traverse_list(shared_data);
+
 }
 
 
@@ -172,4 +183,3 @@ void try() {
 
     print_linked_list(outer_linked_list);
 }
-
