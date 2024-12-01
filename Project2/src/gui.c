@@ -5,11 +5,11 @@
 #include <unistd.h>
 #include "config.h"
 
-#define NUM_INPUT_FIELDS 7
+#define NUM_INPUT_FIELDS 11
 
 Config config;
 int menu_state = 0;         // 0: Main menu, 1: Custom input menu, 2: Display final configuration
-char input_buffers[NUM_INPUT_FIELDS][50] = {"", "", "", "", ""}; // Buffers for user inputs
+char input_buffers[NUM_INPUT_FIELDS][50] = {"", "", "", "", "","","","","","",""}; // Buffers for user inputs
 int show_alert = 0;    // Alert flag for validation errors
 int active_field = 0; // Tracks which input field is currently active for keyboard input
 
@@ -17,16 +17,24 @@ int active_field = 0; // Tracks which input field is currently active for keyboa
 const char* prompts[] = {
         "Number of File Generators (1-100): ",
         "Number of File Calculators (1-100): ",
-        "Number of Rows (upper limit) (1-100000): ",
-        "Number of Rows (lower limit) (1-100000): ",
-        "Number of Columns (upper limit) (1-1000): ",
-        "Number of Columns (lower limit) (1-1000): ",
+        "Number of File Movers (1-100): ",
+        "Number of Type 1 Inspectors (1-100): ",
+        "Number of Type 2 Inspectors (1-100): ",
+        "Number of Type 3 Inspectors (1-100): ",
+        "Number of Rows (upper limit) (1-50000): ",
+        "Number of Rows (lower limit) (50000-100000): ",
+        "Number of Columns (upper limit) (1-50): ",
+        "Number of Columns (lower limit) (50-100): ",
         "Miss Percentage (0-100): "
 };
 
 int* config_values[] = {
         &config.num_file_generators,
         &config.num_file_calculators,
+        &config.num_file_movers,
+        &config.num_type1_inspectors,
+        &config.num_type2_inspectors,
+        &config.num_type3_inspectors,
         &config.default_upper_rows,
         &config.default_lower_rows,
         &config.default_upper_columns,
@@ -34,8 +42,8 @@ int* config_values[] = {
         &config.miss_percentage
 };
 
-int min_values[] = {1, 1, 1, 1, 1, 1, 0};
-int max_values[] = {100, 100, 100000,100000,1000, 1000, 100};
+int min_values[] = {1,1,1,1 ,1, 1, 1,50000, 1, 50, 0};
+int max_values[] = {100, 100, 100,100,100,100,50000,100000,50, 100, 100};
 
 
 

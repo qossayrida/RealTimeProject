@@ -51,10 +51,7 @@ int main(int argc, char** argv) {
     shared_data->list_of_averages = create_list_node();
     shared_data->head_offset = -1;
     shared_data->in = MAX_NODES * sizeof(Node);
-//    add_node(shared_data);
-//    add_internal_node(shared_data, 1, 5.5, shared_data->head_offset);
-//    add_internal_node(shared_data, 2, 6.5, shared_data->head_offset);
-    //traverse_list(shared_data);
+
 
 
 
@@ -88,24 +85,24 @@ int main(int argc, char** argv) {
 
         if (bytes_read != -1) {
             num_info = bytes_read / sizeof(Information);
-            printf("Main: Received %d information\n", num_info);
+           // printf("Main: Received %d information\n", num_info);
         } else {
             num_info = 0;
         }
 
         for(int i = 0; i < num_info; i++) {
             if (info_buffer[i].type == FILE_GENERATOR) {
-                printf("Main: File Generator %d generated file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
+                //printf("Main: File Generator %d generated file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
             } else if (info_buffer[i].type == FILE_CALCULATOR) {
                 printf("Main: File Calculator %d calculated file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
             } else if (info_buffer[i].type == FILE_MOVER) {
-                printf("Main: File Mover %d moved file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
+                //printf("Main: File Mover %d moved file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
             } else if (info_buffer[i].type == TYPE1_INSPECTOR) {
-                printf("Main: Type 1 Inspector %d inspected file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
+                //printf("Main: Type 1 Inspector %d inspected file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
             } else if (info_buffer[i].type == TYPE2_INSPECTOR) {
-                printf("Main: Type 2 Inspector %d inspected file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
+                //printf("Main: Type 2 Inspector %d inspected file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
             } else if (info_buffer[i].type == TYPE3_INSPECTOR) {
-                printf("Main: Type 3 Inspector %d inspected file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
+                //printf("Main: Type 3 Inspector %d inspected file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
             }
         }
         if(shared_data->total_calculated_files >= shared_data->config.max_processed_file||
@@ -113,16 +110,23 @@ int main(int argc, char** argv) {
            shared_data->total_backup_files >= shared_data->config.max_backup_file||
            shared_data->total_deleted_files >= shared_data->config.max_deleted_file)
         { // Check if any of the limits are reached
+
             shared_data->simulation_running = 0;
-        }
+           // kill(getpid(), SIGALRM);
+            }
+
+
 
     }
-
     while (wait(NULL) > 0);
+    traverse_list(shared_data);
     shmdt(shared_data);
     shmctl(shm_id, IPC_RMID, NULL);
     system("rm /tmp/file_fifo_public");
     printf("Main: Fifo removed\n");
+    printf("You can now close the window\n");
+
+
 
 
     return 0;
@@ -139,7 +143,7 @@ void handle_alarm() {
     printf("Maximum average: %.2f in file %s\n", shared_data->max_average, shared_data->max_file);
 
     shared_data->simulation_running = 0;
-    traverse_list(shared_data);
+
 
 }
 

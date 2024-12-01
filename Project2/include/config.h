@@ -29,6 +29,7 @@ typedef struct Node {
 typedef struct InnerNode {
     float data;
     int rows;
+    int filenumber;
     int next_offset; // Offset to the next node (relative to the base of shared memory)
 } InnerNode;
 
@@ -131,6 +132,6 @@ void create_process(const char *program, int shm_id, int count);
 void traverse_list(SharedData *shm) ;
 void initialize_shared_memory(SharedData *shm);
 void add_node(SharedData *shm) ;
-void add_internal_node(SharedData *shm, int rows,float average,int o);
+void add_internal_node(SharedData *shm, int filenumber,int rows,float average,int o);
 
 #endif // CONFIG_H

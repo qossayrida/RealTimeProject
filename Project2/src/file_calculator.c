@@ -26,12 +26,6 @@ int main() {
 
     while (shared_data->simulation_running) {
         sem_wait(sem);
-
-
-
-
-
-
         char file_number[MAX_PATH_LENGTH];
         snprintf(file_number, MAX_PATH_LENGTH, "%d", shared_data->total_calculated_files + shared_data->total_unprocessed_files);
 
@@ -39,18 +33,12 @@ int main() {
         snprintf(source, MAX_PATH_LENGTH*2, "%s%s.csv", HOME_DIR, file_number);
 
         if (access(source, F_OK) == 0) {
-          //  printf("File Calculator: Processing file %s\n", source);
             add_node(shared_data);
             send_info(fifo_fd, FILE_CALCULATOR, getpid(), file_number);
 
-            // Send message to Mover
             Message msg;
             msg.mtype = 1;  // Message type for movers
             strncpy(msg.file_number, file_number, 10);
-
-
-
-
 
             FILE *file = fopen(source, "r");
             if (!file){
@@ -74,32 +62,41 @@ int main() {
 
                 char* token = strtok(line, ",");
                 columnCount = 0;
+
                 while (token != NULL) {
-                    if (strcmp(token, "MISSING") == 0) {
+
+                    if (strcmp(token, "-") == 0) {
                         // Skip this token (i.e., do not add it to the sum)
                         token = strtok(NULL, ",");
                         columnCount++;
                         continue;
                     }
 
-                    // Convert the token to a double and add to the corresponding column sum
                     sums[columnCount] += atof(token);
                     rows[columnCount]+=1;
                     columnCount++;
                     token = strtok(NULL, ",");
+
+
                 }
+                memset(line, 0, sizeof(line));
 
             }
 
+
+
+            if (columnCount==0){
+                printf("%d",access(source, F_OK));
+            }
+
+            printf("column count %d\n", columnCount);
+            printf("file %s\n", file_number);
+
+
             for (int i = 0; i < columnCount; i++) {
-                //  printf("Average of column %d: %.2f and number of rows are %d\n", i + 1, sums[i] / rows[i],rows[i]);
                 shared_data->avg_file[shared_data->total_calculated_files-1][i] = sums[i] / rows[i];
                 shared_data->rows[shared_data->total_calculated_files-1][i] = rows[i];
-
-               add_internal_node(shared_data, rows[i], sums[i] / rows[i],shared_data->head_offset);
-
-
-
+               add_internal_node(shared_data,shared_data->total_calculated_files + shared_data->total_unprocessed_files ,rows[i], sums[i] / rows[i],shared_data->head_offset);
 
                 if(shared_data->max_average < sums[i] / rows[i]){
                     shared_data->max_average = sums[i] / rows[i];
@@ -113,23 +110,15 @@ int main() {
                     snprintf(shared_data->min_file, sizeof(shared_data->min_file), "%s.csv col %d", file_number,i);
                 }
             }
-
-
-//            AvgNodePtr avg_list = create_avg_node();
-//            for (int i = 0; i < columnCount; i++){
-//                add_avg_node(avg_list,rows[i], sums[i] / rows[i]);
-//            }
-//            add_list_node(shared_data->list_of_averages, avg_list);
-
-
             fclose(file);
+
             msgsnd(msgid, &msg, sizeof(msg), 0);
             shared_data->total_calculated_files++;
         }
 
         sem_post(sem);
 
-        sleep(rand() % 3 + 1); // Simulate random delay
+        sleep(rand() % 5 + 1); // Simulate random delay
     }
 
     shmdt(shared_data);

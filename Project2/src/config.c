@@ -208,7 +208,7 @@ void traverse_list(SharedData *shm) {
 
         while (offset2 != -1) {
             InnerNode *in_node = (InnerNode *)(shm->memory + offset2);
-            printf("%dNode data: %f\n", i++,in_node->data);
+            printf("From File %d :%dNode data: %f\n", in_node->filenumber,i++,in_node->data);
             offset2 = in_node->next_offset;
         }
         offset = node->next_offset;
@@ -218,7 +218,7 @@ void traverse_list(SharedData *shm) {
 
 
 
-void add_internal_node(SharedData *shm, int rows,float average,int o) {
+void add_internal_node(SharedData *shm, int filenumber,int rows,float average,int o) {
 
     // Find a free slot in the memory pool
     int offset = shm->in;
@@ -241,13 +241,14 @@ void add_internal_node(SharedData *shm, int rows,float average,int o) {
     // Add the new
     in_node->data=average;    // Offset to the head of the inner linked list
     in_node->rows=rows;
+    in_node->filenumber=filenumber;
 
 
     in_node->next_offset = node->data_head_offset;// Point to the current head node
 
 
     node->data_head_offset = offset;
-    shm->in =offset+12;
+    shm->in =offset+sizeof(InnerNode);
 
 
 

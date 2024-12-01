@@ -47,7 +47,7 @@ int main() {
             for (int j = 0; j < columns; j++) {
                 float value = generate_random_value(shared_data->config.miss_percentage);
                 if (value == -1) {
-                    fprintf(file, "MISSING"); // Indicate missing values
+                    fprintf(file, "-"); // Indicate missing values
                 } else {
                     fprintf(file, "%.2f", value); // Write random decimal
                 }
