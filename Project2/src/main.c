@@ -62,9 +62,6 @@ int main(int argc, char **argv)
     shared_data->head_offset = -1;
     shared_data->in = MAX_NODES * sizeof(Node);
 
-<<<<<<< HEAD
-=======
->>>>>>> 49c33c65697476516f6720c9ae64ad2b3f8c2755
     // Initialize semaphore
     init_semaphore();
 
