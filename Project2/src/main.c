@@ -108,11 +108,7 @@ void timer() {
     }
 
     for (int i = 0; i < num_info; i++) {
-
-        for (int j = 0; j < 6; j++) {
-            printf("Directory %s has %d files.\n", directory_names[j], directory_data.file_counts[j]);
-        }
-
+        
         switch (info_buffer[i].type) {
             case FILE_GENERATOR:
                 printf("Timer: File Generator %d generated file %s\n", info_buffer[i].sender_id,
