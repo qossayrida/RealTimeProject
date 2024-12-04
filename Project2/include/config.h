@@ -21,6 +21,8 @@ enum
 
 
 #define MAX_NODES 1024
+
+
 typedef struct Node {
     int data_head_offset;     // Offset to the head of the inner linked list
     int next_offset;          // Offset to the next inner node
@@ -32,12 +34,6 @@ typedef struct InnerNode {
     int filenumber;
     int next_offset; // Offset to the next node (relative to the base of shared memory)
 } InnerNode;
-
-
-
-
-
-
 
 
 #define MAX_PATH_LENGTH 40

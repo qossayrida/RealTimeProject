@@ -53,10 +53,6 @@ int main(int argc, char** argv) {
     shared_data->in = MAX_NODES * sizeof(Node);
 
 
-
-
-
-
     // Initialize semaphore
     init_semaphore();
 

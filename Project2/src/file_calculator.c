@@ -11,6 +11,7 @@
 #include "sem.h"
 
 int fifo_fd;
+char *read_line(FILE *file);
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
@@ -54,11 +55,11 @@ int main() {
             for (int i = 0; i < shared_data->config.default_upper_columns; i++) {
                 sums[i] = 0; // Initialize each element to 0
             }
-            char line[1024];
 
+            char *line;
 
             // Read each line from the file
-            while (fgets(line, sizeof(line), file)) {
+            while ((line = read_line(file)) != NULL) {
 
                 char* token = strtok(line, ",");
                 columnCount = 0;
@@ -79,14 +80,15 @@ int main() {
 
 
                 }
-                memset(line, 0, sizeof(line));
 
+                free(line);
             }
 
 
 
             if (columnCount==0){
                 printf("%d",access(source, F_OK));
+                printf("%d",access("source", F_OK));
             }
 
             printf("column count %d\n", columnCount);
@@ -123,4 +125,36 @@ int main() {
 
     shmdt(shared_data);
     return 0;
+}
+
+char *read_line(FILE *file) {
+    if (file == NULL) {
+        return NULL; // Return NULL if the file is not valid
+    }
+
+    int length = 0;
+    char buffer[1024];
+
+
+    int ch;
+    while ((ch = getc(file)) != EOF && ch != '\n') {
+        buffer[length++] = ch;
+    }
+
+    char *line = malloc(sizeof(char) * length+2); // Allocate memory for the line
+
+    if (line == NULL) {
+        printf("Failed to allocate memory for line\n");
+        return NULL; // Return NULL if memory allocation fails
+    }
+
+    // Check if we read anything before EOF
+    if (length == 0 && ch == EOF) {
+        free(line); // Free allocated memory
+        return NULL;
+    }
+
+    buffer[length] = '\0'; // Null-terminate the string
+    strncpy(line, buffer, length + 1); // Copy buffer to line
+    return line;
 }
