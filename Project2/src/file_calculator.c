@@ -107,7 +107,6 @@ int main() {
                 if(shared_data->max_average < sums[i] / rows[i]){
                     shared_data->max_average = sums[i] / rows[i];
                     snprintf(shared_data->max_file, sizeof(shared_data->max_file), "%s col %d", file_number,i);
-
                 }
                 if(shared_data->min_average ==0){
                     shared_data->min_average = sums[i] / rows[i];
