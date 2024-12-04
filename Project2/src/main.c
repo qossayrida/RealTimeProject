@@ -314,7 +314,7 @@ void display() {
                glutGet(GLUT_WINDOW_HEIGHT));
     draw_chart();
 
-    draw_min_max(shared_data->min_average, shared_data->max_average, shared_data->min_file, shared_data->max_file);
+    draw_min_max(shared_data->min_average, shared_data->max_average, shared_data->min_file, shared_data->max_file,1);
 
     glutSwapBuffers();
 }
@@ -323,6 +323,7 @@ void display() {
 void display_result(){
     glClear(GL_COLOR_BUFFER_BIT);
     drawText(-0.4f, 0.0f,reasons[reason],1);
+    draw_min_max(shared_data->min_average, shared_data->max_average, shared_data->min_file, shared_data->max_file,0);
     glutSwapBuffers();
 }
 

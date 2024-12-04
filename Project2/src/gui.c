@@ -336,7 +336,7 @@ void draw_table() {
 }
 
 
-void draw_min_max(float min, float max, char *min_file, char *max_file) {
+void draw_min_max(float min, float max, char *min_file, char *max_file,int line) {
 
     glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
     glColor3f(0.0f, 0.0f, 0.0f); // Black text for visibility
@@ -345,16 +345,30 @@ void draw_min_max(float min, float max, char *min_file, char *max_file) {
     char min_avg_text[500];
     // Draw min average
     snprintf(min_avg_text,500, "Min: %.2f File %s", min, min_file);
-    glRasterPos2f(0.65f, 0.95f);
+
+    if (line)
+        glRasterPos2f(0.65f, 0.95f);
+    else
+        glRasterPos2f(0.0f, -0.1f);
+
     for (const char *c = min_avg_text; *c != '\0'; c++) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+        if(line)
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+        else
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);
     }
 
     // Draw max average
     snprintf(max_avg_text,500, "Max: %.2f File %s ", max, max_file);
-    glRasterPos2f(0.65f, 0.90f);
+    if(line)
+        glRasterPos2f(0.65f, 0.90f);
+    else
+        glRasterPos2f(0.0f, -0.2f);
     for (const char *c = max_avg_text; *c != '\0'; c++) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+        if(line)
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+        else
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);
     }
 }
 

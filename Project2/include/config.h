@@ -125,7 +125,7 @@ void add_node(SharedData *shm,int filenumber);
 
 void add_internal_node(SharedData *shm,  int rows, float average, int o);
 
-void draw_min_max(float min, float max, char *min_file, char *max_file);
+void draw_min_max(float min, float max, char *min_file, char *max_file,int line);
 
 
 #endif // CONFIG_H
