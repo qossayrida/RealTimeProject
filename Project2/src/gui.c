@@ -49,7 +49,7 @@ int min_values[] = {1,1,1,1 ,1, 1, 5000,1, 50, 1, 0};
 int max_values[] = {100, 100, 100,100,100,100,10000,5000,100, 50, 100};
 
 void init() {
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+    glClearColor(0.8f, 0.8f, 0.8f, 1.0f); // R: 0.9, G: 0.9, B: 0.9, Alpha: 1.0
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
@@ -116,7 +116,7 @@ void mouse(int button, int state, int x, int y) {
 }
 
 void drawText(float x, float y, const char *text) {
-    glColor3f(1.0f, 1.0f, 1.0f); // Default color
+    glColor4f(0.0f, 0.0f, 0.0f, 1.0f); // R: 0.0, G: 0.0, B: 0.5, Alpha: 1.0
     glRasterPos2f(x, y);
     for (const char *c = text; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
@@ -124,7 +124,7 @@ void drawText(float x, float y, const char *text) {
 }
 
 void drawButton(float x, float y, float width, float height, const char *label) {
-    glColor3f(0.2f, 0.2f, 0.8f);
+    glColor4f(0.5f, 0.85f, 0.5f, 1.0f); // R: 0.5, G: 0.85, B: 0.5, Alpha: 1.0
     glBegin(GL_QUADS);
     glVertex2f(x, y);
     glVertex2f(x + width, y);
@@ -132,7 +132,7 @@ void drawButton(float x, float y, float width, float height, const char *label) 
     glVertex2f(x, y - height);
     glEnd();
 
-    glColor3f(1.0f, 1.0f, 1.0f);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // R: 1.0, G: 1.0, B: 1.0, Alpha: 1.0
     drawText(x + 0.02f, y - 0.07f, label);
 }
 
@@ -229,7 +229,7 @@ void draw_chart() {
         glEnd();
 
         // Draw the file count label on top of the bar
-        glColor3f(1.0f, 1.0f, 1.0f); // White text
+        glColor3f(0.0f, 0.0f, 0.0f); // White text
         char label[10];
         sprintf(label, "%d", directory_data.file_counts[i]);
         glRasterPos2f(x_start + chart_width / 2.0f - 0.02f, -0.8f + height + 0.05f);
@@ -241,7 +241,7 @@ void draw_chart() {
         float name_y_position = (i % 2 == 0) ? -0.85f : -0.88f; // Alternate between two vertical positions
 
         // Draw the directory name below the chart
-        glColor3f(1.0f, 1.0f, 1.0f); // White text
+        glColor3f(0.0f, 0.0f, 0.0f); // White text
         glRasterPos2f(x_start + chart_width / 2.0f - 0.17f, name_y_position);
         for (const char *c = directory_names[i]; *c != '\0'; c++) {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *c);
@@ -279,7 +279,7 @@ void draw_table() {
         glEnd();
 
         // Draw header text
-        glColor3f(1.0f, 1.0f, 1.0f);
+        glColor3f(0.0f, 0.0f, 0.0f);
         glRasterPos2f(x_start + 0.02f, 1.0f - 0.03f);
         for (const char *c = directory_names[i]; *c != '\0'; c++) {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);

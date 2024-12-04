@@ -43,8 +43,8 @@ int main() {
             time_t current_time = time(NULL);
             double file_age = difftime(current_time, file_stat.st_ctime);
             if (file_age > shared_data->config.backup_limit) {
-                remove_file(source);
                 send_info(fifo_fd, TYPE3_INSPECTOR, getpid(), first_element);
+                remove_file(source);
                 shared_data->total_deleted_files++;
             }
         }

@@ -93,61 +93,8 @@ void send_info(int fifo, int type, int sender_id, char *content) {
         perror("Failed to write team data to referee");
 }
 
-ListNodePtr create_list_node() {
-    ListNodePtr new_node = (ListNodePtr) malloc(sizeof(ListNode));
-    new_node->list_of_average = NULL;
-    new_node->next = NULL;
-    return new_node;
-}
 
-AvgNodePtr create_avg_node() {
-    AvgNodePtr new_node = (AvgNodePtr) malloc(sizeof(AvgNode));
-    new_node->num_rows = 0;
-    new_node->average = 0;
-    new_node->next = NULL;
-    return new_node;
-}
-
-void add_list_node(ListNodePtr outer_linked_list, AvgNodePtr avg_list) {
-    ListNodePtr new_node = create_list_node();
-    new_node->list_of_average = avg_list;
-
-    ListNodePtr current = outer_linked_list;
-    while (current->next != NULL) {
-        current = current->next;
-    }
-    current->next = new_node;
-}
-
-void add_avg_node(AvgNodePtr avg_list, int rows, float new_avg) {
-    AvgNodePtr new_node = create_avg_node();
-    new_node->num_rows = rows;
-    new_node->average = new_avg;
-
-    AvgNodePtr current = avg_list;
-    while (current->next != NULL) {
-        current = current->next;
-    }
-    current->next = new_node;
-}
-
-
-void print_linked_list(ListNodePtr outer_linked_list) {
-    ListNodePtr current_list_node = outer_linked_list->next;
-    int i = 0;
-    while (current_list_node != NULL) {
-        printf("List Node %d :\n", i++);
-        AvgNodePtr current_avg_node = current_list_node->list_of_average->next;
-        while (current_avg_node != NULL) {
-            printf("  Row: %d    Average: %.2f\n", current_avg_node->num_rows, current_avg_node->average);
-            current_avg_node = current_avg_node->next;
-        }
-        current_list_node = current_list_node->next;
-    }
-}
-
-
-void add_node(SharedData *shm) {
+void add_node(SharedData *shm,int filenumber) {
 
 
 
@@ -172,41 +119,40 @@ void add_node(SharedData *shm) {
 
     // Add the new
     node->data_head_offset = -1;   // Offset to the head of the inner linked list
-
+    node->filenumber = filenumber;
 
     node->next_offset = shm->head_offset; // Point to the current head node
-
-
     shm->head_offset = offset;
-
-
 }
 
 
 void traverse_list(SharedData *shm) {
 
     int offset = shm->head_offset;
-    int i = 1;
 
     while (offset != -1) {
         Node *node = (Node * )(shm->memory + offset);
-        //sleep(3);
-
+        int i=1;
         int offset2 = node->data_head_offset;
 
+        printf("From File %d :", node->filenumber);
 
         while (offset2 != -1) {
+
             InnerNode *in_node = (InnerNode * )(shm->memory + offset2);
-            printf("From File %d :%dNode data: %f\n", in_node->filenumber, i++, in_node->data);
+            printf("   c%d: %.1f",i, in_node->data);
             offset2 = in_node->next_offset;
+            i++;
         }
         offset = node->next_offset;
+        printf("\n");
+
     }
 
 }
 
 
-void add_internal_node(SharedData *shm, int filenumber, int rows, float average, int o) {
+void add_internal_node(SharedData *shm,  int rows, float average, int o) {
 
     // Find a free slot in the memory pool
     int offset = shm->in;
@@ -225,7 +171,6 @@ void add_internal_node(SharedData *shm, int filenumber, int rows, float average,
     // Add the new
     in_node->data = average;    // Offset to the head of the inner linked list
     in_node->rows = rows;
-    in_node->filenumber = filenumber;
 
 
     in_node->next_offset = node->data_head_offset;// Point to the current head node

@@ -64,7 +64,6 @@ int main(int argc, char **argv) {
     memset(shared_data, 0, sizeof(SharedData));
     shared_data->simulation_running = 1;
     shared_data->config = config; // Add this lin
-    shared_data->list_of_averages = create_list_node();
     shared_data->head_offset = -1;
     shared_data->in = MAX_NODES * sizeof(Node);
 
@@ -108,7 +107,6 @@ void timer() {
     }
 
     for (int i = 0; i < num_info; i++) {
-        
         switch (info_buffer[i].type) {
             case FILE_GENERATOR:
                 printf("Timer: File Generator %d generated file %s\n", info_buffer[i].sender_id,
@@ -142,6 +140,7 @@ void timer() {
             default:
                 break;
         }
+        glutPostRedisplay(); // Trigger redraw
     }
 
     // Check simulation termination conditions
@@ -151,11 +150,16 @@ void timer() {
         shared_data->total_deleted_files >= shared_data->config.max_deleted_file) {
         kill(getpid(), SIGALRM);
     }
-
-    glutPostRedisplay(); // Trigger redraw
 }
 
 void handle_alarm() {
+    shared_data->simulation_running = 0;
+
+    //traverse_list(shared_data);
+    glutIdleFunc(NULL);  // Stop idle function
+    glutLeaveMainLoop(); // Exit GLUT main loop
+    while (wait(NULL) > 0);
+
     printf("Simulation complete\n");
     printf("Total generated files: %d\n", shared_data->total_generated_files);
     printf("Total calculated files: %d\n", shared_data->total_calculated_files);
@@ -165,12 +169,6 @@ void handle_alarm() {
     printf("Minimum average: %.2f in file %s\n", shared_data->min_average, shared_data->min_file);
     printf("Maximum average: %.2f in file %s\n", shared_data->max_average, shared_data->max_file);
 
-    shared_data->simulation_running = 0;
-
-    //traverse_list(shared_data);
-    glutIdleFunc(NULL);  // Stop idle function
-    glutLeaveMainLoop(); // Exit GLUT main loop
-    while (wait(NULL) > 0);
     traverse_list(shared_data);
     shmdt(shared_data);
     shmctl(shm_id, IPC_RMID, NULL);
@@ -205,8 +203,7 @@ int extractFileNumber(const char *fileName) {
     const char *last_slash = strrchr(fileName, '/'); // Find the last '/'
     if (last_slash != NULL) {
         int fileNumber;
-        if (sscanf(last_slash + 1, "%d", &fileNumber) == 1) // Extract the number
-        {
+        if (sscanf(last_slash + 1, "%d", &fileNumber) == 1){
             return fileNumber;
         }
     }

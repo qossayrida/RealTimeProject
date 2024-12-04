@@ -24,29 +24,17 @@ enum {
 typedef struct Node {
     int data_head_offset;     // Offset to the head of the inner linked list
     int next_offset;          // Offset to the next inner node
-
+    int filenumber;
 } Node;
+
 typedef struct InnerNode {
     float data;
     int rows;
-    int filenumber;
     int next_offset; // Offset to the next node (relative to the base of shared memory)
 } InnerNode;
 
 
 #define MAX_PATH_LENGTH 40
-
-
-typedef struct ListNode {
-    struct AvgNode *list_of_average;
-    struct ListNode *next;
-} ListNode, *ListNodePtr;
-
-typedef struct AvgNode {
-    int num_rows;
-    float average;
-    struct AvgNode *next;
-} AvgNode, *AvgNodePtr;
 
 typedef struct {
     int num_file_generators;
@@ -90,7 +78,6 @@ typedef struct {
     int simulation_running; // 1 if running, 0 if terminated
     int avg_file[100][10];
     int rows[100][10];
-    ListNodePtr list_of_averages;
     int head_offset;      // Offset to the head of the linked list
     int in;
     char memory[1];
@@ -124,16 +111,6 @@ void print_config(const Config *config);
 
 void send_info(int fifo, int type, int sender_id, char *content);
 
-ListNodePtr create_list_node();
-
-AvgNodePtr create_avg_node();
-
-void add_list_node(ListNodePtr outer_linked_list, AvgNodePtr avg_list);
-
-void add_avg_node(AvgNodePtr avg_list, int rows, float new_avg);
-
-void print_linked_list(ListNodePtr outer_linked_list);
-
 void timer();
 
 void generate_file(int generator_id, int file_number);
@@ -144,8 +121,8 @@ void traverse_list(SharedData *shm);
 
 void initialize_shared_memory(SharedData *shm);
 
-void add_node(SharedData *shm);
+void add_node(SharedData *shm,int filenumber);
 
-void add_internal_node(SharedData *shm, int filenumber, int rows, float average, int o);
+void add_internal_node(SharedData *shm,  int rows, float average, int o);
 
 #endif // CONFIG_H

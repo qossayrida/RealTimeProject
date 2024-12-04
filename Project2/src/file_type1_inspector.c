@@ -45,8 +45,8 @@ int main() {
             double file_age = difftime(current_time, file_stat.st_mtime); // File age in days
 
             if (file_age > shared_data->config.file_age_limit) {
-                move_to_unprocessed(file_number);
                 send_info(fifo_fd, TYPE1_INSPECTOR, getpid(), file_number);
+                move_to_unprocessed(file_number);
                 shared_data->total_unprocessed_files++;
             }
         }

@@ -49,8 +49,8 @@ int main() {
             double file_age = difftime(current_time, file_stat.st_ctime); // File age in days
 
             if (file_age > shared_data->config.processed_limit) {
-                move(source, destination);
                 send_info(fifo_fd, TYPE2_INSPECTOR, getpid(), first_element);
+                move(source, destination);
                 shared_data->total_backup_files++;
             }
         }

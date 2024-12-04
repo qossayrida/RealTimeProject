@@ -37,12 +37,8 @@ int main() {
         snprintf(source, MAX_PATH_LENGTH*2, "%s%s.csv", HOME_DIR, file_number);
 
         if (access(source, F_OK) == 0) {
-            add_node(shared_data);
+            add_node(shared_data,shared_data->total_calculated_files + shared_data->total_unprocessed_files );
             send_info(fifo_fd, FILE_CALCULATOR, getpid(), file_number);
-
-            Message msg;
-            msg.mtype = 1;  // Message type for movers
-            strncpy(msg.file_number, file_number, 10);
 
             FILE *file = fopen(source, "r");
             if (!file){
@@ -105,7 +101,7 @@ int main() {
             for (int i = 0; i < columnCount; i++) {
                 shared_data->avg_file[shared_data->total_calculated_files-1][i] = sums[i] / rows[i];
                 shared_data->rows[shared_data->total_calculated_files-1][i] = rows[i];
-               add_internal_node(shared_data,shared_data->total_calculated_files + shared_data->total_unprocessed_files ,rows[i], sums[i] / rows[i],shared_data->head_offset);
+                add_internal_node(shared_data,rows[i], sums[i] / rows[i],shared_data->head_offset);
 
                 if(shared_data->max_average < sums[i] / rows[i]){
                     shared_data->max_average = sums[i] / rows[i];
@@ -121,6 +117,9 @@ int main() {
             }
             fclose(file);
 
+            Message msg;
+            msg.mtype = 1;  // Message type for movers
+            strncpy(msg.file_number, file_number, 10);
             msgsnd(msgid, &msg, sizeof(msg), 0);
             shared_data->total_calculated_files++;
         }
