@@ -6,10 +6,6 @@ CFLAGS = -Wall -Iinclude
 SRC_DIR = src
 OBJ_DIR = obj
 BIN_DIR = bin
-HOME_DIR = Home
-PROCESSED_DIR = Processed
-UNPROCESSED_DIR = UnProcessed
-BACKUP_DIR = Backup
 
 # Source and object files
 SOURCES = $(wildcard $(SRC_DIR)/*.c)
@@ -75,5 +71,5 @@ run: $(MAIN_TARGET)
 
 # Clean up build files
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) $(HOME_DIR) $(PROCESSED_DIR) $(UNPROCESSED_DIR) $(BACKUP_DIR) 
+	rm -rf $(OBJ_DIR) $(BIN_DIR) 
 

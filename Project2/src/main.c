@@ -38,6 +38,8 @@ const char *directory_names[6] = {"Generated", "Home", "Processed", "Unprocessed
 
 int main(int argc, char **argv) {
 
+    system("rm -rf Home Processed UnProcessed Backup");
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1920, 1080);
@@ -53,8 +55,6 @@ int main(int argc, char **argv) {
     }
 
     print_config(&config);
-    glutDisplayFunc(display);
-    glutPostRedisplay();
 
     // Initialize shared memory
     shm_id = shmget(IPC_PRIVATE, sizeof(SharedData) + 100 * MAX_NODES * sizeof(Node), IPC_CREAT | 0666);
@@ -87,6 +87,10 @@ int main(int argc, char **argv) {
     create_process("./bin/file_type2_inspector", shm_id, config.num_type2_inspectors);
     create_process("./bin/file_type3_inspector", shm_id, config.num_type3_inspectors);
 
+
+    memset(directory_data.file_counts, 0, sizeof(directory_data.file_counts));
+    glutDisplayFunc(display);
+    glutPostRedisplay();
     // Start simulation
     glutIdleFunc(timer); // Use timer to update simulation
     glutMainLoop();      // Start OpenGL main loop
@@ -103,8 +107,9 @@ void timer() {
     }
 
     for (int i = 0; i < num_info; i++) {
-        for (int i = 0; i < 6; i++) {
-            printf("Directory %s has %d files.\n", directory_names[i], directory_data.file_counts[i]);
+
+        for (int j = 0; j < 6; j++) {
+            printf("Directory %s has %d files.\n", directory_names[j], directory_data.file_counts[j]);
         }
 
         switch (info_buffer[i].type) {
@@ -150,7 +155,6 @@ void timer() {
         printf("Timer: Simulation completed. Stopping.\n");
         shared_data->simulation_running = 0;
         kill(getpid(), SIGALRM);
-
     }
 
     glutPostRedisplay(); // Trigger redraw
