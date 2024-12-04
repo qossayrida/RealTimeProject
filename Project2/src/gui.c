@@ -115,11 +115,14 @@ void mouse(int button, int state, int x, int y) {
     }
 }
 
-void drawText(float x, float y, const char *text) {
+void drawText(float x, float y, const char *text,int line) {
     glColor4f(0.0f, 0.0f, 0.0f, 1.0f); // R: 0.0, G: 0.0, B: 0.5, Alpha: 1.0
     glRasterPos2f(x, y);
     for (const char *c = text; *c != '\0'; c++) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+        if(!line)
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+        else
+            glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);
     }
 }
 
@@ -133,7 +136,7 @@ void drawButton(float x, float y, float width, float height, const char *label) 
     glEnd();
 
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f); // R: 1.0, G: 1.0, B: 1.0, Alpha: 1.0
-    drawText(x + 0.02f, y - 0.07f, label);
+    drawText(x + 0.02f, y - 0.07f, label,0);
 }
 
 void keyboard(unsigned char key, int x, int y) {
@@ -176,21 +179,21 @@ void display_config() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     if (menu_state == 0) { // Main Menu
-        drawText(-0.9f, 0.8f, "Choose an option:");
+        drawText(-0.9f, 0.8f, "Choose an option:",0);
         drawButton(-0.6f, 0.6f, 0.8f, 0.2f, "Use default values from config.txt");
         drawButton(-0.6f, 0.3f, 0.8f, 0.2f, "Enter values manually");
     } else if (menu_state == 1) { // Custom Input Menu
         char buffer[256];
         snprintf(buffer, sizeof(buffer), "%s%s", prompts[active_field], input_buffers[active_field]);
-        drawText(-0.3f, 0.2f, buffer);
+        drawText(-0.3f, 0.2f, buffer,0);
 
-        drawText(-0.9f, -0.8f, "Press Enter to confirm input.");
+        drawText(-0.9f, -0.8f, "Press Enter to confirm input.",0);
 
         if (show_alert) {
             char error_message[100];
             snprintf(error_message, sizeof(error_message), "Invalid input for %s. Range: %d-%d",
                      prompts[active_field], min_values[active_field], max_values[active_field]);
-            drawText(-0.9f, -0.6f, error_message);
+            drawText(-0.9f, -0.6f, error_message,0);
         }
     }
     glutSwapBuffers();

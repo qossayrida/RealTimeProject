@@ -7,7 +7,7 @@ extern Config config;
 extern int menu_state;
 
 
-void drawText(float x, float y, const char *text);
+void drawText(float x, float y, const char *text,int line);
 
 void drawButton(float x, float y, float width, float height, const char *label);
 

@@ -35,7 +35,16 @@ Information info_buffer[50];
 SharedData *shared_data;
 int fifo_fd, shm_id;
 
-int scene = 0;
+int scene = 0 , reason = 0;
+
+
+char reasons[][256] = {
+        "The simulation has been running for more than a user-defined amount of time (in minutes).",
+        "The number of files that were processed exceeds a user-defined threshold.",
+        "The number of files that were not processed exceeds a user-defined threshold.",
+        "The number of files that were moved to the Backup directory exceeds a user-defined threshold.",
+        "The number of files that were deleted exceeds a user-defined threshold."
+};
 
 DirectoryData directory_data = {0}; // Initialize directory data to empty
 const char *directory_names[6] = {"Generated", "Home", "Processed", "Unprocessed", "Backup", "Deleted"};
@@ -153,14 +162,20 @@ void timer() {
     }
 
 
-    // Check simulation termination conditions
-    if (shared_data->total_calculated_files >= shared_data->config.max_processed_file ||
-        shared_data->total_unprocessed_files >= shared_data->config.max_not_processed_file ||
-        shared_data->total_backup_files >= shared_data->config.max_backup_file ||
-        shared_data->total_deleted_files >= shared_data->config.max_deleted_file) {
+    if (shared_data->total_calculated_files >= shared_data->config.max_processed_file) {
+        reason = 1; // Reason: Processed files exceed threshold
+    } else if (shared_data->total_unprocessed_files >= shared_data->config.max_not_processed_file) {
+        reason = 2; // Reason: Unprocessed files exceed threshold
+    } else if (shared_data->total_backup_files >= shared_data->config.max_backup_file) {
+        reason = 3; // Reason: Backup files exceed threshold
+    } else if (shared_data->total_deleted_files >= shared_data->config.max_deleted_file) {
+        reason = 4; // Reason: Deleted files exceed threshold
+    }
 
+    if (reason != 0) {
         kill(getpid(), SIGALRM);
     }
+
     glutPostRedisplay();
 }
 
@@ -180,7 +195,7 @@ void handle_alarm() {
         printf("Minimum average: %.2f in file %s\n", shared_data->min_average, shared_data->min_file);
         printf("Maximum average: %.2f in file %s\n", shared_data->max_average, shared_data->max_file);
 
-        alarm(5);
+        alarm(9);
     }else{
         traverse_list(shared_data);
         shmdt(shared_data);
@@ -307,8 +322,7 @@ void display() {
 
 void display_result(){
     glClear(GL_COLOR_BUFFER_BIT);
-
-    
+    drawText(-0.4f, 0.0f,reasons[reason],1);
     glutSwapBuffers();
 }
 
