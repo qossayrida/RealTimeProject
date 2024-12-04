@@ -56,10 +56,12 @@ int main() {
                 sums[i] = 0; // Initialize each element to 0
             }
 
-            char *line;
+            char line[1024];
 
             // Read each line from the file
-            while ((line = read_line(file)) != NULL) {
+            try_again:
+            // Read each line from the file
+            while (fgets(line, sizeof(line), file)){
 
                 char* token = strtok(line, ",");
                 columnCount = 0;
@@ -80,15 +82,17 @@ int main() {
 
 
                 }
-
-                free(line);
+                memset(line, 0, sizeof(line));
             }
 
 
 
             if (columnCount==0){
                 printf("%d",access(source, F_OK));
-                printf("%d",access("source", F_OK));
+                if (feof(file)){
+                    rewind(file); // Resets the pointer to the beginning
+                    goto try_again;
+                }
             }
 
             printf("column count %d\n", columnCount);
