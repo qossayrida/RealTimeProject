@@ -25,7 +25,7 @@ int main() {
     key_t key = ftok("/tmp/file_queue", 65);
     int msgid = msgget(key, 0666 | IPC_CREAT);
 
-    while (shared_data->simulation_running) {
+    while (shared_data->simulation_running&&shared_data->total_calculated_files<shared_data->config.max_processed_file) {
 
         sleep((rand() % (shared_data->config.max_wait_calculator_time - shared_data->config.min_wait_calculator_time + 1)) +
               shared_data->config.min_wait_calculator_time);

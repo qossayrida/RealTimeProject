@@ -201,7 +201,7 @@ void display_config() {
 
 void draw_chart() {
     float chart_width = 0.3f;    // Each chart width (30% of screen width)
-    float chart_spacing = 0.05f; // Spacing between charts
+    float chart_spacing = 0.04f; // Spacing between charts
     float max_height = 0.8f;     // Maximum chart height
     int max_files = 0;
 
@@ -218,7 +218,7 @@ void draw_chart() {
 
     for (int i = 0; i < 6; i++) // Iterate through all directories
     {
-        float x_start = -0.95f +
+        float x_start = -0.97f +
                         i * (chart_width + chart_spacing);                   // Horizontal start position for each chart
         float height = (float) directory_data.file_counts[i] / max_files * max_height; // Scale bar height
 
