@@ -29,11 +29,13 @@ void changeDirectory(int senderID, int fileNumber, int source, int destination);
 
 void display();
 
-char max_avg_text[500];
-char min_avg_text[500];
+void display_result();
+
 Information info_buffer[50];
 SharedData *shared_data;
 int fifo_fd, shm_id;
+
+int scene = 0;
 
 DirectoryData directory_data = {0}; // Initialize directory data to empty
 const char *directory_names[6] = {"Generated", "Home", "Processed", "Unprocessed", "Backup", "Deleted"};
@@ -100,6 +102,13 @@ int main(int argc, char **argv) {
 
 void timer() {
 
+    if(scene==1) {
+        glutPostRedisplay();
+        scene=2;
+        return;
+    } else if(scene==2){
+        return;
+    }
 
     int bytes_read = read(fifo_fd, info_buffer, sizeof(info_buffer));
     int num_info = (bytes_read != -1) ? bytes_read / sizeof(Information) : 0;
@@ -142,45 +151,50 @@ void timer() {
                 break;
         }
     }
-    glutPostRedisplay(); // Trigger redraw
+
 
     // Check simulation termination conditions
     if (shared_data->total_calculated_files >= shared_data->config.max_processed_file ||
         shared_data->total_unprocessed_files >= shared_data->config.max_not_processed_file ||
         shared_data->total_backup_files >= shared_data->config.max_backup_file ||
         shared_data->total_deleted_files >= shared_data->config.max_deleted_file) {
+
         kill(getpid(), SIGALRM);
     }
+    glutPostRedisplay();
 }
 
 void handle_alarm() {
-    shared_data->simulation_running = 0;
+    if (scene==0){
+        scene = 1;
+        glutDisplayFunc(display_result);
+        shared_data->simulation_running = 0;
+        while (wait(NULL) > 0);
 
-    //traverse_list(shared_data);
-    glutIdleFunc(NULL);  // Stop idle function
-    glutLeaveMainLoop(); // Exit GLUT main loop
-    while (wait(NULL) > 0);
+        printf("Simulation complete\n");
+        printf("Total generated files: %d\n", shared_data->total_generated_files);
+        printf("Total calculated files: %d\n", shared_data->total_calculated_files);
+        printf("Total unprocessed files: %d\n", shared_data->total_unprocessed_files);
+        printf("Total backup files: %d\n", shared_data->total_backup_files);
+        printf("Total deleted files: %d\n", shared_data->total_deleted_files);
+        printf("Minimum average: %.2f in file %s\n", shared_data->min_average, shared_data->min_file);
+        printf("Maximum average: %.2f in file %s\n", shared_data->max_average, shared_data->max_file);
 
-    printf("Simulation complete\n");
-    printf("Total generated files: %d\n", shared_data->total_generated_files);
-    printf("Total calculated files: %d\n", shared_data->total_calculated_files);
-    printf("Total unprocessed files: %d\n", shared_data->total_unprocessed_files);
-    printf("Total backup files: %d\n", shared_data->total_backup_files);
-    printf("Total deleted files: %d\n", shared_data->total_deleted_files);
-    printf("Minimum average: %.2f in file %s\n", shared_data->min_average, shared_data->min_file);
-    printf("Maximum average: %.2f in file %s\n", shared_data->max_average, shared_data->max_file);
+        alarm(5);
+    }else{
+        traverse_list(shared_data);
+        shmdt(shared_data);
+        shmctl(shm_id, IPC_RMID, NULL);
+        system("rm /tmp/file_fifo_public");
 
-    traverse_list(shared_data);
-    shmdt(shared_data);
-    shmctl(shm_id, IPC_RMID, NULL);
-    system("rm /tmp/file_fifo_public");
+        key_t key = ftok("/tmp/file_queue", 65);
+        int msgid = msgget(key, 0666 | IPC_CREAT);
+        msgctl(msgid, IPC_RMID, NULL);
 
-    key_t key = ftok("/tmp/file_queue", 65);
-    int msgid = msgget(key, 0666 | IPC_CREAT);
-    msgctl(msgid, IPC_RMID, NULL);
-
-    printf("Main: Fifo removed\n");
-    printf("You can now close the window\n");
+        printf("Main: Fifo removed\n");
+        printf("You can now close the window\n");
+        glutLeaveMainLoop();
+    }
 }
 
 void create_process(const char *program, int shm_id, int count) {
@@ -285,22 +299,16 @@ void display() {
                glutGet(GLUT_WINDOW_HEIGHT));
     draw_chart();
 
-    glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
-    glColor3f(0.0f, 0.0f, 0.0f); // Black text for visibility
-
-    // Draw min average
-    snprintf(min_avg_text,500, "Min: %.2f File %s", shared_data->min_average, shared_data->min_file);
-    glRasterPos2f(0.65f, 0.95f);
-    for (const char *c = min_avg_text; *c != '\0'; c++) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
-    }
-
-    // Draw max average
-    snprintf(max_avg_text,500, "Max: %.2f File %s ", shared_data->max_average, shared_data->max_file);
-    glRasterPos2f(0.65f, 0.90f);
-    for (const char *c = max_avg_text; *c != '\0'; c++) {
-        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
-    }
+    draw_min_max(shared_data->min_average, shared_data->max_average, shared_data->min_file, shared_data->max_file);
 
     glutSwapBuffers();
 }
+
+
+void display_result(){
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    
+    glutSwapBuffers();
+}
+

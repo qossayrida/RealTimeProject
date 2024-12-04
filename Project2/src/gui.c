@@ -332,6 +332,29 @@ void draw_table() {
     }
 }
 
+
+void draw_min_max(float min, float max, char *min_file, char *max_file) {
+
+    glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+    glColor3f(0.0f, 0.0f, 0.0f); // Black text for visibility
+
+    char max_avg_text[500];
+    char min_avg_text[500];
+    // Draw min average
+    snprintf(min_avg_text,500, "Min: %.2f File %s", min, min_file);
+    glRasterPos2f(0.65f, 0.95f);
+    for (const char *c = min_avg_text; *c != '\0'; c++) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+
+    // Draw max average
+    snprintf(max_avg_text,500, "Max: %.2f File %s ", max, max_file);
+    glRasterPos2f(0.65f, 0.90f);
+    for (const char *c = max_avg_text; *c != '\0'; c++) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+}
+
 void get_color(int generator_id, float *r, float *g, float *b) {
     unsigned int hashed_id = (unsigned int) generator_id;
     hashed_id = ((hashed_id >> 16) ^ hashed_id) * 0x45d9f3b;
