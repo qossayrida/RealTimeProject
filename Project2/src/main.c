@@ -71,7 +71,8 @@ int main(int argc, char **argv) {
     print_config(&config);
 
     // Initialize shared memory
-    shm_id = shmget(IPC_PRIVATE, sizeof(SharedData) + 100 * MAX_NODES * sizeof(Node), IPC_CREAT | 0666);
+    int predictable_value = 100;
+    shm_id = shmget(IPC_PRIVATE, sizeof(SharedData) + predictable_value * MAX_NODES * sizeof(Node), IPC_CREAT | 0666);
     shared_data = (SharedData *) shmat(shm_id, NULL, 0);
     memset(shared_data, 0, sizeof(SharedData));
     shared_data->simulation_running = 1;
