@@ -23,14 +23,14 @@ void create_process(const char *program, int shm_id, int count);
 
 int extractFileNumber(const char *fileName);
 
-void calculateFile(const char *file);
-
 void generateFile(int senderID, const char *file);
 
 void changeDirectory(int senderID, int fileNumber, int source, int destination);
 
 void display();
 
+char max_avg_text[500];
+char min_avg_text[500];
 Information info_buffer[50];
 SharedData *shared_data;
 int fifo_fd, shm_id;
@@ -99,6 +99,8 @@ int main(int argc, char **argv) {
 }
 
 void timer() {
+
+
     int bytes_read = read(fifo_fd, info_buffer, sizeof(info_buffer));
     int num_info = (bytes_read != -1) ? bytes_read / sizeof(Information) : 0;
 
@@ -116,7 +118,6 @@ void timer() {
             case FILE_CALCULATOR:
                 printf("Timer: File Calculator %d calculated file %s\n", info_buffer[i].sender_id,
                        info_buffer[i].content);
-                calculateFile(info_buffer[i].content);
                 break;
             case FILE_MOVER:
                 printf("Timer: File Mover %d moved file %s\n", info_buffer[i].sender_id, info_buffer[i].content);
@@ -140,8 +141,8 @@ void timer() {
             default:
                 break;
         }
-        glutPostRedisplay(); // Trigger redraw
     }
+    glutPostRedisplay(); // Trigger redraw
 
     // Check simulation termination conditions
     if (shared_data->total_calculated_files >= shared_data->config.max_processed_file ||
@@ -272,10 +273,6 @@ void generateFile(int senderID, const char *file) {
     changeDirectory(senderID, fileNumber, -1, 1);
 }
 
-void calculateFile(const char *file) {
-    //    int fileNumber = atoi(file);
-}
-
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
 
@@ -287,6 +284,23 @@ void display() {
     glViewport((int) (0.8 * glutGet(GLUT_WINDOW_WIDTH)), 0, (int) (0.2 * glutGet(GLUT_WINDOW_WIDTH)),
                glutGet(GLUT_WINDOW_HEIGHT));
     draw_chart();
+
+    glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+    glColor3f(0.0f, 0.0f, 0.0f); // Black text for visibility
+
+    // Draw min average
+    snprintf(min_avg_text,500, "Min: %.2f File %s", shared_data->min_average, shared_data->min_file);
+    glRasterPos2f(0.65f, 0.95f);
+    for (const char *c = min_avg_text; *c != '\0'; c++) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+
+    // Draw max average
+    snprintf(max_avg_text,500, "Max: %.2f File %s ", shared_data->max_average, shared_data->max_file);
+    glRasterPos2f(0.65f, 0.90f);
+    for (const char *c = max_avg_text; *c != '\0'; c++) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
 
     glutSwapBuffers();
 }

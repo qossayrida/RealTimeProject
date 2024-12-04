@@ -73,8 +73,8 @@ typedef struct {
     float min_average;
     float max_average;
     Config config;
-    char max_file[256];
-    char min_file[256];
+    char max_file[100];
+    char min_file[100];
     int simulation_running; // 1 if running, 0 if terminated
     int avg_file[100][10];
     int rows[100][10];
@@ -124,5 +124,6 @@ void initialize_shared_memory(SharedData *shm);
 void add_node(SharedData *shm,int filenumber);
 
 void add_internal_node(SharedData *shm,  int rows, float average, int o);
+
 
 #endif // CONFIG_H

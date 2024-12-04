@@ -12,6 +12,7 @@
 
 int fifo_fd;
 char *read_line(FILE *file);
+int extractFileNumber(const char *fileName);
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
@@ -106,13 +107,14 @@ int main() {
                 if(shared_data->max_average < sums[i] / rows[i]){
                     shared_data->max_average = sums[i] / rows[i];
                     snprintf(shared_data->max_file, sizeof(shared_data->max_file), "%s col %d", file_number,i);
+
                 }
                 if(shared_data->min_average ==0){
                     shared_data->min_average = sums[i] / rows[i];
                 }
                 if(shared_data->min_average > sums[i] / rows[i]){
                     shared_data->min_average = sums[i] / rows[i];
-                    snprintf(shared_data->min_file, sizeof(shared_data->min_file), "%s.csv col %d", file_number,i);
+                    snprintf(shared_data->min_file, sizeof(shared_data->min_file), "%s col %d", file_number,i);
                 }
             }
             fclose(file);
@@ -161,4 +163,15 @@ char *read_line(FILE *file) {
     buffer[length] = '\0'; // Null-terminate the string
     strncpy(line, buffer, length + 1); // Copy buffer to line
     return line;
+}
+
+int extractFileNumber(const char *fileName) {
+    const char *last_slash = strrchr(fileName, '/'); // Find the last '/'
+    if (last_slash != NULL) {
+        int fileNumber;
+        if (sscanf(last_slash + 1, "%d", &fileNumber) == 1){
+            return fileNumber;
+        }
+    }
+    return -1; // Return -1 if extraction fails
 }
