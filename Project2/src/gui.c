@@ -28,7 +28,7 @@ const char* prompts[] = {
         "Number of Rows (lower limit) (1-5000): ",
         "Number of Columns (upper limit) (50-100): ",
         "Number of Columns (lower limit) (1-50): ",
-        "Miss Percentage (0-100): "
+        "Miss Percentage (0-50): "
 };
 
 int* config_values[] = {
@@ -46,7 +46,7 @@ int* config_values[] = {
 };
 
 int min_values[] = {1,1,1,1 ,1, 1, 5000,1, 50, 1, 0};
-int max_values[] = {100, 100, 100,100,100,100,10000,5000,100, 50, 100};
+int max_values[] = {100, 100, 100,100,100,100,10000,5000,100, 50, 50};
 
 void init() {
     glClearColor(0.8f, 0.8f, 0.8f, 1.0f); // R: 0.9, G: 0.9, B: 0.9, Alpha: 1.0

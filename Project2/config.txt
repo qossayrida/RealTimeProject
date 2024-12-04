@@ -22,4 +22,4 @@ max_deleted_file=100
 min_generate_time=1
 min_wait_calculator_time=1
 max_generate_time=5
-max_wait_calculator_time=2
+max_wait_calculator_time=5
