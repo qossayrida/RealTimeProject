@@ -10,15 +10,19 @@
 #include "sem.h"
 
 int fifo_fd;
+
 void ensure_directory(const char *path);
+
 void move(const char *source, const char *destination);
-char* get_first_file();
+
+char *get_first_file();
+
 void remove_spaces_and_newlines(char *str);
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    int sem= semget(1234, 1, 0666 );
-    SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
+    int sem = semget(1234, 1, 0666);
+    SharedData *shared_data = (SharedData *) shmat(shm_id, NULL, 0);
     fifo_fd = open(FIFO_NAME, O_WRONLY);
 
     printf("Type 2 Inspector: Started\n");
@@ -33,8 +37,8 @@ int main() {
 
 
         if (first_element != NULL) {
-            snprintf(source, MAX_PATH_LENGTH, "%s%s",PROCESSED_DIR, first_element);
-            snprintf(destination, MAX_PATH_LENGTH, "%s%s",BACKUP_DIR, first_element);
+            snprintf(source, MAX_PATH_LENGTH, "%s%s", PROCESSED_DIR, first_element);
+            snprintf(destination, MAX_PATH_LENGTH, "%s%s", BACKUP_DIR, first_element);
         } else {
             goto label;
         }
@@ -69,11 +73,11 @@ void ensure_directory(const char *path) {
 
 void move(const char *source, const char *destination) {
     char command[512];
-    snprintf(command, sizeof(command), "mv %s %s",source, destination);
+    snprintf(command, sizeof(command), "mv %s %s", source, destination);
     system(command);
 }
 
-char* get_first_file() {
+char *get_first_file() {
     char command[512];
     snprintf(command, sizeof(command), "ls %s -v | head -n 1", PROCESSED_DIR);
 

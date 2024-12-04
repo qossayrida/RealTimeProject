@@ -2,7 +2,6 @@
 #define SEM_H
 
 
-
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/ipc.h>
@@ -12,7 +11,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-
 
 
 int init_semaphore() {
@@ -29,6 +27,7 @@ int init_semaphore() {
     }
     return semid;
 }
+
 void sem_wait(int semid) {
     struct sembuf sem_op;
     sem_op.sem_num = 0;
@@ -53,4 +52,5 @@ void sem_post(int semid) {
         exit(1);
     }
 }
+
 #endif

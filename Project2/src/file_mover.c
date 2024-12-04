@@ -11,11 +11,12 @@
 #include "sem.h"
 
 int fifo_fd;
+
 void ensure_directory(const char *path);
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
+    SharedData *shared_data = (SharedData *) shmat(shm_id, NULL, 0);
     fifo_fd = open(FIFO_NAME, O_WRONLY);
 
 
@@ -38,7 +39,7 @@ int main() {
 
             // Move file
             char command[512];
-            snprintf(command, sizeof(command), "mv %s %s",source, destination);
+            snprintf(command, sizeof(command), "mv %s %s", source, destination);
             system(command);  // Use `rename()` for safety in production
         }
     }

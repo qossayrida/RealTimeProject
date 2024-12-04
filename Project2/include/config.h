@@ -8,8 +8,7 @@
 #define UNPROCESSED_DIR "./UnProcessed/"
 #define BACKUP_DIR "./Backup/"
 
-enum
-{
+enum {
     FILE_GENERATOR,
     FILE_CALCULATOR,
     FILE_MOVER,
@@ -17,7 +16,6 @@ enum
     TYPE2_INSPECTOR,
     TYPE3_INSPECTOR
 };
-
 
 
 #define MAX_NODES 1024
@@ -39,21 +37,18 @@ typedef struct InnerNode {
 #define MAX_PATH_LENGTH 40
 
 
-typedef struct ListNode
-{
+typedef struct ListNode {
     struct AvgNode *list_of_average;
     struct ListNode *next;
 } ListNode, *ListNodePtr;
 
-typedef struct AvgNode
-{
+typedef struct AvgNode {
     int num_rows;
     float average;
     struct AvgNode *next;
 } AvgNode, *AvgNodePtr;
 
-typedef struct
-{
+typedef struct {
     int num_file_generators;
     int num_file_calculators;
     int num_file_movers;
@@ -77,10 +72,11 @@ typedef struct
     int max_deleted_file;
     int min_generate_time;
     int max_generate_time;
+    int max_wait_calculator_time;
+    int min_wait_calculator_time;
 } Config;
 
-typedef struct
-{
+typedef struct {
     int total_generated_files;
     int total_calculated_files;
     int total_unprocessed_files;
@@ -101,22 +97,19 @@ typedef struct
 
 } SharedData;
 
-typedef struct
-{
+typedef struct {
     long mtype;           // Message type
     char file_number[10]; // File path
 } Message;
 
-typedef struct
-{
+typedef struct {
     int type;
     int sender_id;
     char content[30];
 } Information;
 #define MAX_FILES 999999
 
-typedef struct
-{
+typedef struct {
     int number[6][MAX_FILES];
     float x[MAX_FILES];
     float y[MAX_FILES];
@@ -125,19 +118,33 @@ typedef struct
 } DirectoryData;
 
 int load_config(const char *filename, Config *config);
+
 void print_config(const Config *config);
+
 void send_info(int fifo, int type, int sender_id, char *content);
+
 ListNodePtr create_list_node();
+
 AvgNodePtr create_avg_node();
+
 void add_list_node(ListNodePtr outer_linked_list, AvgNodePtr avg_list);
+
 void add_avg_node(AvgNodePtr avg_list, int rows, float new_avg);
+
 void print_linked_list(ListNodePtr outer_linked_list);
+
 void timer();
+
 void generate_file(int generator_id, int file_number);
+
 void create_process(const char *program, int shm_id, int count);
-void traverse_list(SharedData *shm) ;
+
+void traverse_list(SharedData *shm);
+
 void initialize_shared_memory(SharedData *shm);
-void add_node(SharedData *shm) ;
-void add_internal_node(SharedData *shm, int filenumber,int rows,float average,int o);
+
+void add_node(SharedData *shm);
+
+void add_internal_node(SharedData *shm, int filenumber, int rows, float average, int o);
 
 #endif // CONFIG_H

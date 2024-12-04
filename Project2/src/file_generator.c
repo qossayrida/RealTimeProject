@@ -9,13 +9,15 @@
 #include "sem.h"
 
 int fifo_fd;
+
 void ensure_directory(const char *path);
+
 float generate_random_value(int miss_percentage);
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    int sem= semget(1234, 1, 0666 );
-    SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
+    int sem = semget(1234, 1, 0666);
+    SharedData *shared_data = (SharedData *) shmat(shm_id, NULL, 0);
     fifo_fd = open(FIFO_NAME, O_WRONLY);
 
     srand(time(NULL) ^ getpid()); // Seed randomness with time and PID
@@ -23,9 +25,13 @@ int main() {
 
 
     while (shared_data->simulation_running) {
+
+        sleep((rand() % (shared_data->config.max_generate_time - shared_data->config.min_generate_time + 1)) +
+              shared_data->config.min_generate_time); // Simulate random delay
+
         sem_wait(sem); // Lock access to shared data
         int file_number = shared_data->total_generated_files++;
-        sem_post(sem); // Unlock access to shared data
+
 
         // Create file name
         char filename[30];
@@ -39,8 +45,11 @@ int main() {
         }
 
         // Get random rows and columns within config range
-        int rows = rand() % (shared_data->config.default_upper_rows - shared_data->config.default_lower_rows + 1) + shared_data->config.default_lower_rows;
-        int columns = rand() % (shared_data->config.default_upper_columns - shared_data->config.default_lower_columns + 1) + shared_data->config.default_lower_columns;
+        int rows = rand() % (shared_data->config.default_upper_rows - shared_data->config.default_lower_rows + 1) +
+                   shared_data->config.default_lower_rows;
+        int columns =
+                rand() % (shared_data->config.default_upper_columns - shared_data->config.default_lower_columns + 1) +
+                shared_data->config.default_lower_columns;
 
         // Generate and write data to the file
         for (int i = 0; i < rows; i++) {
@@ -61,7 +70,8 @@ int main() {
         fclose(file); // Close the file
         send_info(fifo_fd, FILE_GENERATOR, getpid(), filename);
 
-        sleep((rand() % (shared_data->config.max_generate_time - shared_data->config.min_generate_time + 1)) + shared_data->config.min_generate_time); // Simulate random delay
+        sem_post(sem); // Unlock access to shared data
+
     }
 
     // Cleanup
@@ -83,5 +93,5 @@ float generate_random_value(int miss_percentage) {
     if (random_value < miss_percentage) {
         return -1; // Mark as missing (-1 indicates missing value)
     }
-    return ((float)rand() / RAND_MAX) * 100; // Random decimal between 0 and 100
+    return ((float) rand() / RAND_MAX) * 100; // Random decimal between 0 and 100
 }

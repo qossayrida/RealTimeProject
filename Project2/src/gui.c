@@ -10,7 +10,7 @@
 
 Config config;
 int menu_state = 0;                                              // 0: Main menu, 1: Custom input menu, 2: Display final configuration
-char input_buffers[NUM_INPUT_FIELDS][50] = {"", "", "", "", "","","","","","",""}; // Buffers for user inputs
+char input_buffers[NUM_INPUT_FIELDS][50] = {"", "", "", "", "", "", "", "", "", "", ""}; // Buffers for user inputs
 int show_alert = 0;    // Alert flag for validation errors
 int active_field = 0; // Tracks which input field is currently active for keyboard input
 extern const char *directory_names[];
@@ -24,10 +24,10 @@ const char* prompts[] = {
         "Number of Type 1 Inspectors (1-100): ",
         "Number of Type 2 Inspectors (1-100): ",
         "Number of Type 3 Inspectors (1-100): ",
-        "Number of Rows (upper limit) (1-50000): ",
-        "Number of Rows (lower limit) (50000-100000): ",
-        "Number of Columns (upper limit) (1-50): ",
-        "Number of Columns (lower limit) (50-100): ",
+        "Number of Rows (upper limit) (5000-10000): ",
+        "Number of Rows (lower limit) (1-5000): ",
+        "Number of Columns (upper limit) (50-100): ",
+        "Number of Columns (lower limit) (1-50): ",
         "Miss Percentage (0-100): "
 };
 
@@ -45,48 +45,38 @@ int* config_values[] = {
         &config.miss_percentage
 };
 
-int min_values[] = {1,1,1,1 ,1, 1, 1,50000, 1, 50, 0};
-int max_values[] = {100, 100, 100,100,100,100,50000,100000,50, 100, 100};
+int min_values[] = {1,1,1,1 ,1, 1, 5000,1, 50, 1, 0};
+int max_values[] = {100, 100, 100,100,100,100,10000,5000,100, 50, 100};
 
-
-void init()
-{
+void init() {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
 }
 
-void validateAndStoreInput()
-{
+void validateAndStoreInput() {
     show_alert = 0;
 
-    for (int i = 0; i < NUM_INPUT_FIELDS; i++)
-    {
+    for (int i = 0; i < NUM_INPUT_FIELDS; i++) {
         int value = atoi(input_buffers[i]);
-        if (value >= min_values[i] && value <= max_values[i])
-        {
+        if (value >= min_values[i] && value <= max_values[i]) {
             *config_values[i] = value;
-        }
-        else
-        {
+        } else {
             show_alert = 1; // Validation failed
             break;
         }
     }
 
-    if (!show_alert)
-    {
+    if (!show_alert) {
         menu_state = 2; // All inputs are valid; move to final configuration
     }
 
     glutPostRedisplay();
 }
 
-void processDefaultConfig()
-{
-    if (load_config("config.txt", &config) != 0)
-    {
+void processDefaultConfig() {
+    if (load_config("config.txt", &config) != 0) {
         fprintf(stderr, "Failed to load configuration.\n");
         exit(1);
     }
@@ -94,38 +84,28 @@ void processDefaultConfig()
     glutPostRedisplay();
 }
 
-void mouse(int button, int state, int x, int y)
-{
-    if (state == GLUT_DOWN)
-    {
+void mouse(int button, int state, int x, int y) {
+    if (state == GLUT_DOWN) {
         // Convert mouse coordinates to OpenGL coordinates
-        float mx = (float)x / 960.0f - 1.0f; // Scale for 1920px width
-        float my = 1.0f - (float)y / 540.0f; // Scale for 1080px height
+        float mx = (float) x / 960.0f - 1.0f; // Scale for 1920px width
+        float my = 1.0f - (float) y / 540.0f; // Scale for 1080px height
 
-        if (menu_state == 0)
-        { // Main Menu buttons
-            if (mx >= -0.6f && mx <= 0.2f && my <= 0.6f && my >= 0.4f)
-            {
+        if (menu_state == 0) { // Main Menu buttons
+            if (mx >= -0.6f && mx <= 0.2f && my <= 0.6f && my >= 0.4f) {
                 processDefaultConfig(); // Default Config
-            }
-            else if (mx >= -0.6f && mx <= 0.2f && my <= 0.3f && my >= 0.1f)
-            {
+            } else if (mx >= -0.6f && mx <= 0.2f && my <= 0.3f && my >= 0.1f) {
                 processDefaultConfig();
                 menu_state = 1; // Custom Input Menu
                 glutPostRedisplay();
             }
-        }
-        else if (menu_state == 1)
-        {
-            for (int i = 0; i < NUM_INPUT_FIELDS; i++)
-            {
+        } else if (menu_state == 1) {
+            for (int i = 0; i < NUM_INPUT_FIELDS; i++) {
                 float icon_x = -0.9f;
                 float icon_y = 0.72f - i * 0.2f;
                 float icon_size = 0.05f;
 
                 // Check if mouse click is within the bounds of the icon
-                if (mx >= icon_x && mx <= icon_x + icon_size && my <= icon_y && my >= icon_y - icon_size)
-                {
+                if (mx >= icon_x && mx <= icon_x + icon_size && my <= icon_y && my >= icon_y - icon_size) {
                     active_field = i; // Set active field to the clicked icon
                     glutPostRedisplay();
                     return;
@@ -135,18 +115,15 @@ void mouse(int button, int state, int x, int y)
     }
 }
 
-void drawText(float x, float y, const char *text)
-{
+void drawText(float x, float y, const char *text) {
     glColor3f(1.0f, 1.0f, 1.0f); // Default color
     glRasterPos2f(x, y);
-    for (const char *c = text; *c != '\0'; c++)
-    {
+    for (const char *c = text; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
     }
 }
 
-void drawButton(float x, float y, float width, float height, const char *label)
-{
+void drawButton(float x, float y, float width, float height, const char *label) {
     glColor3f(0.2f, 0.2f, 0.8f);
     glBegin(GL_QUADS);
     glVertex2f(x, y);
@@ -159,49 +136,34 @@ void drawButton(float x, float y, float width, float height, const char *label)
     drawText(x + 0.02f, y - 0.07f, label);
 }
 
-void keyboard(unsigned char key, int x, int y)
-{
-    if (menu_state == 1)
-    { // Custom Input Menu
-        if (key == '\r' || key == '\n')
-        { // Enter key
+void keyboard(unsigned char key, int x, int y) {
+    if (menu_state == 1) { // Custom Input Menu
+        if (key == '\r' || key == '\n') { // Enter key
             // Validate current input
-            if (strlen(input_buffers[active_field]) > 0)
-            { // Ensure the buffer is not empty
+            if (strlen(input_buffers[active_field]) > 0) { // Ensure the buffer is not empty
                 int value = atoi(input_buffers[active_field]);
-                if (value >= min_values[active_field] && value <= max_values[active_field])
-                {
+                if (value >= min_values[active_field] && value <= max_values[active_field]) {
                     *config_values[active_field] = value; // Store the validated value
                     active_field++;                       // Move to the next input field
                     show_alert = 0;                       // Reset alert
-                    if (active_field == NUM_INPUT_FIELDS)
-                    { // All inputs collected
+                    if (active_field == NUM_INPUT_FIELDS) { // All inputs collected
                         glutMouseFunc(NULL);
                         glutKeyboardFunc(NULL);
                         menu_state = 2; // Move to final configuration display
                     }
-                }
-                else
-                {
+                } else {
                     show_alert = 1; // Invalid input; show alert
                 }
-            }
-            else
-            {
+            } else {
                 show_alert = 1; // Buffer is empty; show alert
             }
-        }
-        else if (key == '\b')
-        { // Backspace
+        } else if (key == '\b') { // Backspace
             size_t len = strlen(input_buffers[active_field]);
             if (len > 0)
                 input_buffers[active_field][len - 1] = '\0';
-        }
-        else if (key >= '0' && key <= '9')
-        { // Numeric input
+        } else if (key >= '0' && key <= '9') { // Numeric input
             size_t len = strlen(input_buffers[active_field]);
-            if (len < sizeof(input_buffers[active_field]) - 1)
-            {
+            if (len < sizeof(input_buffers[active_field]) - 1) {
                 input_buffers[active_field][len] = key;
                 input_buffers[active_field][len + 1] = '\0';
             }
@@ -210,26 +172,21 @@ void keyboard(unsigned char key, int x, int y)
     }
 }
 
-void display_config()
-{
+void display_config() {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    if (menu_state == 0)
-    { // Main Menu
+    if (menu_state == 0) { // Main Menu
         drawText(-0.9f, 0.8f, "Choose an option:");
         drawButton(-0.6f, 0.6f, 0.8f, 0.2f, "Use default values from config.txt");
         drawButton(-0.6f, 0.3f, 0.8f, 0.2f, "Enter values manually");
-    }
-    else if (menu_state == 1)
-    { // Custom Input Menu
+    } else if (menu_state == 1) { // Custom Input Menu
         char buffer[256];
         snprintf(buffer, sizeof(buffer), "%s%s", prompts[active_field], input_buffers[active_field]);
         drawText(-0.3f, 0.2f, buffer);
 
         drawText(-0.9f, -0.8f, "Press Enter to confirm input.");
 
-        if (show_alert)
-        {
+        if (show_alert) {
             char error_message[100];
             snprintf(error_message, sizeof(error_message), "Invalid input for %s. Range: %d-%d",
                      prompts[active_field], min_values[active_field], max_values[active_field]);
@@ -239,31 +196,28 @@ void display_config()
     glutSwapBuffers();
 }
 
-void draw_chart()
-{
+void draw_chart() {
     float chart_width = 0.3f;    // Each chart width (30% of screen width)
     float chart_spacing = 0.05f; // Spacing between charts
     float max_height = 0.8f;     // Maximum chart height
     int max_files = 0;
 
     // Determine the maximum number of files across all directories
-    for (int i = 0; i < 6; i++)
-    {
-        if (directory_data.file_counts[i] > max_files)
-        {
+    for (int i = 0; i < 6; i++) {
+        if (directory_data.file_counts[i] > max_files) {
             max_files = directory_data.file_counts[i];
         }
     }
 
-    if (max_files == 0)
-    {
+    if (max_files == 0) {
         return; // No files to display, skip drawing
     }
 
     for (int i = 0; i < 6; i++) // Iterate through all directories
     {
-        float x_start = -0.95f + i * (chart_width + chart_spacing);                   // Horizontal start position for each chart
-        float height = (float)directory_data.file_counts[i] / max_files * max_height; // Scale bar height
+        float x_start = -0.95f +
+                        i * (chart_width + chart_spacing);                   // Horizontal start position for each chart
+        float height = (float) directory_data.file_counts[i] / max_files * max_height; // Scale bar height
 
         // Draw the chart bar
         glColor3f(0.2f, 0.6f, 0.2f); // Bar color (green)
@@ -279,8 +233,7 @@ void draw_chart()
         char label[10];
         sprintf(label, "%d", directory_data.file_counts[i]);
         glRasterPos2f(x_start + chart_width / 2.0f - 0.02f, -0.8f + height + 0.05f);
-        for (const char *c = label; *c != '\0'; c++)
-        {
+        for (const char *c = label; *c != '\0'; c++) {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
         }
 
@@ -290,15 +243,13 @@ void draw_chart()
         // Draw the directory name below the chart
         glColor3f(1.0f, 1.0f, 1.0f); // White text
         glRasterPos2f(x_start + chart_width / 2.0f - 0.17f, name_y_position);
-        for (const char *c = directory_names[i]; *c != '\0'; c++)
-        {
+        for (const char *c = directory_names[i]; *c != '\0'; c++) {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *c);
         }
     }
 }
 
-void draw_table()
-{
+void draw_table() {
     float col_width = 0.4f;    // Width of each column
     float row_height = 0.07f;  // Height for each row
     float square_size = 0.06f; // Size of file squares
@@ -330,8 +281,7 @@ void draw_table()
         // Draw header text
         glColor3f(1.0f, 1.0f, 1.0f);
         glRasterPos2f(x_start + 0.02f, 1.0f - 0.03f);
-        for (const char *c = directory_names[i]; *c != '\0'; c++)
-        {
+        for (const char *c = directory_names[i]; *c != '\0'; c++) {
             glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
         }
     }
@@ -341,8 +291,7 @@ void draw_table()
     {
         float x_start = -1.0f + (dir - 1) * col_width; // Shift columns left by one
 
-        for (int file = 0; file < directory_data.file_counts[dir]; file++)
-        {
+        for (int file = 0; file < directory_data.file_counts[dir]; file++) {
             // Calculate position dynamically
             int column = file / files_per_column; // Determine which column within the directory
             int row = file % files_per_column;    // Determine row within the column
@@ -358,8 +307,7 @@ void draw_table()
             float b = directory_data.colors[fileNumber][2];
 
             // Skip invalid colors
-            if (r == 0 && g == 0 && b == 0)
-            {
+            if (r == 0 && g == 0 && b == 0) {
                 continue;
             }
 
@@ -377,17 +325,15 @@ void draw_table()
             char file_name[10];
             sprintf(file_name, "F%d", fileNumber);
             glRasterPos2f(x_start + x_offset + 0.03f, y_start - square_size / 2);
-            for (const char *c = file_name; *c != '\0'; c++)
-            {
+            for (const char *c = file_name; *c != '\0'; c++) {
                 glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *c);
             }
         }
     }
 }
 
-void get_color(int generator_id, float *r, float *g, float *b)
-{
-    unsigned int hashed_id = (unsigned int)generator_id;
+void get_color(int generator_id, float *r, float *g, float *b) {
+    unsigned int hashed_id = (unsigned int) generator_id;
     hashed_id = ((hashed_id >> 16) ^ hashed_id) * 0x45d9f3b;
     hashed_id = ((hashed_id >> 16) ^ hashed_id) * 0x45d9f3b;
     hashed_id = (hashed_id >> 16) ^ hashed_id;
@@ -404,38 +350,27 @@ void get_color(int generator_id, float *r, float *g, float *b)
 
     float r_temp, g_temp, b_temp;
 
-    if (hue < 1.0 / 6.0)
-    {
+    if (hue < 1.0 / 6.0) {
         r_temp = c;
         g_temp = x;
         b_temp = 0;
-    }
-    else if (hue < 2.0 / 6.0)
-    {
+    } else if (hue < 2.0 / 6.0) {
         r_temp = x;
         g_temp = c;
         b_temp = 0;
-    }
-    else if (hue < 3.0 / 6.0)
-    {
+    } else if (hue < 3.0 / 6.0) {
         r_temp = 0;
         g_temp = c;
         b_temp = x;
-    }
-    else if (hue < 4.0 / 6.0)
-    {
+    } else if (hue < 4.0 / 6.0) {
         r_temp = 0;
         g_temp = x;
         b_temp = c;
-    }
-    else if (hue < 5.0 / 6.0)
-    {
+    } else if (hue < 5.0 / 6.0) {
         r_temp = x;
         g_temp = 0;
         b_temp = c;
-    }
-    else
-    {
+    } else {
         r_temp = c;
         g_temp = 0;
         b_temp = x;

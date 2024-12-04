@@ -10,13 +10,15 @@
 #include "sem.h"
 
 int fifo_fd;
+
 void ensure_directory(const char *path);
+
 void move_to_unprocessed(const char *filename);
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    int sem= semget(1234, 1, 0666 );
-    SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
+    int sem = semget(1234, 1, 0666);
+    SharedData *shared_data = (SharedData *) shmat(shm_id, NULL, 0);
     fifo_fd = open(FIFO_NAME, O_WRONLY);
 
     printf("Type 1 Inspector: Started\n");
@@ -27,10 +29,11 @@ int main() {
         sem_wait(sem); // Lock access to shared data
 
         char file_number[MAX_PATH_LENGTH];
-        snprintf(file_number, MAX_PATH_LENGTH, "%d", shared_data->total_calculated_files + shared_data->total_unprocessed_files);
+        snprintf(file_number, MAX_PATH_LENGTH, "%d",
+                 shared_data->total_calculated_files + shared_data->total_unprocessed_files);
 
-        char source[MAX_PATH_LENGTH*2];
-        snprintf(source, MAX_PATH_LENGTH*2, "%s%s.csv", HOME_DIR, file_number);
+        char source[MAX_PATH_LENGTH * 2];
+        snprintf(source, MAX_PATH_LENGTH * 2, "%s%s.csv", HOME_DIR, file_number);
 
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -75,6 +78,6 @@ void move_to_unprocessed(const char *filename) {
 
     // Move file
     char command[512];
-    snprintf(command, sizeof(command), "mv %s %s",source, destination);
+    snprintf(command, sizeof(command), "mv %s %s", source, destination);
     system(command);
 }

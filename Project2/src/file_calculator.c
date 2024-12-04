@@ -20,12 +20,15 @@ int main() {
     fifo_fd = open(FIFO_NAME, O_WRONLY);
 
 
-
     // Open message queue
     key_t key = ftok("queuefile", 65);
     int msgid = msgget(key, 0666 | IPC_CREAT);
 
     while (shared_data->simulation_running) {
+
+        sleep((rand() % (shared_data->config.max_wait_calculator_time - shared_data->config.min_wait_calculator_time + 1)) +
+              shared_data->config.min_wait_calculator_time);
+
         sem_wait(sem);
         char file_number[MAX_PATH_LENGTH];
         snprintf(file_number, MAX_PATH_LENGTH, "%d", shared_data->total_calculated_files + shared_data->total_unprocessed_files);
@@ -123,8 +126,6 @@ int main() {
         }
 
         sem_post(sem);
-
-        sleep(rand() % 5 + 1); // Simulate random delay
     }
 
     shmdt(shared_data);

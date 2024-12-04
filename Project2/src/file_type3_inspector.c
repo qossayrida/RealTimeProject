@@ -10,14 +10,17 @@
 #include "sem.h"
 
 int fifo_fd;
+
 void remove_file(const char *filename);
-char* get_first_file();
+
+char *get_first_file();
+
 void remove_spaces_and_newlines(char *str);
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    int sem= semget(1234, 1, 0666 );
-    SharedData *shared_data = (SharedData *)shmat(shm_id, NULL, 0);
+    int sem = semget(1234, 1, 0666);
+    SharedData *shared_data = (SharedData *) shmat(shm_id, NULL, 0);
     fifo_fd = open(FIFO_NAME, O_WRONLY);
 
     printf("Type 3 Inspector: Started\n");
@@ -31,7 +34,7 @@ int main() {
 
         if (first_element != NULL) {
             snprintf(source, MAX_PATH_LENGTH, "%s%s", BACKUP_DIR, first_element);
-        } else{
+        } else {
             goto label;
         }
 
@@ -55,12 +58,12 @@ int main() {
 
 void remove_file(const char *source) {
     char command[512];
-    snprintf(command, sizeof(command), "rm %s ",source);
+    snprintf(command, sizeof(command), "rm %s ", source);
     system(command);
 }
 
 
-char* get_first_file() {
+char *get_first_file() {
     char command[512];
     snprintf(command, sizeof(command), "ls %s -v | head -n 1", BACKUP_DIR);
 
