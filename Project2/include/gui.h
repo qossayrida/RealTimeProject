@@ -15,5 +15,8 @@ void validateAndStoreInput();
 void mouse(int button, int state, int x, int y);
 void keyboard(unsigned char key, int x, int y);
 void init();
-
+void draw_chart();
+void draw_table();
+void display();
+void get_color(int generator_id, float* r, float* g, float* b);
 #endif

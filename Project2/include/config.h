@@ -117,6 +117,16 @@ typedef struct
     int sender_id;
     char content[30];
 } Information;
+#define MAX_FILES 999999
+
+typedef struct
+{
+    int number[6][MAX_FILES];
+    float x[MAX_FILES];
+    float y[MAX_FILES];
+    int file_counts[6];
+    float colors[MAX_FILES][3];
+} DirectoryData;
 
 int load_config(const char *filename, Config *config);
 void print_config(const Config *config);
