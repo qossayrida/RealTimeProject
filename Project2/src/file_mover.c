@@ -20,7 +20,7 @@ int main() {
     fifo_fd = open(FIFO_NAME, O_WRONLY);
 
 
-    key_t key = ftok("queuefile", 65);
+    key_t key = ftok("/tmp/file_queue", 65);
     int msgid = msgget(key, 0666 | IPC_CREAT);
 
     ensure_directory(PROCESSED_DIR);

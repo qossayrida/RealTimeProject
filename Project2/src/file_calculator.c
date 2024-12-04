@@ -21,7 +21,7 @@ int main() {
 
 
     // Open message queue
-    key_t key = ftok("queuefile", 65);
+    key_t key = ftok("/tmp/file_queue", 65);
     int msgid = msgget(key, 0666 | IPC_CREAT);
 
     while (shared_data->simulation_running) {

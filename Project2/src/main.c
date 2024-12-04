@@ -7,6 +7,8 @@
 #include <sys/wait.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
 #include <string.h>
 #include <signal.h>
 #include "gui.h"
@@ -91,7 +93,6 @@ int main(int argc, char **argv) {
     memset(directory_data.file_counts, 0, sizeof(directory_data.file_counts));
     glutDisplayFunc(display);
     glutPostRedisplay();
-    // Start simulation
     glutIdleFunc(timer); // Use timer to update simulation
     glutMainLoop();      // Start OpenGL main loop
 
@@ -152,8 +153,6 @@ void timer() {
         shared_data->total_unprocessed_files >= shared_data->config.max_not_processed_file ||
         shared_data->total_backup_files >= shared_data->config.max_backup_file ||
         shared_data->total_deleted_files >= shared_data->config.max_deleted_file) {
-        printf("Timer: Simulation completed. Stopping.\n");
-        shared_data->simulation_running = 0;
         kill(getpid(), SIGALRM);
     }
 
@@ -171,6 +170,7 @@ void handle_alarm() {
     printf("Maximum average: %.2f in file %s\n", shared_data->max_average, shared_data->max_file);
 
     shared_data->simulation_running = 0;
+
     //traverse_list(shared_data);
     glutIdleFunc(NULL);  // Stop idle function
     glutLeaveMainLoop(); // Exit GLUT main loop
@@ -179,6 +179,11 @@ void handle_alarm() {
     shmdt(shared_data);
     shmctl(shm_id, IPC_RMID, NULL);
     system("rm /tmp/file_fifo_public");
+
+    key_t key = ftok("/tmp/file_queue", 65);
+    int msgid = msgget(key, 0666 | IPC_CREAT);
+    msgctl(msgid, IPC_RMID, NULL);
+
     printf("Main: Fifo removed\n");
     printf("You can now close the window\n");
 }
