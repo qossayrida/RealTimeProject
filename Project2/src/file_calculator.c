@@ -129,6 +129,10 @@ int main() {
         sem_post(sem);
     }
 
+    sem_wait(sem);
+    shared_data->coutine_move--;
+    printf("File calculator: %d\n",shared_data->coutine_move);
+    sem_post(sem);
     shmdt(shared_data);
     return 0;
 }

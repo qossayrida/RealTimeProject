@@ -68,6 +68,7 @@ typedef struct {
     int total_generated_files;
     int total_calculated_files;
     int total_unprocessed_files;
+    int coutine_move;
     int total_backup_files;
     int total_deleted_files;
     float min_average;
@@ -81,7 +82,6 @@ typedef struct {
     int head_offset;      // Offset to the head of the linked list
     int in;
     char memory[1];
-
 } SharedData;
 
 typedef struct {

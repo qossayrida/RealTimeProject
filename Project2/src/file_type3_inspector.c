@@ -25,7 +25,7 @@ int main() {
 
     printf("Type 3 Inspector: Started\n");
 
-    while (shared_data->simulation_running) {
+    while (shared_data->simulation_running && shared_data->total_deleted_files < shared_data->config.max_deleted_file) {
         sem_wait(sem); // Lock access to shared data
 
 

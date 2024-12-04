@@ -52,6 +52,7 @@ const char *directory_names[6] = {"Generated", "Home", "Processed", "Unprocessed
 int main(int argc, char **argv) {
 
     system("rm -rf Home Processed UnProcessed Backup");
+    system("rm /tmp/file_fifo_public");
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -74,6 +75,7 @@ int main(int argc, char **argv) {
     shared_data = (SharedData *) shmat(shm_id, NULL, 0);
     memset(shared_data, 0, sizeof(SharedData));
     shared_data->simulation_running = 1;
+    shared_data->coutine_move = config.num_file_calculators;
     shared_data->config = config; // Add this lin
     shared_data->head_offset = -1;
     shared_data->in = MAX_NODES * sizeof(Node);

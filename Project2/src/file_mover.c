@@ -26,11 +26,10 @@ int main() {
     ensure_directory(PROCESSED_DIR);
 
     Message msg;
-    while (shared_data->simulation_running) {
+    while (shared_data->simulation_running || shared_data->coutine_move) {
         // Receive message
         if (msgrcv(msgid, &msg, sizeof(msg), 1, IPC_NOWAIT) > 0) {
             send_info(fifo_fd, FILE_MOVER, getpid(), msg.file_number);
-
             char destination[MAX_PATH_LENGTH];
             snprintf(destination, MAX_PATH_LENGTH, "%s%s.csv", PROCESSED_DIR, msg.file_number);
 

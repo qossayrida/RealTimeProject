@@ -25,7 +25,7 @@ int main() {
     ensure_directory(UNPROCESSED_DIR); // Ensure UnProcessed directory exists
 
 
-    while (shared_data->simulation_running) {
+    while (shared_data->simulation_running && shared_data->total_calculated_files < shared_data->config.max_processed_file) {
         sem_wait(sem); // Lock access to shared data
 
         char file_number[MAX_PATH_LENGTH];
@@ -36,9 +36,6 @@ int main() {
         snprintf(source, MAX_PATH_LENGTH * 2, "%s%s.csv", HOME_DIR, file_number);
 
 
-        ////////////////////////////////////////////////////////////////////////////////
-        // File inspection logic goes here (Make sure if find one check the next one)
-        ////////////////////////////////////////////////////////////////////////////////
         struct stat file_stat;
         if (stat(source, &file_stat) == 0) {
             time_t current_time = time(NULL);

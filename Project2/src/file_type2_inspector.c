@@ -28,7 +28,7 @@ int main() {
     printf("Type 2 Inspector: Started\n");
     ensure_directory(BACKUP_DIR); // Ensure UnProcessed directory exists
 
-    while (shared_data->simulation_running) {
+    while (shared_data->simulation_running && shared_data->total_unprocessed_files < shared_data->config.max_not_processed_file) {
 
         sem_wait(sem); // Lock access to shared data
         char *first_element = get_first_file();
