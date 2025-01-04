@@ -9,7 +9,6 @@ This repository contains the code and resources for the Real-Time Course project
 - **Qossay Rida**
 - **Mohammed Fareed**
 - **Ahmad Hamdan**
-- **Yaqeen Hamouda**
 
 
 
