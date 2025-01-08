@@ -1,0 +1,3 @@
+time_create_resistant_group=5
+max_number_member_in_resistant_group=5
+min_number_member_in_resistant_group=2
