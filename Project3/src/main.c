@@ -14,7 +14,12 @@
 #include "config.h"
 
 Config config;
+SharedMemory *shared_data;
+int shm_id;
 
+
+void handle_alarm();
+void create_process(const char *program, int shm_id, int count);
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -27,12 +32,39 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    shm_id = shmget(IPC_PRIVATE, sizeof(SharedMemory), IPC_CREAT | 0666);
+    shared_data = (SharedMemory *) shmat(shm_id, NULL, 0);
+    memset(shared_data, 0, sizeof(SharedMemory));
+    shared_data->config = config;
+
+    create_process("./bin/counter_espionage_agency", shm_id, 1);
 
 
-    print_config(&config);
-
+    signal(SIGALRM, handle_alarm);
+    alarm(config.time_to_end);
 
     return 0;
 }
 
+void handle_alarm() {
+    printf("Time is up!\n");
+    exit(EXIT_SUCCESS);
+}
 
+
+void create_process(const char *program, int shm_id, int count) {
+    for (int i = 0; i < count; i++) {
+        pid_t pid = fork();
+        if (pid == 0) { // Child process
+            char shm_id_str[10];
+            sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
+            setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
+            execlp(program, program, NULL);    // Replace process with new program
+            perror("execlp failed");
+            exit(1); // Exit if execlp fails
+        } else if (pid < 0) {
+            perror("Fork failed");
+            exit(1);
+        }
+    }
+}

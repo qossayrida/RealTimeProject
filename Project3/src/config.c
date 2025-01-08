@@ -25,6 +25,7 @@ int load_config(const char *filename, Config *config) {
             if (strcmp(key, "time_create_resistant_group") == 0) config->time_create_resistant_group = value;
             else if (strcmp(key, "max_number_member_in_resistant_group") == 0) config->max_number_member_in_resistant_group = value;
             else if (strcmp(key, "min_number_member_in_resistant_group") == 0) config->min_number_member_in_resistant_group = value;
+            else if (strcmp(key, "time_to_end") == 0) config->time_to_end = value;
         }
     }
 
@@ -37,4 +38,5 @@ void print_config(const Config *config) {
     printf("    Time to create resistant group: %d\n", config->time_create_resistant_group);
     printf("    Max number of members in resistant group: %d\n", config->max_number_member_in_resistant_group);
     printf("    Min number of members in resistant group: %d\n", config->min_number_member_in_resistant_group);
+    printf("    Time to end: %d\n", config->time_to_end);
 }

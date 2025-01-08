@@ -12,15 +12,18 @@ SOURCES = $(wildcard $(SRC_DIR)/*.c)
 OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SOURCES))
 
 # Targets for executables
-MAIN_TARGET = $(BIN_DIR)/file_management_simulation
-
+MAIN_TARGET = $(BIN_DIR)/main_program
+COUNTER_ESPIONAGE_AGENCY_TARGET = $(BIN_DIR)/counter_espionage_agency
 
 # Default target
-all: $(MAIN_TARGET)
+all: $(MAIN_TARGET) $(COUNTER_ESPIONAGE_AGENCY_TARGET)
 
 # Build the main referee executable
 $(MAIN_TARGET): $(OBJ_DIR)/main.o  $(OBJ_DIR)/config.o  | $(BIN_DIR)
 	$(CC) $^ -o $(MAIN_TARGET) -lGL -lGLU -lglut -lm # Linking OpenGL libraries
+
+$(COUNTER_ESPIONAGE_AGENCY_TARGET): $(OBJ_DIR)/counter_espionage_agency.o $(OBJ_DIR)/config.o  | $(BIN_DIR)
+	$(CC) $^ -o $(COUNTER_ESPIONAGE_AGENCY_TARGET)
 
 
 # Compile each source file to an object file
