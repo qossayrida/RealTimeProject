@@ -38,10 +38,15 @@ int main(int argc, char **argv) {
     shared_data->config = config;
 
     create_process("./bin/counter_espionage_agency", shm_id, 1);
+    create_process("./bin/resistance_group", shm_id, 1);
 
 
     signal(SIGALRM, handle_alarm);
     alarm(config.time_to_end);
+
+    while (1) {
+        sleep(1);
+    }
 
     return 0;
 }

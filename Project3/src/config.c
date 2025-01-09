@@ -22,6 +22,7 @@ int load_config(const char *filename, Config *config) {
         char key[50];
         int value;
         if (sscanf(line, "%49[^=]=%d", key, &value) == 2) {
+            if (strcmp(key, "number_of_member_in_counter_espionage_agency") == 0) config->number_of_member_in_counter_espionage_agency = value;
             if (strcmp(key, "time_create_resistant_group") == 0) config->time_create_resistant_group = value;
             else if (strcmp(key, "max_number_member_in_resistant_group") == 0) config->max_number_member_in_resistant_group = value;
             else if (strcmp(key, "min_number_member_in_resistant_group") == 0) config->min_number_member_in_resistant_group = value;
@@ -35,6 +36,7 @@ int load_config(const char *filename, Config *config) {
 
 void print_config(const Config *config) {
     printf("Configuration:\n");
+    printf("    Number of member in counter espionage agency: %d\n", config->number_of_member_in_counter_espionage_agency);
     printf("    Time to create resistant group: %d\n", config->time_create_resistant_group);
     printf("    Max number of members in resistant group: %d\n", config->max_number_member_in_resistant_group);
     printf("    Min number of members in resistant group: %d\n", config->min_number_member_in_resistant_group);

@@ -14,9 +14,10 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SOURCES))
 # Targets for executables
 MAIN_TARGET = $(BIN_DIR)/main_program
 COUNTER_ESPIONAGE_AGENCY_TARGET = $(BIN_DIR)/counter_espionage_agency
+RESISTANCE_GROUP_TARGET = $(BIN_DIR)/resistance_group
 
 # Default target
-all: $(MAIN_TARGET) $(COUNTER_ESPIONAGE_AGENCY_TARGET)
+all: $(MAIN_TARGET) $(COUNTER_ESPIONAGE_AGENCY_TARGET) $(RESISTANCE_GROUP_TARGET)
 
 # Build the main referee executable
 $(MAIN_TARGET): $(OBJ_DIR)/main.o  $(OBJ_DIR)/config.o  | $(BIN_DIR)
@@ -24,6 +25,9 @@ $(MAIN_TARGET): $(OBJ_DIR)/main.o  $(OBJ_DIR)/config.o  | $(BIN_DIR)
 
 $(COUNTER_ESPIONAGE_AGENCY_TARGET): $(OBJ_DIR)/counter_espionage_agency.o $(OBJ_DIR)/config.o  | $(BIN_DIR)
 	$(CC) $^ -o $(COUNTER_ESPIONAGE_AGENCY_TARGET)
+
+$(RESISTANCE_GROUP_TARGET): $(OBJ_DIR)/resistance_group.o $(OBJ_DIR)/config.o  | $(BIN_DIR)
+	$(CC) $^ -o $(RESISTANCE_GROUP_TARGET)
 
 
 # Compile each source file to an object file

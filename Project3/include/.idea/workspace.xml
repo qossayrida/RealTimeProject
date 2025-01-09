@@ -10,8 +10,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d75559d6-f224-47b6-a250-225e8f508fa3" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/../src/citizen.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../src/enemy.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../config.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../src/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/config.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/config.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/counter_espionage_agency.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/counter_espionage_agency.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/resistance_group.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/resistance_group.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +67,7 @@
       <option name="presentableId" value="Default" />
       <updated>1736341961034</updated>
       <workItem from="1736341962044" duration="2690000" />
-      <workItem from="1736436354308" duration="606000" />
+      <workItem from="1736436354308" duration="1376000" />
     </task>
     <servers />
   </component>

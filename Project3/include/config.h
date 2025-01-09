@@ -3,9 +3,10 @@
 
 
 typedef struct {
-    int time_create_resistant_group;
+    int number_of_member_in_counter_espionage_agency;
     int max_number_member_in_resistant_group;
     int min_number_member_in_resistant_group;
+    int time_create_resistant_group;
     int time_to_end;
 } Config;
 
