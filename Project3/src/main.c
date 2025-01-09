@@ -16,10 +16,13 @@
 Config config;
 SharedMemory *shared_data;
 int shm_id;
+pid_t counter_espionage_agency_pid;
 
 
 void handle_alarm();
-void create_process(const char *program, int shm_id, int count);
+pid_t create_process(const char *program, int shm_id);
+void create_process_with_args(const char *program, int shm_id, int count,int type);
+
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -37,8 +40,8 @@ int main(int argc, char **argv) {
     memset(shared_data, 0, sizeof(SharedMemory));
     shared_data->config = config;
 
-    create_process("./bin/counter_espionage_agency", shm_id, 1);
-    create_process("./bin/resistance_group", shm_id, 1);
+    counter_espionage_agency_pid = create_process("./bin/counter_espionage_agency", shm_id);
+    create_process_with_args("./bin/resistance_group", shm_id, 1, Social_Type);
 
 
     signal(SIGALRM, handle_alarm);
@@ -48,23 +51,44 @@ int main(int argc, char **argv) {
         sleep(1);
     }
 
+    printf("Main: exit\n");
     return 0;
 }
 
 void handle_alarm() {
     printf("Time is up!\n");
+    kill(counter_espionage_agency_pid, SIGUSR1);
     exit(EXIT_SUCCESS);
 }
 
 
-void create_process(const char *program, int shm_id, int count) {
+pid_t create_process(const char *program, int shm_id) {
+    pid_t pid = fork();
+    if (pid == 0) { // Child process
+        char shm_id_str[10];
+        sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
+        setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
+        execlp(program, program, NULL);    // Replace process with new program
+        perror("execlp failed");
+        exit(1); // Exit if execlp fails
+    } else if (pid < 0) {
+        perror("Fork failed");
+        exit(1);
+    }
+
+    return pid;
+}
+
+void create_process_with_args(const char *program, int shm_id, int count,int type) {
     for (int i = 0; i < count; i++) {
         pid_t pid = fork();
         if (pid == 0) { // Child process
             char shm_id_str[10];
             sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
             setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
-            execlp(program, program, NULL);    // Replace process with new program
+            char type_str[10];
+            sprintf(type_str, "%d", type);
+            execlp(program, program, type_str, NULL);
             perror("execlp failed");
             exit(1); // Exit if execlp fails
         } else if (pid < 0) {

@@ -13,34 +13,67 @@
 #include <signal.h>
 #include <pthread.h>
 #include "config.h"
+#include "linked_list.h"
 
+typedef struct {
+    pthread_t thread_id;
+    int id;
+    double probability_of_spy;
+} Member;
 
 Config config;
+ListPtr citizen_list;
+key_t key;
+int msgid;
+int my_type;
+
 
 void* resistant_group_member(void* arg);
 
-int main() {
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <type>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    if (strcmp(argv[1], "0") == 0) {
+        my_type = Social_Type;
+    } else if (strcmp(argv[1], "1") == 0) {
+        my_type = Military_Type;
+    } else {
+        fprintf(stderr, "Invalid type\n");
+        return EXIT_FAILURE;
+    }
+
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
     config = shared_data->config;
+    citizen_list = NULL;
+
+
+    key = ftok("/tmp/citizen_list_queue", 65);
+    msgid = msgget(key, 0666 | IPC_CREAT);
 
     int number_of_member_in_resistant_group = rand() % (config.max_number_member_in_resistant_group - config.min_number_member_in_resistant_group + 1) + config.min_number_member_in_resistant_group;
-    pthread_t threads[number_of_member_in_resistant_group];
-    int args[number_of_member_in_resistant_group];
+    Member members[number_of_member_in_resistant_group];
 
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
-        args[i] = i;
-        if (pthread_create(&threads[i], NULL, resistant_group_member, &args[i]) != 0) {
+        members[i].id = i;
+        if (pthread_create(&members[i].thread_id, NULL, resistant_group_member, &members[i].id ) != 0) {
             perror("Thread creation failed");
             return EXIT_FAILURE;
         }
     }
 
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
-        pthread_join(threads[i], NULL);
+        pthread_join(members[i].thread_id, NULL);
     }
 
+    printf("Resistant group List:\n");
+    printList(citizen_list);
+    freeList(citizen_list);
 
+    printf("Resistant group: Terminating\n");
     return 0;
 }
 
@@ -48,6 +81,15 @@ int main() {
 void* resistant_group_member(void* arg) {
     int id = *(int*)arg;
     printf("Resistant group member %d started\n", id);
+    appendNode(&citizen_list,id,(id+1)*10);
+
+    Message_Queue msg;
+    msg.message_type = 1;
+    msg.group_id = getpid();
+    msg.citizen_id = id;
+    msg.time_spent = (id+1)*10;
+    msgsnd(msgid, &msg, sizeof(msg), 0);
+
     printf("Resistant group member %d finished\n", id);
     return NULL;
 }

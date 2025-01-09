@@ -26,7 +26,7 @@ $(MAIN_TARGET): $(OBJ_DIR)/main.o  $(OBJ_DIR)/config.o  | $(BIN_DIR)
 $(COUNTER_ESPIONAGE_AGENCY_TARGET): $(OBJ_DIR)/counter_espionage_agency.o $(OBJ_DIR)/config.o  | $(BIN_DIR)
 	$(CC) $^ -o $(COUNTER_ESPIONAGE_AGENCY_TARGET)
 
-$(RESISTANCE_GROUP_TARGET): $(OBJ_DIR)/resistance_group.o $(OBJ_DIR)/config.o  | $(BIN_DIR)
+$(RESISTANCE_GROUP_TARGET): $(OBJ_DIR)/resistance_group.o $(OBJ_DIR)/config.o | $(BIN_DIR)
 	$(CC) $^ -o $(RESISTANCE_GROUP_TARGET)
 
 
