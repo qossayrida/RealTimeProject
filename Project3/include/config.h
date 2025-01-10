@@ -59,7 +59,8 @@ typedef struct {
     int type;
     int id;
     char content[20];
-} Information_GUI;
+} Information;
+
 
 
 int load_config(const char *filename, Config *config);

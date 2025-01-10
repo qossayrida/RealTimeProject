@@ -35,9 +35,16 @@ int main(int argc, char **argv) {
         perror(FIFO_NAME);
         exit(1);
     }
-    int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
+    int fifo_fd = open(fifo_name, O_RDONLY);
 
-    print_config(&config);
+    while (1) {
+        Information info;
+        if (read(fifo_fd, &info, sizeof(Information)) > 0) {
+            printf("Counter espionage agency: Type %d\n", info.type);
+            printf("Counter espionage agency: ID %d\n", info.id);
+            printf("Counter espionage agency: Content %s\n", info.content);
+        }
+    }
 
     close(fifo_fd);
     if ( (unlink(fifo_name)) == 0 ) {

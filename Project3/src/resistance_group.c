@@ -103,12 +103,12 @@ void* normal_member(void* arg) {
     printf("Resistant group member %d started\n", id);
     appendNode(&citizen_list,id,(id+1)*10);
 
-    Message_Queue msg;
-    msg.message_type = 1;
-    msg.group_id = getpid();
-    msg.citizen_id = id;
-    msg.time_spent = (id+1)*10;
-    msgsnd(msgid, &msg, sizeof(msg), 0);
+//    Message_Queue msg;
+//    msg.message_type = 1;
+//    msg.group_id = getpid();
+//    msg.citizen_id = id;
+//    msg.time_spent = (id+1)*10;
+//    msgsnd(msgid, &msg, sizeof(msg), 0);
 
     printf("Resistant group member %d finished\n", id);
     return NULL;
@@ -126,15 +126,9 @@ void* spy_member(void* arg) {
         perror(FIFO_NAME);
         exit(1);
     }
-    int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
+    int fifo_fd = open(fifo_name, O_WRONLY);
 
 
-    Message_Queue msg;
-    msg.message_type = 1;
-    msg.group_id = getpid();
-    msg.citizen_id = id;
-    msg.time_spent = (id+1)*10;
-    msgsnd(msgid, &msg, sizeof(msg), 0);
 
     printf("SPY member %d finished\n", id);
     return NULL;

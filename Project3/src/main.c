@@ -15,7 +15,7 @@
 #include "config.h"
 
 Config config;
-Information_GUI info_buffer[50];
+Information info_buffer[50];
 SharedMemory *shared_data;
 int shm_id;
 int fifo_fd;
@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 
     while (1){
         int bytes_read = read(fifo_fd, info_buffer, sizeof(info_buffer));
-        int num_info = (bytes_read != -1) ? bytes_read / sizeof(Information_GUI) : 0;
+        int num_info = (bytes_read != -1) ? bytes_read / sizeof(Information) : 0;
 
         if (num_info > 0) {
             printf("Timer: Received %d information.\n", num_info);
