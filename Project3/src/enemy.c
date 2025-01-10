@@ -18,7 +18,6 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Usage: %s <pid_for_resistance_group> <number_of_members>\n", argv[0]);
         return EXIT_FAILURE;
     }
-
     int pid_for_resistance_group = atoi(argv[1]);
     int number_of_member_in_resistant_group = atoi(argv[2]);
 
@@ -28,7 +27,14 @@ int main(int argc, char **argv) {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
     Config config = shared_data->config;
-
+    char fifo_name[256];
+    pid_t pid = getpid();
+    snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", pid);
+    if (mknod(fifo_name, S_IFIFO | 0666, 0) < 0) {
+        perror(FIFO_NAME);
+        exit(1);
+    }
+    int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
 
     print_config(&config);
 
