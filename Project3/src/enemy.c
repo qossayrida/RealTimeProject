@@ -27,6 +27,7 @@ int main(int argc, char **argv) {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
     Config config = shared_data->config;
+
     char fifo_name[256];
     pid_t pid = getpid();
     snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", pid);
@@ -38,6 +39,11 @@ int main(int argc, char **argv) {
 
     print_config(&config);
 
+    close(fifo_fd);
+    if ( (unlink(fifo_name)) == 0 ) {
+        printf("fifo: fifo has been removed\n");
+        exit(0);
+    }
     return 0;
 }
 

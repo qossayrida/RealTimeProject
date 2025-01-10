@@ -18,6 +18,7 @@ Config config;
 Information_GUI info_buffer[50];
 SharedMemory *shared_data;
 int shm_id;
+int fifo_fd;
 pid_t counter_espionage_agency_pid;
 
 void handle_alarm();
@@ -55,7 +56,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    int fifo_fd = open(FIFO_NAME, O_RDONLY | O_NONBLOCK);
+    fifo_fd = open(FIFO_NAME, O_RDONLY | O_NONBLOCK);
 
 
     while (1){
@@ -92,6 +93,11 @@ void handle_alarm() {
     printf("Main: Creating new resistant group\n");
     create_resistant_group_and_enemy(shm_id,  Social_Type);
     kill(counter_espionage_agency_pid, SIGUSR1);
+    close(fifo_fd);
+    if ( (unlink(FIFO_NAME)) == 0 ) {
+        printf("fifo: fifo has been removed\n");
+        exit(0);
+    }
     exit(0);
 }
 

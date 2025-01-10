@@ -22,13 +22,17 @@ typedef struct {
 } Member;
 
 Config config;
+SharedMemory *shared_data;
 ListPtr citizen_list;
 key_t key;
 int msgid;
 int my_type;
 
 
-void* resistant_group_member(void* arg);
+void* normal_member(void* arg);
+void* spy_member(void* arg);
+int get_enemy_id();
+
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -52,8 +56,9 @@ int main(int argc, char **argv) {
 
 
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
+    shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
     config = shared_data->config;
+    print_config(&config);
     citizen_list = NULL;
 
 
@@ -63,11 +68,20 @@ int main(int argc, char **argv) {
 
     Member members[number_of_member_in_resistant_group];
 
+    // choose one member to be spy
+    int spy_index = rand() % number_of_member_in_resistant_group;
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
         members[i].id = i;
-        if (pthread_create(&members[i].thread_id, NULL, resistant_group_member, &members[i].id ) != 0) {
-            perror("Thread creation failed");
-            return EXIT_FAILURE;
+        if (i == spy_index) {
+            if (pthread_create(&members[i].thread_id, NULL, spy_member, &members[i].id) != 0) {
+                perror("Thread creation failed");
+                return EXIT_FAILURE;
+            }
+        } else {
+            if (pthread_create(&members[i].thread_id, NULL, normal_member, &members[i].id) != 0) {
+                perror("Thread creation failed");
+                return EXIT_FAILURE;
+            }
         }
     }
 
@@ -84,7 +98,7 @@ int main(int argc, char **argv) {
 }
 
 
-void* resistant_group_member(void* arg) {
+void* normal_member(void* arg) {
     int id = *(int*)arg;
     printf("Resistant group member %d started\n", id);
     appendNode(&citizen_list,id,(id+1)*10);
@@ -100,3 +114,39 @@ void* resistant_group_member(void* arg) {
     return NULL;
 }
 
+void* spy_member(void* arg) {
+    int id = *(int*)arg;
+    printf("Spy member %d started\n", id);
+    appendNode(&citizen_list,id,(id+1)*10);
+
+    char fifo_name[256];
+    int pid = get_enemy_id();
+    snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", pid);
+    if (mknod(fifo_name, S_IFIFO | 0666, 0) < 0) {
+        perror(FIFO_NAME);
+        exit(1);
+    }
+    int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
+
+
+    Message_Queue msg;
+    msg.message_type = 1;
+    msg.group_id = getpid();
+    msg.citizen_id = id;
+    msg.time_spent = (id+1)*10;
+    msgsnd(msgid, &msg, sizeof(msg), 0);
+
+    printf("SPY member %d finished\n", id);
+    return NULL;
+}
+
+
+int get_enemy_id() {
+    pid_t pid = getpid();
+    for (int i = 0; i < shared_data->array_counter; i++) {
+        if (shared_data->communication_pid[i][0] == pid) {
+            return shared_data->communication_pid[i][1];
+        }
+    }
+    return -1;
+}
