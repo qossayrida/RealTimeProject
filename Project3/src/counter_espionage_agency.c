@@ -20,6 +20,9 @@ key_t key;
 int msgid;
 int status = 1;
 
+
+// user defined threshold after questioning
+
 void* counter_espionage_agency_member(void* arg);
 void *read_from_queue(void *arg);
 void handle_SIGUSR1();
@@ -59,7 +62,6 @@ int main() {
         pthread_join(threads[i], NULL);
     }
     pthread_join(queue_thread, NULL);
-
 
 
     printf("Counter espionage agency: Terminating\n");

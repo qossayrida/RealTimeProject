@@ -15,9 +15,11 @@ OBJECTS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SOURCES))
 MAIN_TARGET = $(BIN_DIR)/main_program
 COUNTER_ESPIONAGE_AGENCY_TARGET = $(BIN_DIR)/counter_espionage_agency
 RESISTANCE_GROUP_TARGET = $(BIN_DIR)/resistance_group
+ENEMY_TARGET = $(BIN_DIR)/enemy
+CITIZEN_TARGET = $(BIN_DIR)/citizen
 
 # Default target
-all: $(MAIN_TARGET) $(COUNTER_ESPIONAGE_AGENCY_TARGET) $(RESISTANCE_GROUP_TARGET)
+all: $(MAIN_TARGET) $(COUNTER_ESPIONAGE_AGENCY_TARGET) $(RESISTANCE_GROUP_TARGET) $(ENEMY_TARGET) $(CITIZEN_TARGET)
 
 # Build the main referee executable
 $(MAIN_TARGET): $(OBJ_DIR)/main.o  $(OBJ_DIR)/config.o  | $(BIN_DIR)
@@ -28,6 +30,13 @@ $(COUNTER_ESPIONAGE_AGENCY_TARGET): $(OBJ_DIR)/counter_espionage_agency.o $(OBJ_
 
 $(RESISTANCE_GROUP_TARGET): $(OBJ_DIR)/resistance_group.o $(OBJ_DIR)/config.o | $(BIN_DIR)
 	$(CC) $^ -o $(RESISTANCE_GROUP_TARGET)
+
+
+$(ENEMY_TARGET): $(OBJ_DIR)/enemy.o $(OBJ_DIR)/config.o | $(BIN_DIR)
+	$(CC) $^ -o $(ENEMY_TARGET)
+
+$(CITIZEN_TARGET): $(OBJ_DIR)/citizen.o $(OBJ_DIR)/config.o | $(BIN_DIR)
+	$(CC) $^ -o $(CITIZEN_TARGET)
 
 
 # Compile each source file to an object file
@@ -47,4 +56,4 @@ run: $(MAIN_TARGET)
 
 # Clean up build files
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) $(HOME_DIR) $(PROCESSED_DIR) $(UNPROCESSED_DIR) $(BACKUP_DIR) 
+	rm -rf $(OBJ_DIR) $(BIN_DIR) 

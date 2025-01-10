@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <time.h>
 #include <sys/wait.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
@@ -18,11 +19,9 @@ SharedMemory *shared_data;
 int shm_id;
 pid_t counter_espionage_agency_pid;
 
-
 void handle_alarm();
 pid_t create_process(const char *program, int shm_id);
-void create_process_with_args(const char *program, int shm_id, int count,int type);
-
+void create_resistant_group_and_enemy(int shm_id,int type);
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -41,11 +40,12 @@ int main(int argc, char **argv) {
     shared_data->config = config;
 
     counter_espionage_agency_pid = create_process("./bin/counter_espionage_agency", shm_id);
-    create_process_with_args("./bin/resistance_group", shm_id, 1, Social_Type);
+
+    create_resistant_group_and_enemy(shm_id,  Social_Type);
 
 
     signal(SIGALRM, handle_alarm);
-    alarm(config.time_to_end);
+    alarm(config.time_create_resistant_group);
 
     while (1) {
         sleep(1);
@@ -56,9 +56,9 @@ int main(int argc, char **argv) {
 }
 
 void handle_alarm() {
-    printf("Time is up!\n");
+    printf("Main: Creating new resistant group\n");
     kill(counter_espionage_agency_pid, SIGUSR1);
-    exit(EXIT_SUCCESS);
+    exit(0);
 }
 
 
@@ -79,21 +79,43 @@ pid_t create_process(const char *program, int shm_id) {
     return pid;
 }
 
-void create_process_with_args(const char *program, int shm_id, int count,int type) {
-    for (int i = 0; i < count; i++) {
-        pid_t pid = fork();
-        if (pid == 0) { // Child process
-            char shm_id_str[10];
-            sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
-            setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
-            char type_str[10];
-            sprintf(type_str, "%d", type);
-            execlp(program, program, type_str, NULL);
-            perror("execlp failed");
-            exit(1); // Exit if execlp fails
-        } else if (pid < 0) {
-            perror("Fork failed");
-            exit(1);
-        }
+void create_resistant_group_and_enemy(int shm_id,int type) {
+
+    srand(time(NULL));
+    int number_of_member_in_resistant_group = rand() % (config.max_number_member_in_resistant_group - config.min_number_member_in_resistant_group + 1) + config.min_number_member_in_resistant_group;
+
+    pid_t pid = fork();
+    if (pid == 0) { // Child process
+        char shm_id_str[10];
+        char type_str[10];
+        char number_of_member_in_resistant_group_str[10];
+        sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
+        setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
+        sprintf(type_str, "%d", type);
+        sprintf(number_of_member_in_resistant_group_str, "%d", number_of_member_in_resistant_group);
+        execlp("./bin/resistance_group", "./bin/resistance_group", type_str,number_of_member_in_resistant_group_str, NULL);
+        perror("execlp failed");
+        exit(1); // Exit if execlp fails
+    } else if (pid < 0) {
+        perror("Fork failed");
+        exit(1);
     }
+
+    pid_t enemy_pid = fork();
+    if (enemy_pid==0) {
+        char shm_id_str[10];
+        char pid_str[20];
+        char number_of_member_in_resistant_group_str[10];
+        sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
+        setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
+        snprintf(pid_str, sizeof(pid_str), "%d", pid);
+        sprintf(number_of_member_in_resistant_group_str, "%d", number_of_member_in_resistant_group);
+        execlp("./bin/enemy", "./bin/enemy",pid_str,number_of_member_in_resistant_group_str, NULL);
+        perror("execlp failed");
+        exit(1); // Exit if execlp fails
+    } else if (enemy_pid < 0) {
+        perror("Fork failed");
+        exit(1);
+    }
+
 }

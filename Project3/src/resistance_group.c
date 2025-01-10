@@ -18,7 +18,7 @@
 typedef struct {
     pthread_t thread_id;
     int id;
-    double probability_of_spy;
+    int suspicion_rate;
 } Member;
 
 Config config;
@@ -31,8 +31,8 @@ int my_type;
 void* resistant_group_member(void* arg);
 
 int main(int argc, char **argv) {
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s <type>\n", argv[0]);
+    if (argc < 3) {
+        fprintf(stderr, "Usage: %s <type> <number_of_members>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -45,6 +45,12 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    int number_of_member_in_resistant_group = atoi(argv[2]);
+    printf("Resistant group: Starting\n");
+    printf("Resistant group: Type %d\n", my_type);
+    printf("Resistant group: Number of members %d\n", number_of_member_in_resistant_group);
+
+
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
     config = shared_data->config;
@@ -54,7 +60,7 @@ int main(int argc, char **argv) {
     key = ftok("/tmp/citizen_list_queue", 65);
     msgid = msgget(key, 0666 | IPC_CREAT);
 
-    int number_of_member_in_resistant_group = rand() % (config.max_number_member_in_resistant_group - config.min_number_member_in_resistant_group + 1) + config.min_number_member_in_resistant_group;
+
     Member members[number_of_member_in_resistant_group];
 
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {

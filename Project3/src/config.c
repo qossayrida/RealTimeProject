@@ -26,7 +26,11 @@ int load_config(const char *filename, Config *config) {
             if (strcmp(key, "time_create_resistant_group") == 0) config->time_create_resistant_group = value;
             else if (strcmp(key, "max_number_member_in_resistant_group") == 0) config->max_number_member_in_resistant_group = value;
             else if (strcmp(key, "min_number_member_in_resistant_group") == 0) config->min_number_member_in_resistant_group = value;
-            else if (strcmp(key, "time_to_end") == 0) config->time_to_end = value;
+            else if (strcmp(key, "max_time_to_rejoin_resistant_group") == 0) config->max_time_to_rejoin_resistant_group = value;
+            else if (strcmp(key, "suspicion_rate_threshold") == 0) config->suspicion_rate_threshold = value;
+            else if (strcmp(key, "killed_resistance_members_threshold") == 0) config->killed_resistance_members_threshold = value;
+            else if (strcmp(key, "injured_resistance_members_threshold") == 0) config->injured_resistance_members_threshold = value;
+            else if (strcmp(key, "killed_caught_counter_members_threshold") == 0) config->killed_caught_counter_members_threshold = value;
         }
     }
 
@@ -40,5 +44,9 @@ void print_config(const Config *config) {
     printf("    Time to create resistant group: %d\n", config->time_create_resistant_group);
     printf("    Max number of members in resistant group: %d\n", config->max_number_member_in_resistant_group);
     printf("    Min number of members in resistant group: %d\n", config->min_number_member_in_resistant_group);
-    printf("    Time to end: %d\n", config->time_to_end);
+    printf("    Max time to rejoin resistant group: %d\n", config->max_time_to_rejoin_resistant_group);
+    printf("    Suspicion rate threshold: %d\n", config->suspicion_rate_threshold);
+    printf("    Killed resistance members threshold: %d\n", config->killed_resistance_members_threshold);
+    printf("    Injured resistance members threshold: %d\n", config->injured_resistance_members_threshold);
+    printf("    Killed or caught counter espionage agency members threshold: %d\n", config->killed_caught_counter_members_threshold);
 }
