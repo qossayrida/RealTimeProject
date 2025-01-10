@@ -31,6 +31,8 @@ int load_config(const char *filename, Config *config) {
             else if (strcmp(key, "killed_resistance_members_threshold") == 0) config->killed_resistance_members_threshold = value;
             else if (strcmp(key, "injured_resistance_members_threshold") == 0) config->injured_resistance_members_threshold = value;
             else if (strcmp(key, "killed_caught_counter_members_threshold") == 0) config->killed_caught_counter_members_threshold = value;
+            else if (strcmp(key, "min_number_of_citizen") == 0) config->min_number_of_citizen = value;
+            else if (strcmp(key, "max_number_of_citizen") == 0) config->max_number_of_citizen = value;
         }
     }
 
@@ -49,4 +51,6 @@ void print_config(const Config *config) {
     printf("    Killed resistance members threshold: %d\n", config->killed_resistance_members_threshold);
     printf("    Injured resistance members threshold: %d\n", config->injured_resistance_members_threshold);
     printf("    Killed or caught counter espionage agency members threshold: %d\n", config->killed_caught_counter_members_threshold);
+    printf("    Min number of citizens: %d\n", config->min_number_of_citizen);
+    printf("    Max number of citizens: %d\n", config->max_number_of_citizen);
 }

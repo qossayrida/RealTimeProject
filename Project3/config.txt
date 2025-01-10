@@ -7,3 +7,5 @@ suspicion_rate_threshold=80
 killed_resistance_members_threshold=5
 injured_resistance_members_threshold=5
 killed_caught_counter_members_threshold=5
+min_number_of_citizen=5
+max_number_of_citizen=15
