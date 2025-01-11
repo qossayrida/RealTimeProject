@@ -30,8 +30,7 @@ int my_type;
 int fifo_fd;
 int spy_index;
 int number_of_member_in_resistant_group;
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_barrier_t barrier;
 char STATE[SIZE_OF_STATE];
 
 
@@ -89,6 +88,9 @@ int main(int argc, char **argv) {
 
     members = (Member *)malloc(number_of_member_in_resistant_group * sizeof(Member));
 
+
+    pthread_barrier_init(&barrier, NULL, number_of_member_in_resistant_group );
+
     // choose one member to be spy
     spy_index = rand() % number_of_member_in_resistant_group;
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
@@ -127,7 +129,6 @@ int main(int argc, char **argv) {
 
 
     free(members);
-    printf("Resistant group: Terminating\n");
     printf("Resistant group: Terminating\n");
     return 0;
 }
@@ -175,7 +176,7 @@ void handle_SIGUSR2() {
                 break;
         }
     }
-    pthread_cond_broadcast(&cond);
+    pthread_barrier_wait(&barrier);
 
     printf("%s\n", STATE);
     Message_Queue msg;
@@ -190,15 +191,10 @@ void* normal_member(void* arg) {
     int state;
     printf("Resistant group member %d started\n", id);
 
-    pthread_mutex_lock(&count_mutex);  // Locking the mutex
-
-    // Wait for the condition to be signaled (unlocking the mutex while waiting)
-    pthread_cond_wait(&cond, &count_mutex);
+    pthread_barrier_wait(&barrier);
 
     state = get_state(id);
-
-    pthread_mutex_unlock(&count_mutex);  // Unlock mutex after checking killed_member
-
+    
 
     printf("Resistant group member %d finished\n", id);
     // Allocate a return value dynamically
