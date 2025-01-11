@@ -13,6 +13,8 @@
 #include <signal.h>
 #include "config.h"
 
+void handle_SIGUSR1();
+
 int main(int argc, char **argv) {
     if (argc < 3) {
         fprintf(stderr, "Usage: %s <pid_for_resistance_group> <number_of_members>\n", argv[0]);
@@ -30,12 +32,16 @@ int main(int argc, char **argv) {
 
     char fifo_name[256];
     pid_t pid = getpid();
-    snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", pid);
+    snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_to_write_at_enemy_%d", pid);
     if (mknod(fifo_name, S_IFIFO | 0666, 0) < 0) {
         perror(FIFO_NAME);
         exit(1);
     }
     int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
+
+
+    shared_data->communication_pid[shared_data->array_counter][0] = pid_for_resistance_group;
+    shared_data->communication_pid[shared_data->array_counter++][1] = pid;
 
     int probability_to_attack = 0;
     while (shared_data->simulation_status) {
@@ -61,4 +67,6 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-
+void handle_SIGUSR1() {
+    printf("Counter espionage agency: Received SIGUSR1\n");
+}

@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
 
     char fifo_name[256];
     pid_t pid = getpid();
-    snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", pid);
+    snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_for_resistance_group_%d", pid);
     if (mknod(fifo_name, S_IFIFO | 0666, 0) < 0) {
         perror(FIFO_NAME);
         exit(1);
@@ -78,8 +78,7 @@ int main(int argc, char **argv) {
     fifo_fd = open(fifo_name, O_WRONLY);
 
     signal(SIGUSR1, handle_SIGUSR1);
-    signal(SIGUSR1, handle_SIGUSR2);
-
+    signal(SIGUSR2, handle_SIGUSR2);
 
     Member members[number_of_member_in_resistant_group];
 
@@ -102,6 +101,11 @@ int main(int argc, char **argv) {
 
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
         pthread_join(members[i].thread_id, NULL);
+    }
+
+    if ( (unlink(fifo_name)) == 0 ) {
+        printf("fifo: fifo has been removed\n");
+        exit(0);
     }
 
     printf("Resistant group: Terminating\n");
@@ -143,7 +147,7 @@ void* spy_member(void* arg) {
 
     char fifo_name[256];
     int pid = get_enemy_id();
-    snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", pid);
+    snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_to_write_at_enemy_%d", pid);
     int fifo_fd = open(fifo_name, O_WRONLY);
 
 

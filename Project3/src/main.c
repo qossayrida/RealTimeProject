@@ -152,7 +152,6 @@ void create_resistant_group_and_enemy(int shm_id,int type) {
     int number_of_member_in_resistant_group = rand() % (config.max_number_member_in_resistant_group - config.min_number_member_in_resistant_group + 1) + config.min_number_member_in_resistant_group;
 
     pid_t pid = fork();
-    shared_data->communication_pid[shared_data->array_counter][0] = pid;
     if (pid == 0) { // Child process
         char shm_id_str[10];
         char type_str[10];
@@ -170,7 +169,6 @@ void create_resistant_group_and_enemy(int shm_id,int type) {
     }
 
     pid_t enemy_pid = fork();
-    shared_data->communication_pid[shared_data->array_counter++][1] = enemy_pid;
     if (enemy_pid==0) {
         char shm_id_str[10];
         char pid_str[20];

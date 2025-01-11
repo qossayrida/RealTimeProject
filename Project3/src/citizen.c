@@ -36,18 +36,14 @@ int main(int argc, char **argv) {
 
     printf("Citizen: %s\n", my_type == SPY ? "Spy" : "Normal");
 
-
-
     while (shared_data->simulation_status) {
         if (shared_data->array_counter != 0) {
 
             int resistance_group_to_meet = rand() % shared_data->array_counter;
             int resistance_group_pid = shared_data->communication_pid[resistance_group_to_meet][0];
 
-
-
             char fifo_name[256];
-            snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", resistance_group_pid);
+            snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_for_resistance_group_%d", resistance_group_pid);
             int fifo_fd = open(fifo_name, O_WRONLY);
             Information info;
             info.id = getpid();
@@ -62,7 +58,7 @@ int main(int argc, char **argv) {
             if (my_type == SPY) {
                 info.type = CITIZEN;
                 int enemy_pid = shared_data->communication_pid[resistance_group_to_meet][1];
-                snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", enemy_pid);
+                snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_to_write_at_enemy_%d", enemy_pid);
                 int enemy_fifo_fd = open(fifo_name, O_WRONLY);
                 write(enemy_fifo_fd, &info, sizeof(Information));
                 close(enemy_fifo_fd);
