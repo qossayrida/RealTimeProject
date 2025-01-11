@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 #define SIZE_OF_RESISTANT_GROUP 200
+#define SIZE_OF_STATE 200
 #define FIFO_NAME "/tmp/project3_fifo_public"
 
 enum {
@@ -18,8 +19,7 @@ enum {
     KILLED,
     CAUGHT,
     INJURED_SEVERELY,
-    INJURED_LIGHTLY,
-    NORMAL_STATE
+    INJURED_LIGHTLY
 };
 
 enum {
@@ -41,6 +41,7 @@ typedef struct {
     int killed_caught_counter_members_threshold;
     int min_number_of_citizen;
     int max_number_of_citizen;
+    int min_probability_to_attack;
 } Config;
 
 typedef struct {
@@ -58,6 +59,7 @@ typedef struct {
     int group_id;
     int citizen_id;
     int time_spent;
+    char state[SIZE_OF_STATE];
 } Message_Queue;
 
 typedef struct {

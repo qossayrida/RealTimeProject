@@ -32,7 +32,7 @@ int spy_index;
 int number_of_member_in_resistant_group;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
-int killed_member;
+char STATE[SIZE_OF_STATE];
 
 
 
@@ -42,7 +42,7 @@ void* spy_member(void* arg);
 int get_enemy_id();
 void handle_SIGUSR1();
 void handle_SIGUSR2();
-
+int get_state(int id);
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -109,8 +109,16 @@ int main(int argc, char **argv) {
 
     shared_data->communication_pid[shared_data->array_counter][2]++;
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
-        pthread_join(members[i].thread_id, NULL);
+        if (i == spy_index) {
+            continue;
+        }
+        // read the return value of the thread
+        int *state;
+        pthread_join(members[i].thread_id, (void**)&state);
+        printf("Resistant group: Normal member %d finished with state %d\n", i, *state);
     }
+
+    pthread_join(members[spy_index].thread_id, NULL);
 
     if ( (unlink(fifo_name)) == 0 ) {
         printf("fifo: fifo has been removed resistance group %d\n",getpid());
@@ -139,54 +147,60 @@ void handle_SIGUSR1() {
 }
 
 void handle_SIGUSR2() {
-    // here write code to kill, caught, injured severely, injured lightly and normal the members of the resistant group
+    memset(STATE, 0, sizeof(STATE));
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
+
         int state = rand() % 5; // 0-4 kill, caught, injured severely, injured lightly and normal
+        if (i == spy_index) {
+            strcat(STATE, "**** ");
+            continue;
+        }
         switch (state) {
             case KILLED:
-                killed_member = members[i];
+                strcat(STATE, "KILLED ");
                 shared_data->number_of_killed_resistant_group++;
-                pthread_cond_broadcast(&cond);
-                killed_member=0;
-
-
                 break;
             case CAUGHT:
+                strcat(STATE, "CAUGHT ");
                 shared_data->number_of_killed_caught_counter_espionage_agency++;
                 break;
             case INJURED_SEVERELY:
+                strcat(STATE, "INJURED_SEVERELY ");
                 shared_data->number_of_injured_resistant_group++;
                 break;
             case INJURED_LIGHTLY:
+                strcat(STATE, "INJURED_LIGHTLY ");
                 shared_data->number_of_injured_resistant_group++;
-                break;
-            case NORMAL_STATE:
                 break;
         }
     }
+    pthread_cond_broadcast(&cond);
+
+    Message_Queue msg;
+    msg.message_type = 2;
+    msg.group_id = getpid();
+    snprintf(msg.state, sizeof(msg.state), "%s", STATE);
+    msgsnd(msgid, &msg, sizeof(msg), 0);
 }
 
 void* normal_member(void* arg) {
     int id = *(int*)arg;
+    int state;
     printf("Resistant group member %d started\n", id);
 
-    while (1) {
-        pthread_mutex_lock(&count_mutex);  // Locking the mutex
+    pthread_mutex_lock(&count_mutex);  // Locking the mutex
 
-        // Wait for the condition to be signaled (unlocking the mutex while waiting)
-        pthread_cond_wait(&cond, &count_mutex);
+    // Wait for the condition to be signaled (unlocking the mutex while waiting)
+    pthread_cond_wait(&cond, &count_mutex);
 
-        // If the member is killed, exit the loop and finish
-        if (id == killed_member) {
-            pthread_mutex_unlock(&count_mutex);  // Unlock before breaking the loop
-            break;  // Exit the loop if the member is killed
-        }
+    state = get_state(id);
 
-        pthread_mutex_unlock(&count_mutex);  // Unlock mutex after checking killed_member
-    }
+    pthread_mutex_unlock(&count_mutex);  // Unlock mutex after checking killed_member
+
 
     printf("Resistant group member %d finished\n", id);
-    return NULL;
+    printf("Spy member %d finished\n", id);
+    return (void *)(intptr_t)state;
 }
 
 
@@ -224,4 +238,22 @@ int get_enemy_id() {
         }
     }
     return -1;
+}
+
+int get_state(int id) {
+    char *state = strtok(STATE, " ");
+    for (int i = 0; i < id; i++) {
+        state = strtok(NULL, " ");
+    }
+    if (strcmp(state, "KILLED") == 0) {
+        return KILLED;
+    } else if (strcmp(state, "CAUGHT") == 0) {
+        return CAUGHT;
+    } else if (strcmp(state, "INJURED_SEVERELY") == 0) {
+        return INJURED_SEVERELY;
+    } else if (strcmp(state, "INJURED_LIGHTLY") == 0) {
+        return INJURED_LIGHTLY;
+    } else {
+        return -1;
+    }
 }

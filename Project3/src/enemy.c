@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
                 probability_to_attack += time_spent;
             }
 
-            if (probability_to_attack > 100) {
+            if (probability_to_attack > config.min_probability_to_attack) {
                 kill(pid_for_resistance_group, SIGUSR2);
             }
         }

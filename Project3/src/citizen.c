@@ -32,7 +32,6 @@ int main(int argc, char **argv) {
 
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
-    Config config = shared_data->config;
 
     printf("Citizen: %s\n", my_type == SPY ? "Spy" : "Normal");
 
@@ -42,6 +41,7 @@ int main(int argc, char **argv) {
             int resistance_group_to_meet = rand() % shared_data->array_counter;
 
             if (shared_data->communication_pid[resistance_group_to_meet][2] == 2){
+                shared_data->communication_pid[resistance_group_to_meet][2]++;
                 int resistance_group_pid = shared_data->communication_pid[resistance_group_to_meet][0];
 
                 char fifo_name[256];
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
                     write(enemy_fifo_fd, &info, sizeof(Information));
                     close(enemy_fifo_fd);
                 }
-
+                shared_data->communication_pid[resistance_group_to_meet][2]--;
                 sleep(rand() % 3 + 1);
             }
         }
