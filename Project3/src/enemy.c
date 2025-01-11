@@ -46,12 +46,15 @@ int main(int argc, char **argv) {
     while (shared_data->simulation_status) {
         Information info;
         if (read(fifo_fd, &info, sizeof(Information)) > 0) {
+
             if (info.type == RESISTANT_GROUP) {
+                printf("ENEMY: From RESISTANT_GROUP Received information Time spent = %s \n", info.content);
                 int time_spent = atoi(info.content);
 
                 // modify probability to attack use suitable formula
                 probability_to_attack += time_spent;
             }else if (info.type == CITIZEN) {
+                printf("ENEMY: From CITIZEN Received information Time spent = %s \n", info.content);
                 int time_spent = atoi(info.content);
 
                 // modify probability to attack use suitable formula
@@ -59,7 +62,9 @@ int main(int argc, char **argv) {
             }
 
             if (probability_to_attack > config.min_probability_to_attack) {
+                printf("ENEMY: Attack to resistance group\n");
                 kill(pid_for_resistance_group, SIGUSR2);
+                probability_to_attack = 0;
             }
         }
     }

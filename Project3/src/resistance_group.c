@@ -108,14 +108,15 @@ int main(int argc, char **argv) {
     }
 
     shared_data->communication_pid[shared_data->array_counter][2]++;
+
+    int* results[number_of_member_in_resistant_group];
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
         if (i == spy_index) {
             continue;
         }
         // read the return value of the thread
-        int *state;
-        pthread_join(members[i].thread_id, (void**)&state);
-        printf("Resistant group: Normal member %d finished with state %d\n", i, *state);
+        pthread_join(members[i].thread_id, (void**)&results[i]);
+        printf("Resistant group: Normal member %d finished with state %d\n", i,*results[i]);
     }
 
     pthread_join(members[spy_index].thread_id, NULL);
@@ -176,6 +177,7 @@ void handle_SIGUSR2() {
     }
     pthread_cond_broadcast(&cond);
 
+    printf("%s\n", STATE);
     Message_Queue msg;
     msg.message_type = 2;
     msg.group_id = getpid();
@@ -199,8 +201,10 @@ void* normal_member(void* arg) {
 
 
     printf("Resistant group member %d finished\n", id);
-    printf("Spy member %d finished\n", id);
-    return (void *)(intptr_t)state;
+    // Allocate a return value dynamically
+    int* result = malloc(sizeof(int));
+    *result = state;
+    pthread_exit(result);
 }
 
 
@@ -218,10 +222,12 @@ void* spy_member(void* arg) {
     while (shared_data->simulation_status) {
         int time_spent = time(NULL) - created_time;
         if (time_spent > 2) {
+            printf("Spy member %d increase 2 second\n", id);
             Information info;
             info.type = RESISTANT_GROUP;
             snprintf(info.content, sizeof(info.content), "%d",time_spent);
             write(fifo_fd, &info, sizeof(Information));
+            created_time = time(NULL);
         }
     }
 
