@@ -18,7 +18,8 @@ enum {
     KILLED,
     CAUGHT,
     INJURED_SEVERELY,
-    INJURED_LIGHTLY
+    INJURED_LIGHTLY,
+    NORMAL_STATE
 };
 
 enum {

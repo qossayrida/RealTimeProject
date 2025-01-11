@@ -47,9 +47,15 @@ int main(int argc, char **argv) {
         Information info;
         if (read(fifo_fd, &info, sizeof(Information)) > 0) {
             if (info.type == RESISTANT_GROUP) {
-                probability_to_attack = atoi(info.content);
-            }else if (info.type == ENEMY) {
-                probability_to_attack = atoi(info.content);
+                int time_spent = atoi(info.content);
+
+                // modify probability to attack use suitable formula
+                probability_to_attack += time_spent;
+            }else if (info.type == CITIZEN) {
+                int time_spent = atoi(info.content);
+
+                // modify probability to attack use suitable formula
+                probability_to_attack += time_spent;
             }
 
             if (probability_to_attack > 100) {

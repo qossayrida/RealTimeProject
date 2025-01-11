@@ -23,6 +23,7 @@ typedef struct {
 
 Config config;
 SharedMemory *shared_data;
+Member *members;
 key_t key;
 int msgid;
 int my_type;
@@ -75,13 +76,13 @@ int main(int argc, char **argv) {
         perror(FIFO_NAME);
         exit(1);
     }
-    fifo_fd = open(fifo_name, O_RDONLY);
+    fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
 
     printf("Resistant group: FIFO created\n");
     signal(SIGUSR1, handle_SIGUSR1);
     signal(SIGUSR2, handle_SIGUSR2);
 
-    Member members[number_of_member_in_resistant_group];
+    members = (Member *)malloc(number_of_member_in_resistant_group * sizeof(Member));
 
     // choose one member to be spy
     spy_index = rand() % number_of_member_in_resistant_group;
@@ -110,6 +111,9 @@ int main(int argc, char **argv) {
         printf("fifo: fifo has been removed resistance group %d\n",getpid());
     }
 
+
+    free(members);
+    printf("Resistant group: Terminating\n");
     printf("Resistant group: Terminating\n");
     return 0;
 }
@@ -130,7 +134,26 @@ void handle_SIGUSR1() {
 }
 
 void handle_SIGUSR2() {
-
+    // here write code to kill, caught, injured severely, injured lightly and normal the members of the resistant group
+    for (int i = 0; i < number_of_member_in_resistant_group; i++) {
+        int state = rand() % 5; // 0-4 kill, caught, injured severely, injured lightly and normal
+        switch (state) {
+            case KILLED:
+                shared_data->number_of_killed_resistant_group++;
+                break;
+            case CAUGHT:
+                shared_data->number_of_killed_caught_counter_espionage_agency++;
+                break;
+            case INJURED_SEVERELY:
+                shared_data->number_of_injured_resistant_group++;
+                break;
+            case INJURED_LIGHTLY:
+                shared_data->number_of_injured_resistant_group++;
+                break;
+            case NORMAL_STATE:
+                break;
+        }
+    }
 }
 
 void* normal_member(void* arg) {
