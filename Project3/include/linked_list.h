@@ -5,6 +5,7 @@
 
 // Define the Node structure
 typedef struct Node {
+    int group_id;
     int citizen_id;
     int time_spent;
     struct Node* next;
@@ -13,12 +14,13 @@ typedef struct Node {
 typedef Node* ListPtr;
 
 // Function to create a new node
-Node* createNode(int citizen_id, int time_spent) {
+Node* createNode(int group_id,int citizen_id, int time_spent) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     if (!newNode) {
         printf("Memory allocation failed.\n");
         exit(EXIT_FAILURE);
     }
+    newNode->group_id = group_id;
     newNode->citizen_id = citizen_id;
     newNode->time_spent = time_spent;
     newNode->next = NULL;
@@ -26,8 +28,8 @@ Node* createNode(int citizen_id, int time_spent) {
 }
 
 // Function to append a node to the linked list
-void appendNode(Node** head, int citizen_id, int time_spent) {
-    Node* newNode = createNode(citizen_id, time_spent);
+void appendNode(Node** head,int group_id, int citizen_id, int time_spent) {
+    Node* newNode = createNode(group_id,citizen_id, time_spent);
     if (*head == NULL) {
         *head = newNode;
         return;
@@ -43,7 +45,7 @@ void appendNode(Node** head, int citizen_id, int time_spent) {
 void printList(Node* head) {
     Node* temp = head;
     while (temp != NULL) {
-        printf("Citizen ID: %d, Time Spent: %d\n", temp->citizen_id, temp->time_spent);
+        printf("Group ID: %d, Citizen ID: %d, Time Spent: %d\n",temp->group_id,temp->citizen_id, temp->time_spent);
         temp = temp->next;
     }
 }

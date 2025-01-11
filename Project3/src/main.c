@@ -41,11 +41,12 @@ int main(int argc, char **argv) {
     shared_data = (SharedMemory *) shmat(shm_id, NULL, 0);
     memset(shared_data, 0, sizeof(SharedMemory));
     shared_data->config = config;
+    shared_data->array_counter = 0;
+    shared_data->simulation_status = 1;
 
     counter_espionage_agency_pid = create_counter_espionage_agency("./bin/counter_espionage_agency", shm_id);
-    create_citizens(shm_id);
     create_resistant_group_and_enemy(shm_id,  Social_Type);
-
+    create_citizens(shm_id);
 
     signal(SIGALRM, handle_alarm);
     alarm(config.time_create_resistant_group);
@@ -93,6 +94,7 @@ void handle_alarm() {
     printf("Main: Creating new resistant group\n");
     create_resistant_group_and_enemy(shm_id,  Social_Type);
     kill(counter_espionage_agency_pid, SIGUSR1);
+    shared_data->simulation_status = 0;
     close(fifo_fd);
     if ( (unlink(FIFO_NAME)) == 0 ) {
         printf("fifo: fifo has been removed\n");

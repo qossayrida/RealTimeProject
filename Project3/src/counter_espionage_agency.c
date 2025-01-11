@@ -90,7 +90,7 @@ void *read_from_queue(void *arg) {
         if (msgrcv(msgid, &msg, sizeof(msg), 1,0) > 0) {
             printf("Counter espionage agency: Received message from citizen\n");
             printf("Group ID: %d, Citizen ID: %d, Time Spent: %d\n", msg.group_id, msg.citizen_id, msg.time_spent);
-            appendNode(&citizen_list,msg.citizen_id,msg.time_spent);
+            appendNode(&citizen_list,msg.group_id,msg.citizen_id,msg.time_spent);
         }
     }
     return NULL;

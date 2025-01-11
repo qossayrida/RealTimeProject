@@ -35,17 +35,22 @@ int main(int argc, char **argv) {
         perror(FIFO_NAME);
         exit(1);
     }
-    int fifo_fd = open(fifo_name, O_RDONLY);
+    int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
 
-    while (1) {
+    int probability_to_attack = 0;
+    while (shared_data->simulation_status) {
         Information info;
         if (read(fifo_fd, &info, sizeof(Information)) > 0) {
-            printf("Counter espionage agency: Type %d\n", info.type);
-            printf("Counter espionage agency: ID %d\n", info.id);
-            printf("Counter espionage agency: Content %s\n", info.content);
-        }
+            if (info.type == RESISTANT_GROUP) {
+                probability_to_attack = atoi(info.content);
+            }else if (info.type == ENEMY) {
+                probability_to_attack = atoi(info.content);
+            }
 
-        // check if the rate exceeds the threshold and send signal to resistance group
+            if (probability_to_attack > 100) {
+                kill(pid_for_resistance_group, SIGUSR2);
+            }
+        }
     }
 
     close(fifo_fd);

@@ -27,10 +27,15 @@ key_t key;
 int msgid;
 int my_type;
 int fifo_fd;
+int spy_index;
+int number_of_member_in_resistant_group;
+
 
 void* normal_member(void* arg);
 void* spy_member(void* arg);
 int get_enemy_id();
+void handle_SIGUSR1();
+void handle_SIGUSR2();
 
 
 int main(int argc, char **argv) {
@@ -48,7 +53,7 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    int number_of_member_in_resistant_group = atoi(argv[2]);
+    number_of_member_in_resistant_group = atoi(argv[2]);
     printf("Resistant group: Starting\n");
     printf("Resistant group: Type %d\n", my_type);
     printf("Resistant group: Number of members %d\n", number_of_member_in_resistant_group);
@@ -73,12 +78,13 @@ int main(int argc, char **argv) {
     fifo_fd = open(fifo_name, O_WRONLY);
 
     signal(SIGUSR1, handle_SIGUSR1);
+    signal(SIGUSR1, handle_SIGUSR2);
 
 
     Member members[number_of_member_in_resistant_group];
 
     // choose one member to be spy
-    int spy_index = rand() % number_of_member_in_resistant_group;
+    spy_index = rand() % number_of_member_in_resistant_group;
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
         members[i].id = i;
         if (i == spy_index) {
@@ -104,18 +110,20 @@ int main(int argc, char **argv) {
 
 void handle_SIGUSR1() {
     Information info;
-    int time_spent = rand() % 4 + 1;
-    snprintf(info.content, sizeof(info.content), "%d",time_spent);
-    write(fifo_fd, &info, sizeof(Information));
-
-    read()
+    read(fifo_fd, &info, sizeof(Information));
 
     Message_Queue msg;
     msg.message_type = 1;
     msg.group_id = getpid();
-    msg.citizen_id = id;
-    msg.time_spent = time_spent;
+    msg.citizen_id = info.id;
+    msg.time_spent = atoi(info.content);
     msgsnd(msgid, &msg, sizeof(msg), 0);
+
+    sleep(atoi(info.content));
+}
+
+void handle_SIGUSR2() {
+
 }
 
 void* normal_member(void* arg) {
@@ -136,14 +144,10 @@ void* spy_member(void* arg) {
     char fifo_name[256];
     int pid = get_enemy_id();
     snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", pid);
-    if (mknod(fifo_name, S_IFIFO | 0666, 0) < 0) {
-        perror(FIFO_NAME);
-        exit(1);
-    }
     int fifo_fd = open(fifo_name, O_WRONLY);
 
 
-    while (1){
+    while (shared_data->simulation_status) {
         int time_spent = time(NULL) - created_time;
         if (time_spent > 2) {
             Information info;
@@ -153,7 +157,7 @@ void* spy_member(void* arg) {
         }
     }
 
-    printf("SPY member %d finished\n", id);
+    printf("Spy member %d finished\n", id);
     return NULL;
 }
 
