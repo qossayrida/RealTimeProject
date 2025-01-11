@@ -30,6 +30,11 @@ int my_type;
 int fifo_fd;
 int spy_index;
 int number_of_member_in_resistant_group;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t count_mutex = PTHREAD_MUTEX_INITIALIZER;
+int killed_member;
+
+
 
 
 void* normal_member(void* arg);
@@ -139,7 +144,12 @@ void handle_SIGUSR2() {
         int state = rand() % 5; // 0-4 kill, caught, injured severely, injured lightly and normal
         switch (state) {
             case KILLED:
+                killed_member = members[i];
                 shared_data->number_of_killed_resistant_group++;
+                pthread_cond_broadcast(&cond);
+                killed_member=0;
+
+
                 break;
             case CAUGHT:
                 shared_data->number_of_killed_caught_counter_espionage_agency++;
@@ -160,11 +170,25 @@ void* normal_member(void* arg) {
     int id = *(int*)arg;
     printf("Resistant group member %d started\n", id);
 
-    // pause for random time
+    while (1) {
+        pthread_mutex_lock(&count_mutex);  // Locking the mutex
+
+        // Wait for the condition to be signaled (unlocking the mutex while waiting)
+        pthread_cond_wait(&cond, &count_mutex);
+
+        // If the member is killed, exit the loop and finish
+        if (id == killed_member) {
+            pthread_mutex_unlock(&count_mutex);  // Unlock before breaking the loop
+            break;  // Exit the loop if the member is killed
+        }
+
+        pthread_mutex_unlock(&count_mutex);  // Unlock mutex after checking killed_member
+    }
 
     printf("Resistant group member %d finished\n", id);
     return NULL;
 }
+
 
 void* spy_member(void* arg) {
     int id = *(int*)arg;
