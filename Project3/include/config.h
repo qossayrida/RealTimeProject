@@ -60,7 +60,8 @@ typedef struct {
     int group_id;
     int citizen_id;
     int time_spent;
-    char state[SIZE_OF_STATE];
+    int the_spy;
+    char suspicion_rates[SIZE_OF_STATE];
 } Message_Queue;
 
 typedef struct {

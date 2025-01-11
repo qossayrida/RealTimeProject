@@ -10,13 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c217dcae-af29-4fa4-a86d-15aa3fa19e9b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../include/sem.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../bin/main_program" beforeDir="false" afterPath="$PROJECT_DIR$/../bin/main_program" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../bin/resistance_group" beforeDir="false" afterPath="$PROJECT_DIR$/../bin/resistance_group" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../include/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../include/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../obj/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/../obj/main.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../include/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/../include/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../obj/resistance_group.o" beforeDir="false" afterPath="$PROJECT_DIR$/../obj/resistance_group.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/counter_espionage_agency.c" beforeDir="false" afterPath="$PROJECT_DIR$/counter_espionage_agency.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resistance_group.c" beforeDir="false" afterPath="$PROJECT_DIR$/resistance_group.c" afterDir="false" />
     </list>
@@ -60,6 +59,9 @@
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -72,7 +74,7 @@
       <workItem from="1736341974303" duration="40000" />
       <workItem from="1736342023225" duration="4455000" />
       <workItem from="1736436361235" duration="35983000" />
-      <workItem from="1736593528575" duration="17182000" />
+      <workItem from="1736593528575" duration="22598000" />
     </task>
     <servers />
   </component>

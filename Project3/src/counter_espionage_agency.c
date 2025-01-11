@@ -16,6 +16,7 @@
 
 Config config;
 ListPtr citizen_list;
+SharedMemory *shared_data;
 key_t key;
 int msgid;
 int status = 1;
@@ -25,12 +26,16 @@ int status = 1;
 
 void* counter_espionage_agency_member(void* arg);
 void *read_from_queue(void *arg);
+void check_members_after_attack(Message_Queue msg);
 void handle_SIGUSR1();
+void handle_SIGUSR2();
+void regular_analyzes();
+
 
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
+    shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
     config = shared_data->config;
     citizen_list = NULL;
 
@@ -46,6 +51,8 @@ int main() {
     }
 
     signal(SIGUSR1, handle_SIGUSR1);
+    signal(SIGUSR2, handle_SIGUSR2);
+
 
     pthread_t threads[config.number_of_member_in_counter_espionage_agency];
     int args[config.number_of_member_in_counter_espionage_agency];
@@ -77,9 +84,25 @@ void handle_SIGUSR1() {
     exit(EXIT_SUCCESS);
 }
 
+
+void handle_SIGUSR2() {
+
+}
+
 void* counter_espionage_agency_member(void* arg) {
     int id = *(int*)arg;
+
+    int created_time = time(NULL);
     printf("Counter espionage agency member %d started\n", id);
+    while (shared_data->simulation_status) {
+        int time_spent = time(NULL) - created_time;
+        if (time_spent > 2) {
+            regular_analyzes();
+        }
+        read_from_queue(NULL);
+    }
+
+
     printf("Counter espionage agency member %d finished\n", id);
     return NULL;
 }
@@ -92,7 +115,59 @@ void *read_from_queue(void *arg) {
             printf("Group ID: %d, Citizen ID: %d, Time Spent: %d\n", msg.group_id, msg.citizen_id, msg.time_spent);
             appendNode(&citizen_list,msg.group_id,msg.citizen_id,msg.time_spent);
         }
+        if (msgrcv(msgid, &msg, sizeof(msg), 2,0) > 0) {
+            printf("Counter espionage agency: Received message from attack\n");
+            check_members_after_attack(msg);
+
+
+        }
     }
+
+
     return NULL;
+}
+
+
+void check_members_after_attack(Message_Queue msg){
+        int the_spy=-1;
+        int member_number=0;
+
+    char *suspicion_rate = strtok(msg.suspicion_rates, " ");
+
+    while (suspicion_rate != NULL) {
+
+        if (atoi(suspicion_rate)>config.suspicion_rate_threshold) {
+            int randNum = rand() % 100;
+            if (randNum >=80) {
+            the_spy=member_number;
+            break;
+
+            }
+        }
+        member_number++;
+        suspicion_rate= strtok(NULL, " ");
+    }
+    Message_Queue msg1;
+    msg1.message_type = 3;
+    msg1.the_spy = the_spy;
+    msgsnd(msgid, &msg1, sizeof(msg1), 0);
+
+}
+
+
+void regular_analyzes(){
+    Node* temp = citizen_list;
+    int counts[1000] = {0};  // assuming there are no more than 1000 unique citizen IDs
+
+    while (temp != NULL) {
+        counts[temp->citizen_id]++;
+        temp = temp->next;
+    }
+
+    for (int i = 0; i < 1000; i++) {
+        if (counts[i] == 10) {
+            printf("Citizen with ID %d has appeared 10 times.\n", i);
+        }
+    }
 }
 

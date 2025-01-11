@@ -87,6 +87,13 @@ int main(int argc, char **argv) {
                     printf("Main: Received information from citizen: %s\n", info_buffer[i].content);
                     break;
             }
+
+            if ( (shared_data->number_of_killed_resistant_group >= config.killed_resistance_members_threshold) ||
+                 (shared_data->number_of_injured_resistant_group >= config.injured_resistance_members_threshold) ||
+                 (shared_data->number_of_killed_caught_counter_espionage_agency >= config.killed_caught_counter_members_threshold) ) {
+                    printf("Main: Resistance group has been killed\n");
+                    handle_alarm();
+            }
         }
     }
 

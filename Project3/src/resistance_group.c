@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <pthread.h>
 #include "config.h"
+#include "sem.h"
 #include "linked_list.h"
 
 typedef struct {
@@ -30,9 +31,11 @@ int my_type;
 int fifo_fd;
 int go_out;
 int spy_index;
+int sem;
 int number_of_member_in_resistant_group;
 pthread_barrier_t barrier;
 char STATE[SIZE_OF_STATE];
+char SUSPICION_RATES[SIZE_OF_STATE];
 
 
 void* normal_member(void* arg);
@@ -65,6 +68,7 @@ int main(int argc, char **argv) {
 
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
+    sem = semget(1234, 1, 0666);
     config = shared_data->config;
     print_config(&config);
 
@@ -143,12 +147,14 @@ void handle_SIGUSR1() {
 
 void handle_SIGUSR2() {
     memset(STATE, 0, sizeof(STATE));
+    memset(STATE, 0, sizeof(SUSPICION_RATES));
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
 
         int state = rand() % 5; // 0-4 kill, caught, injured severely, injured lightly and normal
         if (i == spy_index) {
             state = rand() % 2 == 0 ? HEALTHY : INJURED_LIGHTLY;
         }
+        sem_wait(sem);
         switch (state) {
             case KILLED:
                 strcat(STATE, "KILLED ");
@@ -170,16 +176,28 @@ void handle_SIGUSR2() {
                 strcat(STATE, "HEALTHY ");
                 break;
         }
+        sem_post(sem);
+        char temp[10];
+        sprintf(temp, "%d", members[i].suspicion_rate);  // Convert the number to string
+        strcat(SUSPICION_RATES, temp);    // Append the number to the result
+        strcat(SUSPICION_RATES, " ");
     }
     pthread_barrier_wait(&barrier);
     go_out = 1;
+
 
     printf("%s\n", STATE);
     Message_Queue msg;
     msg.message_type = 2;
     msg.group_id = getpid();
-    snprintf(msg.state, sizeof(msg.state), "%s", STATE);
+    snprintf(msg.suspicion_rates, sizeof(msg.suspicion_rates), "%s", SUSPICION_RATES);
     msgsnd(msgid, &msg, sizeof(msg), 0);
+
+//    if (msgrcv(msgid, &msg, sizeof(msg), 3,0) > 0) {
+//        if (msg.the_spy != -1) {
+//            printf("Resistant group: The spy is %d\n", msg.the_spy);
+//        }
+//    }
 }
 
 void* normal_member(void* arg) {
@@ -260,6 +278,6 @@ int get_state(int id) {
     } else if (strcmp(state, "INJURED_LIGHTLY") == 0) {
         return INJURED_LIGHTLY;
     } else {
-        return -1;
+        return HEALTHY;
     }
 }
