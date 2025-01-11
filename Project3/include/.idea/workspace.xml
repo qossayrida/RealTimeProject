@@ -11,7 +11,9 @@
   <component name="ChangeListManager">
     <list default="true" id="d75559d6-f224-47b6-a250-225e8f508fa3" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../src/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/counter_espionage_agency.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/counter_espionage_agency.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/resistance_group.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/resistance_group.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -60,7 +62,7 @@
       <updated>1736341961034</updated>
       <workItem from="1736341962044" duration="2690000" />
       <workItem from="1736436354308" duration="18607000" />
-      <workItem from="1736593535797" duration="7182000" />
+      <workItem from="1736593535797" duration="7636000" />
     </task>
     <servers />
   </component>

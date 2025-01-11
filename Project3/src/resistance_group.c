@@ -29,11 +29,10 @@ int msgid;
 int my_type;
 int fifo_fd;
 int spy_index;
+int go_out;
 int number_of_member_in_resistant_group;
 pthread_barrier_t barrier;
 char STATE[SIZE_OF_STATE];
-
-
 
 
 void* normal_member(void* arg);
@@ -113,15 +112,9 @@ int main(int argc, char **argv) {
 
     int* results[number_of_member_in_resistant_group];
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
-        if (i == spy_index) {
-            continue;
-        }
-        // read the return value of the thread
         pthread_join(members[i].thread_id, (void**)&results[i]);
-        printf("Resistant group: Normal member %d finished with state %d\n", i,*results[i]);
+        printf("Resistant group: Thread %d returned %d\n",i, *results[i]);
     }
-
-    pthread_join(members[spy_index].thread_id, NULL);
 
     if ( (unlink(fifo_name)) == 0 ) {
         printf("fifo: fifo has been removed resistance group %d\n",getpid());
@@ -153,9 +146,8 @@ void handle_SIGUSR2() {
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
 
         int state = rand() % 5; // 0-4 kill, caught, injured severely, injured lightly and normal
-        if (i == spy_index) {
-            strcat(STATE, "**** ");
-            continue;
+        if (i == spy_index)
+            state = rand() % 2 == 0 ? HEALTHY : INJURED_LIGHTLY;
         }
         switch (state) {
             case KILLED:
@@ -174,9 +166,13 @@ void handle_SIGUSR2() {
                 strcat(STATE, "INJURED_LIGHTLY ");
                 shared_data->number_of_injured_resistant_group++;
                 break;
+            case HEALTHY:
+                strcat(STATE, "HEALTHY ");
+                break;
         }
     }
     pthread_barrier_wait(&barrier);
+    go_out = 1;
 
     printf("%s\n", STATE);
     Message_Queue msg;
@@ -194,7 +190,6 @@ void* normal_member(void* arg) {
     pthread_barrier_wait(&barrier);
 
     state = get_state(id);
-    
 
     printf("Resistant group member %d finished\n", id);
     // Allocate a return value dynamically
@@ -225,10 +220,19 @@ void* spy_member(void* arg) {
             write(fifo_fd, &info, sizeof(Information));
             created_time = time(NULL);
         }
+        if (go_out) {
+            break;
+        }
     }
 
+
+    state = get_state(id);
+    go_out = 0;
+
     printf("Spy member %d finished\n", id);
-    return NULL;
+    int* result = malloc(sizeof(int));
+    *result = state;
+    pthread_exit(result);
 }
 
 
