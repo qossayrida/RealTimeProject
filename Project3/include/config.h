@@ -46,7 +46,7 @@ typedef struct {
     Config config;
     int simulation_status;
     int array_counter;
-    int communication_pid[SIZE_OF_RESISTANT_GROUP][3];
+    int communication_pid[SIZE_OF_RESISTANT_GROUP][2];
     int number_of_killed_resistant_group;
     int number_of_injured_resistant_group;
     int number_of_killed_caught_counter_espionage_agency;

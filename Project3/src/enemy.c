@@ -61,8 +61,7 @@ int main(int argc, char **argv) {
 
     close(fifo_fd);
     if ( (unlink(fifo_name)) == 0 ) {
-        printf("fifo: fifo has been removed\n");
-        exit(0);
+        printf("fifo: fifo has been removed for enemy %d\n",getpid());
     }
     return 0;
 }

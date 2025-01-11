@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
         perror(FIFO_NAME);
         exit(1);
     }
-    fifo_fd = open(fifo_name, O_WRONLY);
+    fifo_fd = open(fifo_name, O_RDONLY);
 
     signal(SIGUSR1, handle_SIGUSR1);
     signal(SIGUSR2, handle_SIGUSR2);
@@ -92,6 +92,7 @@ int main(int argc, char **argv) {
                 return EXIT_FAILURE;
             }
         } else {
+            printf("Lets create normal member %d\n", i);
             if (pthread_create(&members[i].thread_id, NULL, normal_member, &members[i].id) != 0) {
                 perror("Thread creation failed");
                 return EXIT_FAILURE;
@@ -104,8 +105,7 @@ int main(int argc, char **argv) {
     }
 
     if ( (unlink(fifo_name)) == 0 ) {
-        printf("fifo: fifo has been removed\n");
-        exit(0);
+        printf("fifo: fifo has been removed resistance group %d\n",getpid());
     }
 
     printf("Resistant group: Terminating\n");
