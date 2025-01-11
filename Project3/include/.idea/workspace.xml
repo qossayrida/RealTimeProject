@@ -10,15 +10,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d75559d6-f224-47b6-a250-225e8f508fa3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../bin/enemy" beforeDir="false" afterPath="$PROJECT_DIR$/../bin/enemy" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../bin/main_program" beforeDir="false" afterPath="$PROJECT_DIR$/../bin/main_program" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../bin/resistance_group" beforeDir="false" afterPath="$PROJECT_DIR$/../bin/resistance_group" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/config.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../obj/enemy.o" beforeDir="false" afterPath="$PROJECT_DIR$/../obj/enemy.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../obj/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/../obj/main.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../obj/resistance_group.o" beforeDir="false" afterPath="$PROJECT_DIR$/../obj/resistance_group.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../src/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../src/citizen.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/citizen.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/enemy.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/enemy.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/main.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/resistance_group.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/resistance_group.c" afterDir="false" />
@@ -69,7 +66,7 @@
       <updated>1736341961034</updated>
       <workItem from="1736341962044" duration="2690000" />
       <workItem from="1736436354308" duration="18607000" />
-      <workItem from="1736593535797" duration="1922000" />
+      <workItem from="1736593535797" duration="2126000" />
     </task>
     <servers />
   </component>

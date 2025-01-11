@@ -155,7 +155,6 @@ void create_resistant_group_and_enemy(int shm_id,int type) {
 
     srand(time(NULL));
     int number_of_member_in_resistant_group = rand() % (config.max_number_member_in_resistant_group - config.min_number_member_in_resistant_group + 1) + config.min_number_member_in_resistant_group;
-
     pid_t pid = fork();
     if (pid == 0) { // Child process
         char shm_id_str[10];
@@ -172,6 +171,7 @@ void create_resistant_group_and_enemy(int shm_id,int type) {
         perror("Fork failed");
         exit(1);
     }
+    shared_data->communication_pid[shared_data->array_counter][0] = pid;
 
     pid_t enemy_pid = fork();
     if (enemy_pid==0) {
@@ -189,5 +189,5 @@ void create_resistant_group_and_enemy(int shm_id,int type) {
         perror("Fork failed");
         exit(1);
     }
-
+    shared_data->communication_pid[shared_data->array_counter][1] = enemy_pid;
 }

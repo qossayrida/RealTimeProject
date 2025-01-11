@@ -40,8 +40,7 @@ int main(int argc, char **argv) {
     int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
 
 
-    shared_data->communication_pid[shared_data->array_counter][0] = pid_for_resistance_group;
-    shared_data->communication_pid[shared_data->array_counter++][1] = pid;
+    shared_data->communication_pid[shared_data->array_counter++][2]++;
 
     int probability_to_attack = 0;
     while (shared_data->simulation_status) {

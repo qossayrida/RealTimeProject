@@ -77,6 +77,7 @@ int main(int argc, char **argv) {
     }
     fifo_fd = open(fifo_name, O_RDONLY);
 
+    printf("Resistant group: FIFO created\n");
     signal(SIGUSR1, handle_SIGUSR1);
     signal(SIGUSR2, handle_SIGUSR2);
 
@@ -85,6 +86,7 @@ int main(int argc, char **argv) {
     // choose one member to be spy
     spy_index = rand() % number_of_member_in_resistant_group;
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
+        printf("====> Lets create member %d\n", i);
         members[i].id = i;
         if (i == spy_index) {
             if (pthread_create(&members[i].thread_id, NULL, spy_member, &members[i].id) != 0) {
@@ -92,7 +94,6 @@ int main(int argc, char **argv) {
                 return EXIT_FAILURE;
             }
         } else {
-            printf("Lets create normal member %d\n", i);
             if (pthread_create(&members[i].thread_id, NULL, normal_member, &members[i].id) != 0) {
                 perror("Thread creation failed");
                 return EXIT_FAILURE;
@@ -100,6 +101,7 @@ int main(int argc, char **argv) {
         }
     }
 
+    shared_data->communication_pid[shared_data->array_counter][2]++;
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
         pthread_join(members[i].thread_id, NULL);
     }
@@ -123,6 +125,7 @@ void handle_SIGUSR1() {
     msg.time_spent = atoi(info.content);
     msgsnd(msgid, &msg, sizeof(msg), 0);
 
+    printf("Resistant group: Received information from citizen\n");
     sleep(atoi(info.content));
 }
 
