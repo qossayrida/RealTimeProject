@@ -44,6 +44,8 @@ int main(int argc, char **argv) {
             printf("Counter espionage agency: ID %d\n", info.id);
             printf("Counter espionage agency: Content %s\n", info.content);
         }
+
+        // check if the rate exceeds the threshold and send signal to resistance group
     }
 
     close(fifo_fd);

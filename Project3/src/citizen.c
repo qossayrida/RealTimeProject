@@ -30,7 +30,41 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
+    SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
+
     printf("Citizen: %s\n", my_type == SPY ? "Spy" : "Normal");
+
+
+
+    while (1) {
+        int resistance_group_to_meet = rand() % shared_data->array_counter;
+        int resistance_group_pid = shared_data->communication_pid[resistance_group_to_meet][0];
+
+        kill(resistance_group_pid, SIGUSR1);
+
+        char fifo_name[256];
+        snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", resistance_group_pid);
+        int fifo_fd = open(fifo_name, O_RDONLY);
+
+        Information info;
+        if (read(fifo_fd, &info, sizeof(Information)) > 0) {
+            printf("Citizen: Received message from resistance group: %s\n", info.content);
+        }
+
+        sleep(atoi(info.content));
+
+        if (my_type == SPY) {
+            info.type = CITIZEN;
+            int enemy_pid = shared_data->communication_pid[resistance_group_to_meet][1];
+            snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", enemy_pid);
+            int enemy_fifo_fd = open(fifo_name, O_WRONLY);
+            write(enemy_fifo_fd, &info, sizeof(Information));
+            close(enemy_fifo_fd);
+        }
+
+        sleep(rand() % 3 + 1);
+    }
 
 
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment

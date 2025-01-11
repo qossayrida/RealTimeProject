@@ -23,11 +23,10 @@ typedef struct {
 
 Config config;
 SharedMemory *shared_data;
-ListPtr citizen_list;
 key_t key;
 int msgid;
 int my_type;
-
+int fifo_fd;
 
 void* normal_member(void* arg);
 void* spy_member(void* arg);
@@ -59,11 +58,21 @@ int main(int argc, char **argv) {
     shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
     config = shared_data->config;
     print_config(&config);
-    citizen_list = NULL;
 
 
     key = ftok("/tmp/citizen_list_queue", 65);
     msgid = msgget(key, 0666 | IPC_CREAT);
+
+    char fifo_name[256];
+    pid_t pid = getpid();
+    snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_%d", pid);
+    if (mknod(fifo_name, S_IFIFO | 0666, 0) < 0) {
+        perror(FIFO_NAME);
+        exit(1);
+    }
+    fifo_fd = open(fifo_name, O_WRONLY);
+
+    signal(SIGUSR1, handle_SIGUSR1);
 
 
     Member members[number_of_member_in_resistant_group];
@@ -89,26 +98,31 @@ int main(int argc, char **argv) {
         pthread_join(members[i].thread_id, NULL);
     }
 
-    printf("Resistant group List:\n");
-    printList(citizen_list);
-    freeList(citizen_list);
-
     printf("Resistant group: Terminating\n");
     return 0;
 }
 
+void handle_SIGUSR1() {
+    Information info;
+    int time_spent = rand() % 4 + 1;
+    snprintf(info.content, sizeof(info.content), "%d",time_spent);
+    write(fifo_fd, &info, sizeof(Information));
+
+    read()
+
+    Message_Queue msg;
+    msg.message_type = 1;
+    msg.group_id = getpid();
+    msg.citizen_id = id;
+    msg.time_spent = time_spent;
+    msgsnd(msgid, &msg, sizeof(msg), 0);
+}
 
 void* normal_member(void* arg) {
     int id = *(int*)arg;
     printf("Resistant group member %d started\n", id);
-    appendNode(&citizen_list,id,(id+1)*10);
 
-//    Message_Queue msg;
-//    msg.message_type = 1;
-//    msg.group_id = getpid();
-//    msg.citizen_id = id;
-//    msg.time_spent = (id+1)*10;
-//    msgsnd(msgid, &msg, sizeof(msg), 0);
+    // pause for random time
 
     printf("Resistant group member %d finished\n", id);
     return NULL;
@@ -116,8 +130,8 @@ void* normal_member(void* arg) {
 
 void* spy_member(void* arg) {
     int id = *(int*)arg;
+    int created_time = time(NULL);
     printf("Spy member %d started\n", id);
-    appendNode(&citizen_list,id,(id+1)*10);
 
     char fifo_name[256];
     int pid = get_enemy_id();
@@ -129,6 +143,15 @@ void* spy_member(void* arg) {
     int fifo_fd = open(fifo_name, O_WRONLY);
 
 
+    while (1){
+        int time_spent = time(NULL) - created_time;
+        if (time_spent > 2) {
+            Information info;
+            info.type = RESISTANT_GROUP;
+            snprintf(info.content, sizeof(info.content), "%d",time_spent);
+            write(fifo_fd, &info, sizeof(Information));
+        }
+    }
 
     printf("SPY member %d finished\n", id);
     return NULL;
