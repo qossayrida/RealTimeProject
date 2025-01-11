@@ -28,8 +28,8 @@ key_t key;
 int msgid;
 int my_type;
 int fifo_fd;
-int spy_index;
 int go_out;
+int spy_index;
 int number_of_member_in_resistant_group;
 pthread_barrier_t barrier;
 char STATE[SIZE_OF_STATE];
@@ -146,7 +146,7 @@ void handle_SIGUSR2() {
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
 
         int state = rand() % 5; // 0-4 kill, caught, injured severely, injured lightly and normal
-        if (i == spy_index)
+        if (i == spy_index) {
             state = rand() % 2 == 0 ? HEALTHY : INJURED_LIGHTLY;
         }
         switch (state) {
@@ -191,6 +191,7 @@ void* normal_member(void* arg) {
 
     state = get_state(id);
 
+
     printf("Resistant group member %d finished\n", id);
     // Allocate a return value dynamically
     int* result = malloc(sizeof(int));
@@ -203,7 +204,7 @@ void* spy_member(void* arg) {
     int id = *(int*)arg;
     int created_time = time(NULL);
     printf("Spy member %d started\n", id);
-
+    int state;
     char fifo_name[256];
     int pid = get_enemy_id();
     snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_to_write_at_enemy_%d", pid);
@@ -225,10 +226,9 @@ void* spy_member(void* arg) {
         }
     }
 
-
-    state = get_state(id);
     go_out = 0;
 
+    state = get_state(id);
     printf("Spy member %d finished\n", id);
     int* result = malloc(sizeof(int));
     *result = state;

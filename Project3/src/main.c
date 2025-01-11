@@ -12,6 +12,7 @@
 #include <sys/msg.h>
 #include <string.h>
 #include <signal.h>
+#include "sem.h"
 #include "config.h"
 
 Config config;
@@ -43,6 +44,9 @@ int main(int argc, char **argv) {
     shared_data->config = config;
     shared_data->array_counter = 0;
     shared_data->simulation_status = 1;
+
+    // Initialize semaphore
+    init_semaphore();
 
     counter_espionage_agency_pid = create_counter_espionage_agency("./bin/counter_espionage_agency", shm_id);
     create_resistant_group_and_enemy(shm_id,  Social_Type);
