@@ -14,6 +14,8 @@
 #include <signal.h>
 #include "config.h"
 
+Information info_buffer[50];
+
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -48,8 +50,13 @@ int main(int argc, char **argv) {
     int probability_to_attack = 0;
     while (shared_data->simulation_status) {
         if (type == For_Resistant_Group) {
-            Information info;
-            if (read(fifo_fd, &info, sizeof(Information)) > 0) {
+
+            int bytes_read = read(fifo_fd, info_buffer, sizeof(info_buffer));
+            int num_info = (bytes_read != -1) ? bytes_read / sizeof(Information) : 0;
+
+
+            for (int i = 0; i < num_info; i++) {
+                Information* info= &info_buffer[i];
 
                 if (info.type == RESISTANT_GROUP) {
                     send_info_to_gui(fifo_gui, ENEMY_RECEIVE_FROM_RESISTANT_GROUP, getpid(), info.content);
@@ -58,7 +65,10 @@ int main(int argc, char **argv) {
                     // modify probability to attack use suitable formula
                     probability_to_attack += time_spent;
                 } else if (info.type == CITIZEN) {
-                    send_info_to_gui(fifo_gui, ENEMY_RECEIVE_FROM_CITIZEN, getpid(), info.content);
+                    char result[20];
+                    snprintf(result, sizeof(result), "%s %d", info.content, info.id);
+                    send_info_to_gui(fifo_gui, ENEMY_RECEIVE_FROM_CITIZEN, getpid(), result);
+
                     int time_spent = atoi(info.content);
 
                     // modify probability to attack use suitable formula
@@ -71,6 +81,7 @@ int main(int argc, char **argv) {
                     probability_to_attack = 0;
                 }
             }
+
         } else if (type == For_Espionage_Agency) {
 
             int created_time = time(NULL);
