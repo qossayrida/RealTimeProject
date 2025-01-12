@@ -42,8 +42,13 @@ int main(int argc, char **argv) {
     }
     int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
     int fifo_gui = open(FIFO_NAME, O_WRONLY);
-
-    send_info_to_gui(fifo_gui, ENEMY_CREATED, getpid(), type == For_Resistant_Group ? "For_Resistant" : "For_Espionage");
+    char result[40];
+    if(type == For_Resistant_Group){
+        snprintf(result, sizeof(result), "%s %d", "For_Resistant", pid_for_resistance_group);
+    } else{
+        snprintf(result, sizeof(result), "%s 0","For_Espionage");
+    }
+    send_info_to_gui(fifo_gui, ENEMY_CREATED, getpid(), result);
 
     if (type == For_Resistant_Group) {
         shared_data->communication_pid[shared_data->array_counter++][2]++;
