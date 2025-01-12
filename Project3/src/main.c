@@ -108,6 +108,10 @@ int main(int argc, char **argv) {
 
     kill(counter_espionage_agency_pid, SIGUSR1);
 
+    for (int i = 0; i < shared_data->array_counter; i++) {
+        kill(shared_data->communication_pid[i][0], SIGUSR1);
+    }
+
     close(fifo_fd);
     if ((unlink(FIFO_NAME)) == 0) {
         printf("MAIN: fifo has been removed\n");

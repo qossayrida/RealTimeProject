@@ -192,7 +192,6 @@ void check_members_after_attack(Message_Queue msg) {
     msg1.message_type = 3;
     msg1.the_spy = the_spy;
     msgsnd(msgid, &msg1, sizeof(msg1), 0);
-
 }
 
 

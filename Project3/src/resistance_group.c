@@ -44,6 +44,7 @@ int number_of_member_in_resistant_group;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 int proceed = 0;
+char fifo_name[256];
 char SUSPICION_RATES[SIZE_OF_STATE];
 
 
@@ -87,7 +88,7 @@ int main(int argc, char **argv) {
     msgid = msgget(key, 0666 | IPC_CREAT);
     fifo_gui = open(FIFO_NAME, O_WRONLY);
 
-    char fifo_name[256];
+
     pid_t pid = getpid();
     snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_for_resistance_group_%d", pid);
     if (mknod(fifo_name, S_IFIFO | 0666, 0) < 0) {
@@ -143,28 +144,32 @@ int main(int argc, char **argv) {
     }
 
 
-    if ( (unlink(fifo_name)) == 0 ) {
-        printf("fifo: fifo has been removed resistance group %d\n",getpid());
-    }
-
-
-    free(members);
-    printf("Resistant group: Terminating\n");
+    handle_SIGUSR1();
     return 0;
 }
 
 void handle_SIGUSR1() {
-    Information info;
-    read(fifo_fd, &info, sizeof(Information));
+    if (shared_data->simulation_status){
+        Information info;
+        read(fifo_fd, &info, sizeof(Information));
 
-    Message_Queue msg;
-    msg.message_type = 1;
-    msg.group_id = getpid();
-    msg.citizen_id = info.id;
-    msg.time_spent = atoi(info.content);
-    msgsnd(msgid, &msg, sizeof(msg), 0);
+        Message_Queue msg;
+        msg.message_type = 1;
+        msg.group_id = getpid();
+        msg.citizen_id = info.id;
+        msg.time_spent = atoi(info.content);
+        msgsnd(msgid, &msg, sizeof(msg), 0);
 
-    printf("Resistant group: Received information from citizen\n");
+        printf("Resistant group: Received information from citizen\n");
+    }else{
+        if ( (unlink(fifo_name)) == 0 ) {
+            printf("fifo: fifo has been removed resistance group %d\n",getpid());
+        }
+
+        free(members);
+        printf("Resistant group: Terminating\n");
+        exit(EXIT_SUCCESS);
+    }
 }
 
 void handle_SIGUSR2() {
