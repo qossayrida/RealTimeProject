@@ -43,6 +43,8 @@ int main(int argc, char **argv) {
     int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
     int fifo_gui = open(FIFO_NAME, O_WRONLY);
 
+    send_info_to_gui(fifo_gui, ENEMY_CREATED, getpid(), type == For_Resistant_Group ? "For_Resistant" : "For_Espionage");
+
     if (type == For_Resistant_Group) {
         shared_data->communication_pid[shared_data->array_counter++][2]++;
     }

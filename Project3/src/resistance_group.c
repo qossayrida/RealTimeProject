@@ -114,6 +114,14 @@ int main(int argc, char **argv) {
     // choose one member to be spy
     spy_index = rand() % number_of_member_in_resistant_group;
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
+        char result[40];
+        if(i==spy_index){
+        snprintf(result, sizeof(result), "%s %d", "Spy", i);
+        } else{
+        snprintf(result, sizeof(result), "%s %d", "Normal", i);
+        }
+        send_info_to_gui(fifo_gui, RESISTANT_GROUP_MEMBER_CREATED, getpid(), result);
+
         args[i].id = i;
         args[i].sleep_time = 0;
         if (i == spy_index) {
@@ -132,6 +140,7 @@ int main(int argc, char **argv) {
     shared_data->communication_pid[shared_data->array_counter][2]++;
 
     while (shared_data->simulation_status) {
+
         for (int i = 0; i < number_of_member_in_resistant_group; i++) {
             if (i == spy_detected_by_counter_espionage_agency) {
                 continue;

@@ -78,6 +78,10 @@ int main() {
     for (int i = 0; i < config.number_of_member_in_counter_espionage_agency; i++) {
         args[i] = i;
         members[i].creation_time = time(NULL);
+        char result[20];
+        snprintf(result, sizeof(result), "%d", i);
+
+        send_info_to_gui(fifo_gui,  COUNTER_ESPIONAGE_AGENCY_MEMBER_CREATED, getpid(), result);
         if (pthread_create(&members[i].thread_id, NULL, counter_espionage_agency_member, &args[i]) != 0) {
             perror("Thread creation failed");
             return EXIT_FAILURE;

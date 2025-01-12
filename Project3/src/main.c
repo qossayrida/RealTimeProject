@@ -116,6 +116,16 @@ int main(int argc, char **argv) {
                     printf("Main: resistant group %d return from injured: %s\n", info_buffer[i].id,
                            info_buffer[i].content);
                     break;
+                case ENEMY_CREATED:
+                    printf("Main: enemy %d created: %s\n", info_buffer[i].id, info_buffer[i].content);
+                    break;
+                case RESISTANT_GROUP_MEMBER_CREATED:
+                    printf("Main: resistant group member %d created: %s\n", info_buffer[i].id, info_buffer[i].content);
+                    break;
+                case COUNTER_ESPIONAGE_AGENCY_MEMBER_CREATED:
+                    printf("Main: counter espionage agency member %d created: %s\n", info_buffer[i].id,
+                           info_buffer[i].content);
+                    break;
             }
 
             if ((shared_data->number_of_killed_resistant_group >= config.killed_resistance_members_threshold) ||
