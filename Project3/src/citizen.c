@@ -65,8 +65,8 @@ int main(int argc, char **argv) {
                     write(enemy_fifo_fd, &info, sizeof(Information));
                     close(enemy_fifo_fd);
                 }
-                shared_data->communication_pid[resistance_group_to_meet][2]--;
                 sleep(rand() % 3 + 1);
+                shared_data->communication_pid[resistance_group_to_meet][2]--;
             }
         }
     }

@@ -68,9 +68,6 @@ int main(int argc, char **argv) {
         int bytes_read = read(fifo_fd, info_buffer, sizeof(info_buffer));
         int num_info = (bytes_read != -1) ? bytes_read / sizeof(Information) : 0;
 
-        if (num_info > 0) {
-            printf("Timer: Received %d information.\n", num_info);
-        }
 
         for (int i = 0; i < num_info; i++) {
             switch (info_buffer[i].type) {
@@ -80,8 +77,14 @@ int main(int argc, char **argv) {
                 case RESISTANT_GROUP:
                     printf("Main: Received information from resistant group: %s\n", info_buffer[i].content);
                     break;
-                case ENEMY:
-                    printf("Main: Received information from enemy: %s\n", info_buffer[i].content);
+                case ENEMY_RECEIVE_FROM_RESISTANT_GROUP:
+                    printf("Main: enemy receive from resistance group : %s\n", info_buffer[i].content);
+                    break;
+                case ENEMY_RECEIVE_FROM_CITIZEN:
+                    printf("Main: enemy receive from citizen : %s\n", info_buffer[i].content);
+                    break;
+                case ENEMY_ATTACK_RESISTANT_GROUP:
+                    printf("Main: enemy want to attack resistance group: %s\n", info_buffer[i].content);
                     break;
                 case CITIZEN:
                     printf("Main: Received information from citizen: %s\n", info_buffer[i].content);

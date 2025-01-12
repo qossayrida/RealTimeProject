@@ -56,3 +56,11 @@ void print_config(const Config *config) {
     printf("    Max number of citizens: %d\n", config->max_number_of_citizen);
     printf("    Min probability to attack: %d\n", config->min_probability_to_attack);
 }
+
+void send_info_to_gui(int fifo_fd,int type, int id, char *content) {
+    Information info;
+    info.type = type;
+    info.id = id;
+    snprintf(info.content, sizeof(info.content), "%s", content);
+    write(fifo_fd, &info, sizeof(Information));
+}

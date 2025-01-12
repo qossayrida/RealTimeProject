@@ -19,6 +19,7 @@
 typedef struct {
     pthread_t thread_id;
     int id;
+    int state_after_attack;
     int suspicion_rate;
 } Member;
 
@@ -33,8 +34,9 @@ int go_out;
 int spy_index;
 int sem;
 int number_of_member_in_resistant_group;
-pthread_barrier_t barrier;
-char STATE[SIZE_OF_STATE];
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+int proceed = 0;
 char SUSPICION_RATES[SIZE_OF_STATE];
 
 
@@ -92,12 +94,11 @@ int main(int argc, char **argv) {
     members = (Member *)malloc(number_of_member_in_resistant_group * sizeof(Member));
 
 
-    pthread_barrier_init(&barrier, NULL, number_of_member_in_resistant_group );
+//    pthread_barrier_init(&barrier, NULL, number_of_member_in_resistant_group );
 
     // choose one member to be spy
     spy_index = rand() % number_of_member_in_resistant_group;
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
-        printf("====> Lets create member %d\n", i);
         members[i].id = i;
         if (i == spy_index) {
             if (pthread_create(&members[i].thread_id, NULL, spy_member, &members[i].id) != 0) {
@@ -114,10 +115,11 @@ int main(int argc, char **argv) {
 
     shared_data->communication_pid[shared_data->array_counter][2]++;
 
-    int* results[number_of_member_in_resistant_group];
+
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
-        pthread_join(members[i].thread_id, (void**)&results[i]);
-        printf("Resistant group: Thread %d returned %d\n",i, *results[i]);
+        printf("===> Resistant group: Waiting for thread %d\n", i);
+        pthread_join(members[i].thread_id, NULL);
+        printf("Resistant group: Thread %d returned %d\n",i, members[i].state_after_attack);
     }
 
     if ( (unlink(fifo_name)) == 0 ) {
@@ -142,79 +144,67 @@ void handle_SIGUSR1() {
     msgsnd(msgid, &msg, sizeof(msg), 0);
 
     printf("Resistant group: Received information from citizen\n");
-    sleep(atoi(info.content));
 }
 
 void handle_SIGUSR2() {
-    memset(STATE, 0, sizeof(STATE));
-    memset(STATE, 0, sizeof(SUSPICION_RATES));
+    memset(SUSPICION_RATES, 0, sizeof(SUSPICION_RATES));
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
 
         int state = rand() % 5; // 0-4 kill, caught, injured severely, injured lightly and normal
         if (i == spy_index) {
             state = rand() % 2 == 0 ? HEALTHY : INJURED_LIGHTLY;
         }
+        members[i].state_after_attack = state;
+
         sem_wait(sem);
-        switch (state) {
-            case KILLED:
-                strcat(STATE, "KILLED ");
-                shared_data->number_of_killed_resistant_group++;
-                break;
-            case CAUGHT:
-                strcat(STATE, "CAUGHT ");
-                shared_data->number_of_killed_caught_counter_espionage_agency++;
-                break;
-            case INJURED_SEVERELY:
-                strcat(STATE, "INJURED_SEVERELY ");
-                shared_data->number_of_injured_resistant_group++;
-                break;
-            case INJURED_LIGHTLY:
-                strcat(STATE, "INJURED_LIGHTLY ");
-                shared_data->number_of_injured_resistant_group++;
-                break;
-            case HEALTHY:
-                strcat(STATE, "HEALTHY ");
-                break;
+        if (state == KILLED) {
+            shared_data->number_of_killed_resistant_group++;
+        }else if (state == INJURED_SEVERELY || state == INJURED_LIGHTLY) {
+            shared_data->number_of_injured_resistant_group++;
         }
+
         sem_post(sem);
         char temp[10];
         sprintf(temp, "%d", members[i].suspicion_rate);  // Convert the number to string
         strcat(SUSPICION_RATES, temp);    // Append the number to the result
         strcat(SUSPICION_RATES, " ");
     }
-    pthread_barrier_wait(&barrier);
+
+
+    pthread_mutex_lock(&mutex);
+    proceed = 1;
+    pthread_cond_broadcast(&cond); // Wake up all waiting threads
+    pthread_mutex_unlock(&mutex);
     go_out = 1;
 
 
-    printf("%s\n", STATE);
     Message_Queue msg;
     msg.message_type = 2;
     msg.group_id = getpid();
     snprintf(msg.suspicion_rates, sizeof(msg.suspicion_rates), "%s", SUSPICION_RATES);
     msgsnd(msgid, &msg, sizeof(msg), 0);
 
-//    if (msgrcv(msgid, &msg, sizeof(msg), 3,0) > 0) {
-//        if (msg.the_spy != -1) {
-//            printf("Resistant group: The spy is %d\n", msg.the_spy);
-//        }
-//    }
+    if (msgrcv(msgid, &msg, sizeof(msg), 3,0) > 0) {
+        if (msg.the_spy != -1) {
+            printf("Resistant group: The spy is %d\n", msg.the_spy);
+        }
+    }
 }
 
 void* normal_member(void* arg) {
     int id = *(int*)arg;
-    int state;
     printf("Resistant group member %d started\n", id);
 
-    pthread_barrier_wait(&barrier);
+    pthread_mutex_lock(&mutex);
 
-    state = get_state(id);
+    while (!proceed) {
+        pthread_cond_wait(&cond, &mutex);
+    }
+    pthread_mutex_unlock(&mutex);
 
 
     printf("Resistant group member %d finished\n", id);
-    // Allocate a return value dynamically
-    int* result = malloc(sizeof(int));
-    *result = state;
-    pthread_exit(result);
+    return NULL;
 }
 
 
@@ -222,7 +212,7 @@ void* spy_member(void* arg) {
     int id = *(int*)arg;
     int created_time = time(NULL);
     printf("Spy member %d started\n", id);
-    int state;
+
     char fifo_name[256];
     int pid = get_enemy_id();
     snprintf(fifo_name, sizeof(fifo_name), "/tmp/fifo_to_write_at_enemy_%d", pid);
@@ -246,11 +236,8 @@ void* spy_member(void* arg) {
 
     go_out = 0;
 
-    state = get_state(id);
     printf("Spy member %d finished\n", id);
-    int* result = malloc(sizeof(int));
-    *result = state;
-    pthread_exit(result);
+    return NULL;
 }
 
 
@@ -262,22 +249,4 @@ int get_enemy_id() {
         }
     }
     return -1;
-}
-
-int get_state(int id) {
-    char *state = strtok(STATE, " ");
-    for (int i = 0; i < id; i++) {
-        state = strtok(NULL, " ");
-    }
-    if (strcmp(state, "KILLED") == 0) {
-        return KILLED;
-    } else if (strcmp(state, "CAUGHT") == 0) {
-        return CAUGHT;
-    } else if (strcmp(state, "INJURED_SEVERELY") == 0) {
-        return INJURED_SEVERELY;
-    } else if (strcmp(state, "INJURED_LIGHTLY") == 0) {
-        return INJURED_LIGHTLY;
-    } else {
-        return HEALTHY;
-    }
 }

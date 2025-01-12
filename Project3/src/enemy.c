@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
     int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
+    int fifo_gui = open(FIFO_NAME, O_WRONLY);
 
 
     shared_data->communication_pid[shared_data->array_counter++][2]++;
@@ -48,13 +49,13 @@ int main(int argc, char **argv) {
         if (read(fifo_fd, &info, sizeof(Information)) > 0) {
 
             if (info.type == RESISTANT_GROUP) {
-                printf("ENEMY: From RESISTANT_GROUP Received information Time spent = %s \n", info.content);
+                send_info_to_gui(fifo_gui,ENEMY_RECEIVE_FROM_RESISTANT_GROUP, info.id, info.content);
                 int time_spent = atoi(info.content);
 
                 // modify probability to attack use suitable formula
                 probability_to_attack += time_spent;
             }else if (info.type == CITIZEN) {
-                printf("ENEMY: From CITIZEN Received information Time spent = %s \n", info.content);
+                send_info_to_gui(fifo_gui,ENEMY_RECEIVE_FROM_CITIZEN, info.id, info.content);
                 int time_spent = atoi(info.content);
 
                 // modify probability to attack use suitable formula
@@ -62,7 +63,7 @@ int main(int argc, char **argv) {
             }
 
             if (probability_to_attack > config.min_probability_to_attack) {
-                printf("ENEMY: Attack to resistance group\n");
+                send_info_to_gui(fifo_gui,ENEMY_ATTACK_RESISTANT_GROUP,info.id, "hahaha");
                 kill(pid_for_resistance_group, SIGUSR2);
                 probability_to_attack = 0;
             }

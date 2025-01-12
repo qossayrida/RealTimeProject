@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 #define SIZE_OF_RESISTANT_GROUP 200
-#define SIZE_OF_STATE 200
+#define SIZE_OF_STATE 100
 #define FIFO_NAME "/tmp/project3_fifo_public"
 
 enum {
@@ -26,7 +26,9 @@ enum {
 enum {
     COUNTER_ESPIONAGE_AGENCY,
     RESISTANT_GROUP,
-    ENEMY,
+    ENEMY_RECEIVE_FROM_RESISTANT_GROUP,
+    ENEMY_RECEIVE_FROM_CITIZEN,
+    ENEMY_ATTACK_RESISTANT_GROUP,
     CITIZEN
 };
 
@@ -74,6 +76,6 @@ typedef struct {
 
 int load_config(const char *filename, Config *config);
 void print_config(const Config *config);
-
+void send_info_to_gui(int fifo_fd,int type, int id, char *content);
 
 #endif // CONFIG_H
