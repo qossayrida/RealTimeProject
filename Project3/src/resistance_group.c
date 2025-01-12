@@ -171,16 +171,12 @@ void handle_SIGUSR1() {
         msg.citizen_id = info.id;
         msg.time_spent = atoi(info.content);
         msgsnd(msgid, &msg, sizeof(msg), 0);
-
-        printf("Resistant group: Received information from citizen\n");
     }else{
         decrement_the_counter_in_shared_data();
-        if ( (unlink(fifo_name)) == 0 ) {
-            printf("fifo: fifo has been removed resistance group %d\n",getpid());
-        }
+        unlink(fifo_name);
+
 
         free(members);
-        printf("Resistant group: Terminating\n");
         exit(EXIT_SUCCESS);
     }
 }
