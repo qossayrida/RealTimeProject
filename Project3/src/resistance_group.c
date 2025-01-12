@@ -62,7 +62,6 @@ int get_state(int id);
 
 void send_state_after_attack_to_gui();
 
-void decrement_the_counter_in_shared_data();
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -162,8 +161,7 @@ int main(int argc, char **argv) {
         }
     }
 
-
-    decrement_the_counter_in_shared_data();
+    printf("----------------> i received signal %d\n",shared_data->simulation_status);
     if ((unlink(fifo_name)) == 0) {
         printf("Resistant group %d: fifo has been removed\n", getpid());
     }
@@ -173,6 +171,8 @@ int main(int argc, char **argv) {
 }
 
 void handle_SIGUSR1() {
+    printf("----------------> i received signal %d\n",shared_data->simulation_status);
+    fflush(stdout);
     if (shared_data->simulation_status) {
         Information info;
         read(fifo_fd, &info, sizeof(Information));
@@ -184,7 +184,6 @@ void handle_SIGUSR1() {
         msg.time_spent = atoi(info.content);
         msgsnd(msgid, &msg, sizeof(msg), 0);
     } else {
-        decrement_the_counter_in_shared_data();
         if ((unlink(fifo_name)) == 0) {
             printf("Resistant group %d: fifo has been removed\n", getpid());
         }
@@ -329,12 +328,3 @@ void send_state_after_attack_to_gui() {
     send_info_to_gui(fifo_gui, RESISTANT_GROUP_STATE_AFTER_ATTACK, getpid(), state_str);
 }
 
-void decrement_the_counter_in_shared_data() {
-    int pid = getpid();
-    for (int i = 0; i < shared_data->array_counter; i++) {
-        if (shared_data->communication_pid[i][0] == pid) {
-            shared_data->communication_pid[i][2]--;
-            break;
-        }
-    }
-}

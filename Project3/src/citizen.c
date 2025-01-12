@@ -6,12 +6,14 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include <sys/shm.h>
+#include <time.h>
 #include <sys/stat.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
 #include <string.h>
 #include <signal.h>
 #include "config.h"
+#include "sem.h"
 
 int my_type;
 
@@ -37,13 +39,22 @@ int main(int argc, char **argv) {
     int fifo_gui_fd = open(FIFO_NAME, O_WRONLY);
     send_info_to_gui(fifo_gui_fd, CITIZEN_CREATED, getpid(), my_type == SPY ? "Spy" : "Normal");
 
+    srand(time(NULL));
+    int sem = semget(1234, 1, 0666);
+
+
     while (shared_data->simulation_status) {
         if (shared_data->array_counter != 0) {
 
+            sem_wait(sem);
             int resistance_group_to_meet = rand() % shared_data->array_counter;
-
-            if (shared_data->communication_pid[resistance_group_to_meet][2] == 2) {
+            int access = shared_data->communication_pid[resistance_group_to_meet][2] == 2 ? 1 : 0;
+            if (access) {
                 shared_data->communication_pid[resistance_group_to_meet][2]++;
+            }
+            sem_post(sem);
+
+            if (access) {
                 int resistance_group_pid = shared_data->communication_pid[resistance_group_to_meet][0];
 
                 char temp[20];
@@ -73,7 +84,7 @@ int main(int argc, char **argv) {
                     write(enemy_fifo_fd, &info, sizeof(Information));
                     close(enemy_fifo_fd);
                 }
-                sleep(rand() % 3 + 1);
+                sleep(rand() % 3 + 2);
                 send_info_to_gui(fifo_gui, CITIZEN_MEET_RESISTANT_GROUP_END, getpid(), temp);
                 shared_data->communication_pid[resistance_group_to_meet][2]--;
             }
