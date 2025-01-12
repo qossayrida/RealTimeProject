@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <time.h>
 #include <sys/wait.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
@@ -22,9 +23,10 @@ int main(int argc, char **argv) {
     }
     int pid_for_resistance_group = atoi(argv[1]);
     int number_of_member_in_resistant_group = atoi(argv[2]);
+    int type= atoi(argv[3]);
 
-    printf("Counter espionage agency: PID for resistance group %d\n", pid_for_resistance_group);
-    printf("Counter espionage agency: Number of members %d\n", number_of_member_in_resistant_group);
+    printf("Enemy: PID for resistance group %d\n", pid_for_resistance_group);
+    printf("Enemy: Number of members %d\n", number_of_member_in_resistant_group);
 
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
@@ -45,27 +47,42 @@ int main(int argc, char **argv) {
 
     int probability_to_attack = 0;
     while (shared_data->simulation_status) {
-        Information info;
-        if (read(fifo_fd, &info, sizeof(Information)) > 0) {
+        if (type == For_Resistant_Group) {
+            Information info;
+            if (read(fifo_fd, &info, sizeof(Information)) > 0) {
 
-            if (info.type == RESISTANT_GROUP) {
-                send_info_to_gui(fifo_gui,ENEMY_RECEIVE_FROM_RESISTANT_GROUP, info.id, info.content);
-                int time_spent = atoi(info.content);
+                if (info.type == RESISTANT_GROUP) {
+                    send_info_to_gui(fifo_gui,ENEMY_RECEIVE_FROM_RESISTANT_GROUP, getpid(), info.content);
+                    int time_spent = atoi(info.content);
 
-                // modify probability to attack use suitable formula
-                probability_to_attack += time_spent;
-            }else if (info.type == CITIZEN) {
-                send_info_to_gui(fifo_gui,ENEMY_RECEIVE_FROM_CITIZEN, info.id, info.content);
-                int time_spent = atoi(info.content);
+                    // modify probability to attack use suitable formula
+                    probability_to_attack += time_spent;
+                }else if (info.type == CITIZEN) {
+                    send_info_to_gui(fifo_gui,ENEMY_RECEIVE_FROM_CITIZEN, getpid(), info.content);
+                    int time_spent = atoi(info.content);
 
-                // modify probability to attack use suitable formula
-                probability_to_attack += time_spent;
+                    // modify probability to attack use suitable formula
+                    probability_to_attack += time_spent;
+                }
+
+                if (probability_to_attack > config.min_probability_to_attack) {
+                    send_info_to_gui(fifo_gui,ENEMY_ATTACK_RESISTANT_GROUP,getpid(), "make pro=0");
+                    kill(pid_for_resistance_group, SIGUSR2);
+                    probability_to_attack = 0;
+                }
             }
+        } else if (type == For_Espionage_Agency) {
 
-            if (probability_to_attack > config.min_probability_to_attack) {
-                send_info_to_gui(fifo_gui,ENEMY_ATTACK_RESISTANT_GROUP,info.id, "make pro=0");
-                kill(pid_for_resistance_group, SIGUSR2);
-                probability_to_attack = 0;
+            int created_time = time(NULL);
+            printf("Counter espionage Enemy started\n");
+
+            while (shared_data->simulation_status) {
+                int time_spent = time(NULL) - created_time;
+                if (time_spent > 10) {
+                    kill(pid_for_resistance_group, SIGUSR2);
+                    send_info_to_gui(fifo_gui,ENEMY_ATTACK_COUNTER_ESPIONAGE_AGENCY,getpid(), "");
+                    created_time = time(NULL);
+                }
             }
         }
     }

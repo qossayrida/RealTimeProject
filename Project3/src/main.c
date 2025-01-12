@@ -23,9 +23,12 @@ int fifo_fd;
 pid_t counter_espionage_agency_pid;
 
 void handle_alarm();
+
 pid_t create_counter_espionage_agency(const char *program, int shm_id);
+
 void create_citizens(int shm_id);
-void create_resistant_group_and_enemy(int shm_id,int type);
+
+void create_resistant_group_and_enemy(int shm_id, int type);
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -49,7 +52,7 @@ int main(int argc, char **argv) {
     init_semaphore();
 
     counter_espionage_agency_pid = create_counter_espionage_agency("./bin/counter_espionage_agency", shm_id);
-    create_resistant_group_and_enemy(shm_id,  Social_Type);
+    create_resistant_group_and_enemy(shm_id, Social_Type);
     create_citizens(shm_id);
 
     signal(SIGALRM, handle_alarm);
@@ -64,7 +67,7 @@ int main(int argc, char **argv) {
     fifo_fd = open(FIFO_NAME, O_RDONLY | O_NONBLOCK);
 
 
-    while (1){
+    while (shared_data->simulation_status) {
         int bytes_read = read(fifo_fd, info_buffer, sizeof(info_buffer));
         int num_info = (bytes_read != -1) ? bytes_read / sizeof(Information) : 0;
 
@@ -75,41 +78,38 @@ int main(int argc, char **argv) {
                     printf("Main: Received information from counter espionage agency: %s\n", info_buffer[i].content);
                     break;
                 case RESISTANT_GROUP_STATE_AFTER_ATTACK:
-                    printf("Main: resistant group %d state after attack: %s\n",info_buffer[i].id, info_buffer[i].content);
+                    printf("Main: resistant group %d state after attack: %s\n", info_buffer[i].id,
+                           info_buffer[i].content);
                     break;
                 case ENEMY_RECEIVE_FROM_RESISTANT_GROUP:
-                    printf("Main: enemy receive from resistance group : %s\n", info_buffer[i].content);
+                    printf("Main: enemy %d receive from resistance group : %s\n", info_buffer[i].id,
+                           info_buffer[i].content);
                     break;
                 case ENEMY_RECEIVE_FROM_CITIZEN:
-                    printf("Main: enemy receive from citizen : %s\n", info_buffer[i].content);
+                    printf("Main: enemy %d receive from citizen : %s\n", info_buffer[i].id, info_buffer[i].content);
                     break;
                 case ENEMY_ATTACK_RESISTANT_GROUP:
-                    printf("Main: enemy want to attack resistance group: %s\n", info_buffer[i].content);
+                    printf("Main: enemy %d attack resistant group: %s\n", info_buffer[i].id, info_buffer[i].content);
                     break;
-                case CITIZEN:
-                    printf("Main: Received information from citizen: %s\n", info_buffer[i].content);
+                case CITIZEN_CREATED:
+                    printf("Main: citizen %d created: %s\n", info_buffer[i].id, info_buffer[i].content);
                     break;
             }
 
-            if ( (shared_data->number_of_killed_resistant_group >= config.killed_resistance_members_threshold) ||
-                 (shared_data->number_of_injured_resistant_group >= config.injured_resistance_members_threshold) ||
-                 (shared_data->number_of_killed_caught_counter_espionage_agency >= config.killed_caught_counter_members_threshold) ) {
-                    printf("Main: Resistance group has been killed\n");
-                    handle_alarm();
+            if ((shared_data->number_of_killed_resistant_group >= config.killed_resistance_members_threshold) ||
+                (shared_data->number_of_injured_resistant_group >= config.injured_resistance_members_threshold) ||
+                (shared_data->number_of_killed_caught_counter_espionage_agency >=
+                 config.killed_caught_counter_members_threshold)) {
+                printf("Main: Resistance group has been killed\n");
+                shared_data->simulation_status = 0;
             }
         }
     }
 
-    printf("Main: exit\n");
-    return 0;
-}
-
-void handle_alarm() {
-    printf("Main: Creating new resistant group\n");
     kill(counter_espionage_agency_pid, SIGUSR1);
-    shared_data->simulation_status = 0;
+
     close(fifo_fd);
-    if ((unlink(FIFO_NAME)) == 0 ) {
+    if ((unlink(FIFO_NAME)) == 0) {
         printf("MAIN: fifo has been removed\n");
     }
 
@@ -119,7 +119,15 @@ void handle_alarm() {
         printf("Enemy %d\n", shared_data->communication_pid[i][1]);
     }
 
-    exit(0);
+
+    printf("Main: exit\n");
+    return 0;
+}
+
+void handle_alarm() {
+    printf("Main: **** Creating new resistant group ****\n");
+    create_resistant_group_and_enemy(shm_id, Social_Type);
+    alarm(config.time_create_resistant_group);
 }
 
 
@@ -137,12 +145,33 @@ pid_t create_counter_espionage_agency(const char *program, int shm_id) {
         exit(1);
     }
 
+
+    pid_t enemy = fork();
+    if (enemy == 0) { // Child process
+        char shm_id_str[10];
+        char pid_str[20];
+        char number_of_member_in_counter_espionage_str[10];
+        char type_str[10];
+        sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
+        sprintf(type_str, "%d", For_Espionage_Agency);
+        setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
+        snprintf(pid_str, sizeof(pid_str), "%d", pid);
+        sprintf(number_of_member_in_counter_espionage_str, "%d", config.number_of_member_in_counter_espionage_agency);
+        execlp("./bin/enemy", "./bin/enemy", pid_str, number_of_member_in_counter_espionage_str, type_str, NULL);
+        perror("execlp failed");
+        exit(1); // Exit if execlp fails
+    } else if (enemy < 0) {
+        perror("Fork failed");
+        exit(1);
+    }
+
     return pid;
 }
 
 void create_citizens(int shm_id) {
     srand(time(NULL));
-    int number_of_citizen = rand() % (config.max_number_of_citizen - config.min_number_of_citizen + 1) + config.min_number_of_citizen;
+    int number_of_citizen =
+            rand() % (config.max_number_of_citizen - config.min_number_of_citizen + 1) + config.min_number_of_citizen;
     int percentage_of_spy = 30;
 
     // Create citizens process with random type (spy or normal)
@@ -165,10 +194,12 @@ void create_citizens(int shm_id) {
     }
 }
 
-void create_resistant_group_and_enemy(int shm_id,int type) {
+void create_resistant_group_and_enemy(int shm_id, int type) {
 
     srand(time(NULL));
-    int number_of_member_in_resistant_group = rand() % (config.max_number_member_in_resistant_group - config.min_number_member_in_resistant_group + 1) + config.min_number_member_in_resistant_group;
+    int number_of_member_in_resistant_group =
+            rand() % (config.max_number_member_in_resistant_group - config.min_number_member_in_resistant_group + 1) +
+            config.min_number_member_in_resistant_group;
     pid_t pid = fork();
     if (pid == 0) { // Child process
         char shm_id_str[10];
@@ -178,7 +209,8 @@ void create_resistant_group_and_enemy(int shm_id,int type) {
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
         sprintf(type_str, "%d", type);
         sprintf(number_of_member_in_resistant_group_str, "%d", number_of_member_in_resistant_group);
-        execlp("./bin/resistance_group", "./bin/resistance_group", type_str,number_of_member_in_resistant_group_str, NULL);
+        execlp("./bin/resistance_group", "./bin/resistance_group", type_str, number_of_member_in_resistant_group_str,
+               NULL);
         perror("execlp failed");
         exit(1); // Exit if execlp fails
     } else if (pid < 0) {
@@ -188,15 +220,17 @@ void create_resistant_group_and_enemy(int shm_id,int type) {
     shared_data->communication_pid[shared_data->array_counter][0] = pid;
 
     pid_t enemy_pid = fork();
-    if (enemy_pid==0) {
+    if (enemy_pid == 0) {
         char shm_id_str[10];
         char pid_str[20];
         char number_of_member_in_resistant_group_str[10];
+        char type_str[10];
         sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
+        sprintf(type_str, "%d", For_Resistant_Group);
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
         snprintf(pid_str, sizeof(pid_str), "%d", pid);
         sprintf(number_of_member_in_resistant_group_str, "%d", number_of_member_in_resistant_group);
-        execlp("./bin/enemy", "./bin/enemy",pid_str,number_of_member_in_resistant_group_str, NULL);
+        execlp("./bin/enemy", "./bin/enemy", pid_str, number_of_member_in_resistant_group_str, type_str, NULL);
         perror("execlp failed");
         exit(1); // Exit if execlp fails
     } else if (enemy_pid < 0) {

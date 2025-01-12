@@ -34,7 +34,8 @@ int main(int argc, char **argv) {
     SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
     int fifo_gui = open(FIFO_NAME, O_WRONLY);
 
-    printf("Citizen: %s\n", my_type == SPY ? "Spy" : "Normal");
+    int fifo_gui_fd = open(FIFO_NAME, O_WRONLY);
+    send_info_to_gui(fifo_gui_fd,CITIZEN_CREATED,getpid(), my_type == SPY ? "Spy" : "Normal");
 
     while (shared_data->simulation_status) {
         if (shared_data->array_counter != 0) {

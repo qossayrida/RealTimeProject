@@ -14,7 +14,15 @@
 #include "config.h"
 #include "linked_list.h"
 
+typedef struct {
+    pthread_t thread_id;
+    int id;
+    int creation_time;
+    int is_killed_caught_counter_espionage_agency;
+} Member;
 Config config;
+Member *members;
+
 ListPtr citizen_list;
 SharedMemory *shared_data;
 key_t key;
@@ -23,20 +31,25 @@ int fifo_gui;
 int status = 1;
 
 
+
 // user defined threshold after questioning
 
-void* counter_espionage_agency_member(void* arg);
-void *read_from_queue(void *arg);
-void check_members_after_attack(Message_Queue msg);
-void handle_SIGUSR1();
-void handle_SIGUSR2();
-void regular_analyzes();
+void *counter_espionage_agency_member(void *arg);
 
+void *read_from_queue(void *arg);
+
+void check_members_after_attack(Message_Queue msg);
+
+void handle_SIGUSR1();
+
+void handle_SIGUSR2();
+
+void regular_analyzes();
 
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
+    shared_data = (SharedMemory *) shmat(shm_id, NULL, 0);
     config = shared_data->config;
     citizen_list = NULL;
 
@@ -51,25 +64,36 @@ int main() {
         return EXIT_FAILURE;
     }
 
+
     signal(SIGUSR1, handle_SIGUSR1);
     signal(SIGUSR2, handle_SIGUSR2);
+    members = (Member *) malloc(config.number_of_member_in_counter_espionage_agency * sizeof(Member));
 
 
-    pthread_t threads[config.number_of_member_in_counter_espionage_agency];
     int args[config.number_of_member_in_counter_espionage_agency];
 
     for (int i = 0; i < config.number_of_member_in_counter_espionage_agency; i++) {
         args[i] = i;
-        if (pthread_create(&threads[i], NULL, counter_espionage_agency_member, &args[i]) != 0) {
+        members[i].creation_time = time(NULL);
+        if (pthread_create(&members[i].thread_id, NULL, counter_espionage_agency_member, &args[i]) != 0) {
             perror("Thread creation failed");
             return EXIT_FAILURE;
         }
     }
 
-    for (int i = 0; i < config.number_of_member_in_counter_espionage_agency; i++) {
-        pthread_join(threads[i], NULL);
+
+    while (shared_data->simulation_status) {
+        for (int i = 0; i < config.number_of_member_in_counter_espionage_agency; i++) {
+
+            pthread_join(members[i].thread_id, NULL);
+            if (members[i].is_killed_caught_counter_espionage_agency == 1) {
+
+            }
+
+        }
     }
     pthread_join(queue_thread, NULL);
+    free(members);
 
 
     printf("Counter espionage agency: Terminating\n");
@@ -87,11 +111,22 @@ void handle_SIGUSR1() {
 
 
 void handle_SIGUSR2() {
+    for (int i = 0; i < config.number_of_member_in_counter_espionage_agency; i++) {
+        if ((time(NULL) - members[i].creation_time) > 10) {
+            int state = rand() % 3; // 0-2 kill, caught,normal
+            if (state == 0 || state == 1) {
+                members[i].is_killed_caught_counter_espionage_agency = 1;
+            }
+
+        }
+
+    }
+
 
 }
 
-void* counter_espionage_agency_member(void* arg) {
-    int id = *(int*)arg;
+void *counter_espionage_agency_member(void *arg) {
+    int id = *(int *) arg;
 
     int created_time = time(NULL);
     printf("Counter espionage agency member %d started\n", id);
@@ -100,7 +135,10 @@ void* counter_espionage_agency_member(void* arg) {
         if (time_spent > 2) {
             regular_analyzes();
         }
-        read_from_queue(NULL);
+        if (members[id].is_killed_caught_counter_espionage_agency == 1) {
+            printf("Counter espionage agency member %d is killed or caught\n", id);
+            break;
+        }
     }
 
 
@@ -110,15 +148,15 @@ void* counter_espionage_agency_member(void* arg) {
 
 void *read_from_queue(void *arg) {
     Message_Queue msg;
-    while(status){
-        if (msgrcv(msgid, &msg, sizeof(msg), 1,0) > 0) {
+    while (status) {
+        if (msgrcv(msgid, &msg, sizeof(msg), 1, 0) > 0) {
             printf("Counter espionage agency: Received message from citizen\n");
             printf("Group ID: %d, Citizen ID: %d, Time Spent: %d\n", msg.group_id, msg.citizen_id, msg.time_spent);
 
-            send_info_to_gui(fifo_gui,COUNTER_ESPIONAGE_LOG_ABOUT_CITIZEN,msg.citizen_id, "");
-            appendNode(&citizen_list,msg.group_id,msg.citizen_id,msg.time_spent);
+            send_info_to_gui(fifo_gui, COUNTER_ESPIONAGE_LOG_ABOUT_CITIZEN, msg.citizen_id, "");
+            appendNode(&citizen_list, msg.group_id, msg.citizen_id, msg.time_spent);
         }
-        if (msgrcv(msgid, &msg, sizeof(msg), 2,0) > 0) {
+        if (msgrcv(msgid, &msg, sizeof(msg), 2, 0) > 0) {
             printf("Counter espionage agency: Received message from attack\n");
             check_members_after_attack(msg);
 
@@ -131,24 +169,24 @@ void *read_from_queue(void *arg) {
 }
 
 
-void check_members_after_attack(Message_Queue msg){
-        int the_spy=-1;
-        int member_number=0;
+void check_members_after_attack(Message_Queue msg) {
+    int the_spy = -1;
+    int member_number = 0;
 
     char *suspicion_rate = strtok(msg.suspicion_rates, " ");
 
     while (suspicion_rate != NULL) {
 
-        if (atoi(suspicion_rate)>config.suspicion_rate_threshold) {
+        if (atoi(suspicion_rate) > config.suspicion_rate_threshold) {
             int randNum = rand() % 100;
-            if (randNum >=80) {
-            the_spy=member_number;
-            break;
+            if (randNum >= 80) {
+                the_spy = member_number;
+                break;
 
             }
         }
         member_number++;
-        suspicion_rate= strtok(NULL, " ");
+        suspicion_rate = strtok(NULL, " ");
     }
     Message_Queue msg1;
     msg1.message_type = 3;
@@ -158,8 +196,8 @@ void check_members_after_attack(Message_Queue msg){
 }
 
 
-void regular_analyzes(){
-    Node* temp = citizen_list;
+void regular_analyzes() {
+    Node *temp = citizen_list;
     int counts[1000] = {0};  // assuming there are no more than 1000 unique citizen IDs
 
     while (temp != NULL) {

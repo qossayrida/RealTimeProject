@@ -10,14 +10,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c217dcae-af29-4fa4-a86d-15aa3fa19e9b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/../bin/enemy" beforeDir="false" afterPath="$PROJECT_DIR$/../bin/enemy" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../bin/main_program" beforeDir="false" afterPath="$PROJECT_DIR$/../bin/main_program" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../config.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../include/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../include/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../include/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/../include/config.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../obj/enemy.o" beforeDir="false" afterPath="$PROJECT_DIR$/../obj/enemy.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../obj/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/../obj/main.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/citizen.c" beforeDir="false" afterPath="$PROJECT_DIR$/citizen.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/counter_espionage_agency.c" beforeDir="false" afterPath="$PROJECT_DIR$/counter_espionage_agency.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/enemy.c" beforeDir="false" afterPath="$PROJECT_DIR$/enemy.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resistance_group.c" beforeDir="false" afterPath="$PROJECT_DIR$/resistance_group.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,23 +42,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/qossay/Documents/RealTimeProject/Project3/src&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "/home/qossay/Documents/RealTimeProject/Project3/src",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
@@ -74,7 +79,7 @@
       <workItem from="1736341974303" duration="40000" />
       <workItem from="1736342023225" duration="4455000" />
       <workItem from="1736436361235" duration="35983000" />
-      <workItem from="1736593528575" duration="32593000" />
+      <workItem from="1736593528575" duration="40155000" />
     </task>
     <servers />
   </component>
