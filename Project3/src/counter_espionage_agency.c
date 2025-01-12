@@ -18,6 +18,7 @@ typedef struct {
     pthread_t thread_id;
     int id;
     int creation_time;
+    int state_after_attack;
     int is_killed_caught_counter_espionage_agency;
 } Member;
 Config config;
@@ -120,6 +121,7 @@ void handle_SIGUSR2() {
     for (int i = 0; i < config.number_of_member_in_counter_espionage_agency; i++) {
         if ((time(NULL) - members[i].creation_time) > 10) {
             int state = rand() % 3; // 0-2 kill, caught,normal
+            members[i].state_after_attack = state;
             if (state == 0 || state == 1) {
                 members[i].is_killed_caught_counter_espionage_agency = 1;
             }
