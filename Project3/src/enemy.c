@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
             }
 
             if (probability_to_attack > config.min_probability_to_attack) {
-                send_info_to_gui(fifo_gui,ENEMY_ATTACK_RESISTANT_GROUP,info.id, "hahaha");
+                send_info_to_gui(fifo_gui,ENEMY_ATTACK_RESISTANT_GROUP,info.id, "make pro=0");
                 kill(pid_for_resistance_group, SIGUSR2);
                 probability_to_attack = 0;
             }

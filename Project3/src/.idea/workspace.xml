@@ -14,7 +14,7 @@
       <change beforePath="$PROJECT_DIR$/../include/config.h" beforeDir="false" afterPath="$PROJECT_DIR$/../include/config.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/citizen.c" beforeDir="false" afterPath="$PROJECT_DIR$/citizen.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.c" beforeDir="false" afterPath="$PROJECT_DIR$/config.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/counter_espionage_agency.c" beforeDir="false" afterPath="$PROJECT_DIR$/counter_espionage_agency.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/enemy.c" beforeDir="false" afterPath="$PROJECT_DIR$/enemy.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/main.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resistance_group.c" beforeDir="false" afterPath="$PROJECT_DIR$/resistance_group.c" afterDir="false" />
@@ -74,7 +74,7 @@
       <workItem from="1736341974303" duration="40000" />
       <workItem from="1736342023225" duration="4455000" />
       <workItem from="1736436361235" duration="35983000" />
-      <workItem from="1736593528575" duration="26477000" />
+      <workItem from="1736593528575" duration="32593000" />
     </task>
     <servers />
   </component>

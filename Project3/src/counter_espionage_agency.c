@@ -19,6 +19,7 @@ ListPtr citizen_list;
 SharedMemory *shared_data;
 key_t key;
 int msgid;
+int fifo_gui;
 int status = 1;
 
 
@@ -41,7 +42,7 @@ int main() {
 
     key = ftok("/tmp/citizen_list_queue", 65);
     msgid = msgget(key, 0666 | IPC_CREAT);
-
+    fifo_gui = open(FIFO_NAME, O_WRONLY);
 
     pthread_t queue_thread;
     // create single thread to read from message queue
@@ -113,6 +114,8 @@ void *read_from_queue(void *arg) {
         if (msgrcv(msgid, &msg, sizeof(msg), 1,0) > 0) {
             printf("Counter espionage agency: Received message from citizen\n");
             printf("Group ID: %d, Citizen ID: %d, Time Spent: %d\n", msg.group_id, msg.citizen_id, msg.time_spent);
+
+            send_info_to_gui(fifo_gui,COUNTER_ESPIONAGE_LOG_ABOUT_CITIZEN,msg.citizen_id, "");
             appendNode(&citizen_list,msg.group_id,msg.citizen_id,msg.time_spent);
         }
         if (msgrcv(msgid, &msg, sizeof(msg), 2,0) > 0) {

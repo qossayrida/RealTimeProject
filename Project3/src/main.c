@@ -74,8 +74,8 @@ int main(int argc, char **argv) {
                 case COUNTER_ESPIONAGE_AGENCY:
                     printf("Main: Received information from counter espionage agency: %s\n", info_buffer[i].content);
                     break;
-                case RESISTANT_GROUP:
-                    printf("Main: Received information from resistant group: %s\n", info_buffer[i].content);
+                case RESISTANT_GROUP_STATE_AFTER_ATTACK:
+                    printf("Main: resistant group %d state after attack: %s\n",info_buffer[i].id, info_buffer[i].content);
                     break;
                 case ENEMY_RECEIVE_FROM_RESISTANT_GROUP:
                     printf("Main: enemy receive from resistance group : %s\n", info_buffer[i].content);

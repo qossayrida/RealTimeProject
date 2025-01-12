@@ -23,6 +23,11 @@ typedef struct {
     int suspicion_rate;
 } Member;
 
+typedef struct {
+    int id;
+    int sleep_time;
+} Argument;
+
 Config config;
 SharedMemory *shared_data;
 Member *members;
@@ -33,6 +38,8 @@ int fifo_fd;
 int go_out;
 int spy_index;
 int sem;
+int fifo_gui;
+int spy_detected_by_counter_espionage_agency;
 int number_of_member_in_resistant_group;
 pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -46,6 +53,7 @@ int get_enemy_id();
 void handle_SIGUSR1();
 void handle_SIGUSR2();
 int get_state(int id);
+void send_state_after_attack_to_gui();
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -72,11 +80,12 @@ int main(int argc, char **argv) {
     shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
     sem = semget(1234, 1, 0666);
     config = shared_data->config;
-    print_config(&config);
+    spy_detected_by_counter_espionage_agency=-1;
 
 
     key = ftok("/tmp/citizen_list_queue", 65);
     msgid = msgget(key, 0666 | IPC_CREAT);
+    fifo_gui = open(FIFO_NAME, O_WRONLY);
 
     char fifo_name[256];
     pid_t pid = getpid();
@@ -92,21 +101,20 @@ int main(int argc, char **argv) {
     signal(SIGUSR2, handle_SIGUSR2);
 
     members = (Member *)malloc(number_of_member_in_resistant_group * sizeof(Member));
-
-
-//    pthread_barrier_init(&barrier, NULL, number_of_member_in_resistant_group );
+    Argument *args = (Argument *)malloc(number_of_member_in_resistant_group * sizeof(Argument));
 
     // choose one member to be spy
     spy_index = rand() % number_of_member_in_resistant_group;
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
-        members[i].id = i;
+        args[i].id = i;
+        args[i].sleep_time = 0;
         if (i == spy_index) {
-            if (pthread_create(&members[i].thread_id, NULL, spy_member, &members[i].id) != 0) {
+            if (pthread_create(&members[i].thread_id, NULL, spy_member, &args[i]) != 0) {
                 perror("Thread creation failed");
                 return EXIT_FAILURE;
             }
         } else {
-            if (pthread_create(&members[i].thread_id, NULL, normal_member, &members[i].id) != 0) {
+            if (pthread_create(&members[i].thread_id, NULL, normal_member, &args[i]) != 0) {
                 perror("Thread creation failed");
                 return EXIT_FAILURE;
             }
@@ -115,12 +123,25 @@ int main(int argc, char **argv) {
 
     shared_data->communication_pid[shared_data->array_counter][2]++;
 
+    while (shared_data->simulation_status) {
+        for (int i = 0; i < number_of_member_in_resistant_group; i++) {
+            if ( i == spy_detected_by_counter_espionage_agency) {
+                continue;
+            }
 
-    for (int i = 0; i < number_of_member_in_resistant_group; i++) {
-        printf("===> Resistant group: Waiting for thread %d\n", i);
-        pthread_join(members[i].thread_id, NULL);
-        printf("Resistant group: Thread %d returned %d\n",i, members[i].state_after_attack);
+            pthread_join(members[i].thread_id, NULL);
+            if (members[i].state_after_attack == KILLED ||
+                members[i].state_after_attack == CAUGHT ||
+                members[i].state_after_attack == INJURED_SEVERELY) {
+
+            } else if (members[i].state_after_attack == INJURED_LIGHTLY) {
+
+            } else {
+
+            }
+        }
     }
+
 
     if ( (unlink(fifo_name)) == 0 ) {
         printf("fifo: fifo has been removed resistance group %d\n",getpid());
@@ -169,6 +190,7 @@ void handle_SIGUSR2() {
         strcat(SUSPICION_RATES, temp);    // Append the number to the result
         strcat(SUSPICION_RATES, " ");
     }
+    send_state_after_attack_to_gui();
 
 
     pthread_mutex_lock(&mutex);
@@ -186,14 +208,19 @@ void handle_SIGUSR2() {
 
     if (msgrcv(msgid, &msg, sizeof(msg), 3,0) > 0) {
         if (msg.the_spy != -1) {
-            printf("Resistant group: The spy is %d\n", msg.the_spy);
+            if (spy_detected_by_counter_espionage_agency !=-1){
+                char spy_number[10];
+                sprintf(spy_number, "%d", spy_detected_by_counter_espionage_agency);
+                send_info_to_gui(fifo_gui,COUNTER_ESPIONAGE_AGENCY_DETECTED_SPY,getpid(),spy_number);
+                spy_detected_by_counter_espionage_agency = msg.the_spy;
+            }
         }
     }
 }
 
 void* normal_member(void* arg) {
-    int id = *(int*)arg;
-    printf("Resistant group member %d started\n", id);
+    Argument *argument = (Argument*)arg;
+    printf("Resistant group member %d started\n", argument->id);
 
     pthread_mutex_lock(&mutex);
 
@@ -203,15 +230,15 @@ void* normal_member(void* arg) {
     pthread_mutex_unlock(&mutex);
 
 
-    printf("Resistant group member %d finished\n", id);
+    printf("Resistant group member %d finished\n", argument->id);
     return NULL;
 }
 
 
 void* spy_member(void* arg) {
-    int id = *(int*)arg;
+    Argument *argument = (Argument*)arg;
     int created_time = time(NULL);
-    printf("Spy member %d started\n", id);
+    printf("Spy member %d started\n", argument->id);
 
     char fifo_name[256];
     int pid = get_enemy_id();
@@ -222,7 +249,7 @@ void* spy_member(void* arg) {
     while (shared_data->simulation_status) {
         int time_spent = time(NULL) - created_time;
         if (time_spent > 2) {
-            printf("Spy member %d increase 2 second\n", id);
+            printf("Spy member %d increase 2 second\n", argument->id);
             Information info;
             info.type = RESISTANT_GROUP;
             snprintf(info.content, sizeof(info.content), "%d",time_spent);
@@ -236,7 +263,7 @@ void* spy_member(void* arg) {
 
     go_out = 0;
 
-    printf("Spy member %d finished\n", id);
+    printf("Spy member %d finished\n", argument->id);
     return NULL;
 }
 
@@ -249,4 +276,24 @@ int get_enemy_id() {
         }
     }
     return -1;
+}
+
+void send_state_after_attack_to_gui() {
+    char state_str[20];
+    memset(state_str, 0, sizeof(state_str));
+    for (int i = 0; i < number_of_member_in_resistant_group; i++) {
+        if (members[i].state_after_attack == KILLED) {
+            strcat(state_str, "0 ");
+        } else if (members[i].state_after_attack == CAUGHT) {
+            strcat(state_str, "1 ");
+        } else if (members[i].state_after_attack == INJURED_SEVERELY) {
+            strcat(state_str, "2 ");
+        } else if (members[i].state_after_attack == INJURED_LIGHTLY) {
+            strcat(state_str, "3 ");
+        } else {
+            strcat(state_str, "4 ");
+        }
+    }
+
+    send_info_to_gui(fifo_gui,RESISTANT_GROUP_STATE_AFTER_ATTACK,getpid(),state_str);
 }
