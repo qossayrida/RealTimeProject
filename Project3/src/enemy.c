@@ -22,13 +22,13 @@ int main(int argc, char **argv) {
     }
     int pid_for_resistance_group = atoi(argv[1]);
     int number_of_member_in_resistant_group = atoi(argv[2]);
-    int type= atoi(argv[3]);
+    int type = atoi(argv[3]);
 
     printf("Enemy: PID for resistance group %d\n", pid_for_resistance_group);
     printf("Enemy: Number of members %d\n", number_of_member_in_resistant_group);
 
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    SharedMemory *shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
+    SharedMemory *shared_data = (SharedMemory *) shmat(shm_id, NULL, 0);
     Config config = shared_data->config;
 
     char fifo_name[256];
@@ -51,13 +51,13 @@ int main(int argc, char **argv) {
             if (read(fifo_fd, &info, sizeof(Information)) > 0) {
 
                 if (info.type == RESISTANT_GROUP) {
-                    send_info_to_gui(fifo_gui,ENEMY_RECEIVE_FROM_RESISTANT_GROUP, getpid(), info.content);
+                    send_info_to_gui(fifo_gui, ENEMY_RECEIVE_FROM_RESISTANT_GROUP, getpid(), info.content);
                     int time_spent = atoi(info.content);
 
                     // modify probability to attack use suitable formula
                     probability_to_attack += time_spent;
-                }else if (info.type == CITIZEN) {
-                    send_info_to_gui(fifo_gui,ENEMY_RECEIVE_FROM_CITIZEN, getpid(), info.content);
+                } else if (info.type == CITIZEN) {
+                    send_info_to_gui(fifo_gui, ENEMY_RECEIVE_FROM_CITIZEN, getpid(), info.content);
                     int time_spent = atoi(info.content);
 
                     // modify probability to attack use suitable formula
@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
                 }
 
                 if (probability_to_attack > config.min_probability_to_attack) {
-                    send_info_to_gui(fifo_gui,ENEMY_ATTACK_RESISTANT_GROUP,getpid(), "make pro=0");
+                    send_info_to_gui(fifo_gui, ENEMY_ATTACK_RESISTANT_GROUP, getpid(), "make pro=0");
                     kill(pid_for_resistance_group, SIGUSR2);
                     probability_to_attack = 0;
                 }
@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
                 int time_spent = time(NULL) - created_time;
                 if (time_spent > 10) {
                     kill(pid_for_resistance_group, SIGUSR2);
-                    send_info_to_gui(fifo_gui,ENEMY_ATTACK_COUNTER_ESPIONAGE_AGENCY,getpid(), "");
+                    send_info_to_gui(fifo_gui, ENEMY_ATTACK_COUNTER_ESPIONAGE_AGENCY, getpid(), "");
                     created_time = time(NULL);
                 }
             }
@@ -87,8 +87,8 @@ int main(int argc, char **argv) {
     }
 
     close(fifo_fd);
-    if ( (unlink(fifo_name)) == 0 ) {
-        printf("fifo: fifo has been removed for enemy %d\n",getpid());
+    if ((unlink(fifo_name)) == 0) {
+        printf("fifo: fifo has been removed for enemy %d\n", getpid());
     }
     return 0;
 }

@@ -48,13 +48,20 @@ char fifo_name[256];
 char SUSPICION_RATES[SIZE_OF_STATE];
 
 
-void* normal_member(void* arg);
-void* spy_member(void* arg);
+void *normal_member(void *arg);
+
+void *spy_member(void *arg);
+
 int get_enemy_id();
+
 void handle_SIGUSR1();
+
 void handle_SIGUSR2();
+
 int get_state(int id);
+
 void send_state_after_attack_to_gui();
+
 void decrement_the_counter_in_shared_data();
 
 int main(int argc, char **argv) {
@@ -79,10 +86,10 @@ int main(int argc, char **argv) {
 
 
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
-    shared_data = (SharedMemory *)shmat(shm_id, NULL, 0);
+    shared_data = (SharedMemory *) shmat(shm_id, NULL, 0);
     sem = semget(1234, 1, 0666);
     config = shared_data->config;
-    spy_detected_by_counter_espionage_agency=-1;
+    spy_detected_by_counter_espionage_agency = -1;
 
 
     key = ftok("/tmp/citizen_list_queue", 65);
@@ -102,8 +109,8 @@ int main(int argc, char **argv) {
     signal(SIGUSR1, handle_SIGUSR1);
     signal(SIGUSR2, handle_SIGUSR2);
 
-    members = (Member *)malloc(number_of_member_in_resistant_group * sizeof(Member));
-    Argument *args = (Argument *)malloc(number_of_member_in_resistant_group * sizeof(Argument));
+    members = (Member *) malloc(number_of_member_in_resistant_group * sizeof(Member));
+    Argument *args = (Argument *) malloc(number_of_member_in_resistant_group * sizeof(Argument));
 
     // choose one member to be spy
     spy_index = rand() % number_of_member_in_resistant_group;
@@ -127,13 +134,13 @@ int main(int argc, char **argv) {
 
     while (shared_data->simulation_status) {
         for (int i = 0; i < number_of_member_in_resistant_group; i++) {
-            if ( i == spy_detected_by_counter_espionage_agency) {
+            if (i == spy_detected_by_counter_espionage_agency) {
                 continue;
             }
 
             pthread_join(members[i].thread_id, NULL);
-            if (members[i].state_after_attack == KILLED  ||
-                members[i].state_after_attack == CAUGHT  ||
+            if (members[i].state_after_attack == KILLED ||
+                members[i].state_after_attack == CAUGHT ||
                 members[i].state_after_attack == HEALTHY ||
                 members[i].state_after_attack == INJURED_SEVERELY) {
 
@@ -146,7 +153,7 @@ int main(int argc, char **argv) {
 
             } else if (members[i].state_after_attack == INJURED_LIGHTLY) {
                 args[i].id = i;
-                args[i].sleep_time = rand()%2;
+                args[i].sleep_time = rand() % 2;
                 if (pthread_create(&members[i].thread_id, NULL, spy_member, &args[i]) != 0) {
                     perror("Thread creation failed");
                     return EXIT_FAILURE;
@@ -156,12 +163,13 @@ int main(int argc, char **argv) {
     }
 
 
-    handle_SIGUSR1();
+    decrement_the_counter_in_shared_data();
+    unlink(fifo_name);
     return 0;
 }
 
 void handle_SIGUSR1() {
-    if (shared_data->simulation_status){
+    if (shared_data->simulation_status) {
         Information info;
         read(fifo_fd, &info, sizeof(Information));
 
@@ -171,12 +179,9 @@ void handle_SIGUSR1() {
         msg.citizen_id = info.id;
         msg.time_spent = atoi(info.content);
         msgsnd(msgid, &msg, sizeof(msg), 0);
-    }else{
+    } else {
         decrement_the_counter_in_shared_data();
         unlink(fifo_name);
-
-
-        free(members);
         exit(EXIT_SUCCESS);
     }
 }
@@ -194,7 +199,7 @@ void handle_SIGUSR2() {
         sem_wait(sem);
         if (state == KILLED) {
             shared_data->number_of_killed_resistant_group++;
-        }else if (state == INJURED_SEVERELY || state == INJURED_LIGHTLY) {
+        } else if (state == INJURED_SEVERELY || state == INJURED_LIGHTLY) {
             shared_data->number_of_injured_resistant_group++;
         }
 
@@ -220,20 +225,20 @@ void handle_SIGUSR2() {
     snprintf(msg.suspicion_rates, sizeof(msg.suspicion_rates), "%s", SUSPICION_RATES);
     msgsnd(msgid, &msg, sizeof(msg), 0);
 
-    if (msgrcv(msgid, &msg, sizeof(msg), 3,0) > 0) {
+    if (msgrcv(msgid, &msg, sizeof(msg), 3, 0) > 0) {
         if (msg.the_spy != -1) {
-            if (spy_detected_by_counter_espionage_agency !=-1){
+            if (spy_detected_by_counter_espionage_agency != -1) {
                 char spy_number[10];
                 sprintf(spy_number, "%d", spy_detected_by_counter_espionage_agency);
-                send_info_to_gui(fifo_gui,COUNTER_ESPIONAGE_AGENCY_DETECTED_SPY,getpid(),spy_number);
+                send_info_to_gui(fifo_gui, COUNTER_ESPIONAGE_AGENCY_DETECTED_SPY, getpid(), spy_number);
                 spy_detected_by_counter_espionage_agency = msg.the_spy;
             }
         }
     }
 }
 
-void* normal_member(void* arg) {
-    Argument *argument = (Argument*)arg;
+void *normal_member(void *arg) {
+    Argument *argument = (Argument *) arg;
 
     if (argument->sleep_time > 0) {
         sleep(argument->sleep_time);
@@ -253,8 +258,8 @@ void* normal_member(void* arg) {
 }
 
 
-void* spy_member(void* arg) {
-    Argument *argument = (Argument*)arg;
+void *spy_member(void *arg) {
+    Argument *argument = (Argument *) arg;
     int created_time = time(NULL);
     printf("Spy member %d started\n", argument->id);
 
@@ -270,7 +275,7 @@ void* spy_member(void* arg) {
             printf("Spy member %d increase 2 second\n", argument->id);
             Information info;
             info.type = RESISTANT_GROUP;
-            snprintf(info.content, sizeof(info.content), "%d",time_spent);
+            snprintf(info.content, sizeof(info.content), "%d", time_spent);
             write(fifo_fd, &info, sizeof(Information));
             created_time = time(NULL);
         }
@@ -313,7 +318,7 @@ void send_state_after_attack_to_gui() {
         }
     }
 
-    send_info_to_gui(fifo_gui,RESISTANT_GROUP_STATE_AFTER_ATTACK,getpid(),state_str);
+    send_info_to_gui(fifo_gui, RESISTANT_GROUP_STATE_AFTER_ATTACK, getpid(), state_str);
 }
 
 void decrement_the_counter_in_shared_data() {

@@ -94,6 +94,24 @@ int main(int argc, char **argv) {
                 case CITIZEN_CREATED:
                     printf("Main: citizen %d created: %s\n", info_buffer[i].id, info_buffer[i].content);
                     break;
+                case COUNTER_ESPIONAGE_LOG_ABOUT_CITIZEN:
+                    printf("Main: counter espionage log about citizen %d: %s\n", info_buffer[i].id,
+                           info_buffer[i].content);
+                    break;
+                case CITIZEN_MEET_RESISTANT_GROUP_START:
+                    printf("Main: citizen %d meet resistant group %s start\n", info_buffer[i].id,
+                           info_buffer[i].content);
+                    break;
+                case CITIZEN_MEET_RESISTANT_GROUP_END:
+                    printf("Main: citizen %d meet resistant group %s end\n", info_buffer[i].id, info_buffer[i].content);
+                    break;
+                case ENEMY_ATTACK_COUNTER_ESPIONAGE_AGENCY:
+                    printf("Main: enemy %d attack counter espionage agency: %s\n", info_buffer[i].id,
+                           info_buffer[i].content);
+                    break;
+                case COUNTER_ESPIONAGE_AGENCY_STATE_AFTER_ATTACK:
+                    printf("Main: counter espionage agency state after attack: %s\n", info_buffer[i].content);
+                    break;
             }
 
             if ((shared_data->number_of_killed_resistant_group >= config.killed_resistance_members_threshold) ||
@@ -106,13 +124,11 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf("==> DEBUG from main\n");
+
     kill(counter_espionage_agency_pid, SIGUSR1);
 
     for (int i = 0; i < shared_data->array_counter; i++) {
-        if (shared_data->communication_pid[i][2] == 3 || shared_data->communication_pid[i][2] == 2) {
-            kill(shared_data->communication_pid[i][0], SIGUSR1);
-        }
+        kill(shared_data->communication_pid[i][0], SIGUSR1);
     }
 
     close(fifo_fd);

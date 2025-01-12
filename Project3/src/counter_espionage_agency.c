@@ -46,6 +46,8 @@ void handle_SIGUSR2();
 
 void regular_analyzes();
 
+void send_state_after_attack_to_gui();
+
 
 int main() {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
@@ -123,6 +125,7 @@ void handle_SIGUSR2() {
             }
         }
     }
+    send_state_after_attack_to_gui();
 }
 
 void *counter_espionage_agency_member(void *arg) {
@@ -209,3 +212,19 @@ void regular_analyzes() {
     }
 }
 
+
+void send_state_after_attack_to_gui() {
+    char state_str[20];
+    memset(state_str, 0, sizeof(state_str));
+    for (int i = 0; i < config.number_of_member_in_counter_espionage_agency; i++) {
+        if (members[i].state_after_attack == KILLED) {
+            strcat(state_str, "0 ");
+        } else if (members[i].state_after_attack == CAUGHT) {
+            strcat(state_str, "1 ");
+        } else {
+            strcat(state_str, "4 ");
+        }
+    }
+
+    send_info_to_gui(fifo_gui, COUNTER_ESPIONAGE_AGENCY_STATE_AFTER_ATTACK, getpid(), state_str);
+}

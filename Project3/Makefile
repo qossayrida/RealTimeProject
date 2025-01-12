@@ -57,3 +57,5 @@ run: $(MAIN_TARGET)
 # Clean up build files
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR) 
+	rm -f /tmp/fifo_*
+	rm -f /tmp/project3_fifo_public
