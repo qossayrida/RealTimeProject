@@ -249,6 +249,9 @@ void *normal_member(void *arg) {
 
     if (argument->sleep_time > 0) {
         sleep(argument->sleep_time);
+        char temp[20];
+        snprintf(temp, sizeof(temp), "%d", argument->id);
+        send_info_to_gui(fifo_gui, RESISTANT_GROUP_RETURN_FROM_INJURED, getpid(), temp);
     }
 
     printf("Resistant group member %d started\n", argument->id);

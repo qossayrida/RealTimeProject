@@ -112,6 +112,10 @@ int main(int argc, char **argv) {
                 case COUNTER_ESPIONAGE_AGENCY_STATE_AFTER_ATTACK:
                     printf("Main: counter espionage agency state after attack: %s\n", info_buffer[i].content);
                     break;
+                case RESISTANT_GROUP_RETURN_FROM_INJURED:
+                    printf("Main: resistant group %d return from injured: %s\n", info_buffer[i].id,
+                           info_buffer[i].content);
+                    break;
             }
 
             if ((shared_data->number_of_killed_resistant_group >= config.killed_resistance_members_threshold) ||
