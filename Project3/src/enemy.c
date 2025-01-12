@@ -56,20 +56,19 @@ int main(int argc, char **argv) {
 
 
             for (int i = 0; i < num_info; i++) {
-                Information* info= &info_buffer[i];
 
-                if (info.type == RESISTANT_GROUP) {
-                    send_info_to_gui(fifo_gui, ENEMY_RECEIVE_FROM_RESISTANT_GROUP, getpid(), info.content);
-                    int time_spent = atoi(info.content);
+                if (info_buffer[i].type == RESISTANT_GROUP) {
+                    send_info_to_gui(fifo_gui, ENEMY_RECEIVE_FROM_RESISTANT_GROUP, getpid(), info_buffer[i].content);
+                    int time_spent = atoi(info_buffer[i].content);
 
                     // modify probability to attack use suitable formula
                     probability_to_attack += time_spent;
-                } else if (info.type == CITIZEN) {
-                    char result[20];
-                    snprintf(result, sizeof(result), "%s %d", info.content, info.id);
+                } else if (info_buffer[i].type == CITIZEN) {
+                    char result[40];
+                    snprintf(result, sizeof(result), "%s %d", info_buffer[i].content, info_buffer[i].id);
                     send_info_to_gui(fifo_gui, ENEMY_RECEIVE_FROM_CITIZEN, getpid(), result);
 
-                    int time_spent = atoi(info.content);
+                    int time_spent = atoi(info_buffer[i].content);
 
                     // modify probability to attack use suitable formula
                     probability_to_attack += time_spent;
