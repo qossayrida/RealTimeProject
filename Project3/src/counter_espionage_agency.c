@@ -87,9 +87,13 @@ int main() {
 
             pthread_join(members[i].thread_id, NULL);
             if (members[i].is_killed_caught_counter_espionage_agency == 1) {
-
+                if (pthread_create(&members[i].thread_id, NULL, counter_espionage_agency_member, &args[i]) != 0) {
+                    perror("Thread creation failed");
+                    return EXIT_FAILURE;
+                }
+                members[i].is_killed_caught_counter_espionage_agency = 0;
+                members[i].creation_time = time(NULL);
             }
-
         }
     }
     pthread_join(queue_thread, NULL);
@@ -117,12 +121,8 @@ void handle_SIGUSR2() {
             if (state == 0 || state == 1) {
                 members[i].is_killed_caught_counter_espionage_agency = 1;
             }
-
         }
-
     }
-
-
 }
 
 void *counter_espionage_agency_member(void *arg) {
@@ -160,10 +160,8 @@ void *read_from_queue(void *arg) {
             printf("Counter espionage agency: Received message from attack\n");
             check_members_after_attack(msg);
 
-
         }
     }
-
 
     return NULL;
 }

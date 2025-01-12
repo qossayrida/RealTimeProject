@@ -14,7 +14,6 @@
 #include <signal.h>
 #include "config.h"
 
-void handle_SIGUSR1();
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -92,8 +91,4 @@ int main(int argc, char **argv) {
         printf("fifo: fifo has been removed for enemy %d\n",getpid());
     }
     return 0;
-}
-
-void handle_SIGUSR1() {
-    printf("Counter espionage agency: Received SIGUSR1\n");
 }

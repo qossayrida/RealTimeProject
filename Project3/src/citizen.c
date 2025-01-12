@@ -58,6 +58,8 @@ int main(int argc, char **argv) {
                 int time_spent = rand() % 4 + 1;
                 snprintf(info.content, sizeof(info.content), "%d",time_spent);
                 write(fifo_fd, &info, sizeof(Information));
+
+                printf("==> DEBUG");
                 kill(resistance_group_pid, SIGUSR1);
                 close(fifo_fd);
 

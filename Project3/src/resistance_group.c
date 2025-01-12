@@ -55,6 +55,7 @@ void handle_SIGUSR1();
 void handle_SIGUSR2();
 int get_state(int id);
 void send_state_after_attack_to_gui();
+void decrement_the_counter_in_shared_data();
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -131,14 +132,25 @@ int main(int argc, char **argv) {
             }
 
             pthread_join(members[i].thread_id, NULL);
-            if (members[i].state_after_attack == KILLED ||
-                members[i].state_after_attack == CAUGHT ||
+            if (members[i].state_after_attack == KILLED  ||
+                members[i].state_after_attack == CAUGHT  ||
+                members[i].state_after_attack == HEALTHY ||
                 members[i].state_after_attack == INJURED_SEVERELY) {
 
+                args[i].id = i;
+                args[i].sleep_time = 0;
+                if (pthread_create(&members[i].thread_id, NULL, normal_member, &args[i]) != 0) {
+                    perror("Thread creation failed");
+                    return EXIT_FAILURE;
+                }
+
             } else if (members[i].state_after_attack == INJURED_LIGHTLY) {
-
-            } else {
-
+                args[i].id = i;
+                args[i].sleep_time = rand()%2;
+                if (pthread_create(&members[i].thread_id, NULL, spy_member, &args[i]) != 0) {
+                    perror("Thread creation failed");
+                    return EXIT_FAILURE;
+                }
             }
         }
     }
@@ -162,6 +174,7 @@ void handle_SIGUSR1() {
 
         printf("Resistant group: Received information from citizen\n");
     }else{
+        decrement_the_counter_in_shared_data();
         if ( (unlink(fifo_name)) == 0 ) {
             printf("fifo: fifo has been removed resistance group %d\n",getpid());
         }
@@ -225,8 +238,12 @@ void handle_SIGUSR2() {
 
 void* normal_member(void* arg) {
     Argument *argument = (Argument*)arg;
-    printf("Resistant group member %d started\n", argument->id);
 
+    if (argument->sleep_time > 0) {
+        sleep(argument->sleep_time);
+    }
+
+    printf("Resistant group member %d started\n", argument->id);
     pthread_mutex_lock(&mutex);
 
     while (!proceed) {
@@ -301,4 +318,14 @@ void send_state_after_attack_to_gui() {
     }
 
     send_info_to_gui(fifo_gui,RESISTANT_GROUP_STATE_AFTER_ATTACK,getpid(),state_str);
+}
+
+void decrement_the_counter_in_shared_data() {
+    int pid = getpid();
+    for (int i = 0; i < shared_data->array_counter; i++) {
+        if (shared_data->communication_pid[i][0] == pid) {
+            shared_data->communication_pid[i][2]--;
+            break;
+        }
+    }
 }
