@@ -58,8 +58,6 @@ void handle_SIGUSR1();
 
 void handle_SIGUSR2();
 
-void handle_SIGKILL();
-
 int get_state(int id);
 
 void send_state_after_attack_to_gui();
@@ -110,7 +108,6 @@ int main(int argc, char **argv) {
     printf("Resistant group: FIFO created\n");
     signal(SIGUSR1, handle_SIGUSR1);
     signal(SIGUSR2, handle_SIGUSR2);
-    signal(SIGKILL, handle_SIGKILL);
 
     members = (Member *) malloc(number_of_member_in_resistant_group * sizeof(Member));
     Argument *args = (Argument *) malloc(number_of_member_in_resistant_group * sizeof(Argument));
@@ -167,28 +164,33 @@ int main(int argc, char **argv) {
 
 
     decrement_the_counter_in_shared_data();
-    unlink(fifo_name);
+    if ((unlink(fifo_name)) == 0) {
+        printf("Resistant group %d: fifo has been removed\n", getpid());
+    }
     free(members);
     printf("Resistant group %d: Terminating\n", getpid());
     return 0;
 }
 
 void handle_SIGUSR1() {
+    if (shared_data->simulation_status) {
+        Information info;
+        read(fifo_fd, &info, sizeof(Information));
 
-    Information info;
-    read(fifo_fd, &info, sizeof(Information));
-
-    Message_Queue msg;
-    msg.message_type = 1;
-    msg.group_id = getpid();
-    msg.citizen_id = info.id;
-    msg.time_spent = atoi(info.content);
-    msgsnd(msgid, &msg, sizeof(msg), 0);
-}
-
-void handle_SIGKILL() {
-    for (int i = 0; i < number_of_member_in_resistant_group; i++) {
-        pthread_cancel(members[i].thread_id);
+        Message_Queue msg;
+        msg.message_type = 1;
+        msg.group_id = getpid();
+        msg.citizen_id = info.id;
+        msg.time_spent = atoi(info.content);
+        msgsnd(msgid, &msg, sizeof(msg), 0);
+    } else {
+        decrement_the_counter_in_shared_data();
+        if ((unlink(fifo_name)) == 0) {
+            printf("Resistant group %d: fifo has been removed\n", getpid());
+        }
+        free(members);
+        printf("Resistant group %d: Terminating\n", getpid());
+        exit(EXIT_SUCCESS);
     }
 }
 

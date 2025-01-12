@@ -41,8 +41,9 @@ int main(int argc, char **argv) {
     int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
     int fifo_gui = open(FIFO_NAME, O_WRONLY);
 
-
-    shared_data->communication_pid[shared_data->array_counter++][2]++;
+    if (type == For_Resistant_Group) {
+        shared_data->communication_pid[shared_data->array_counter++][2]++;
+    }
 
     int probability_to_attack = 0;
     while (shared_data->simulation_status) {

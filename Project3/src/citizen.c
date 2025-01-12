@@ -59,6 +59,7 @@ int main(int argc, char **argv) {
                 snprintf(info.content, sizeof(info.content), "%d", time_spent);
                 write(fifo_fd, &info, sizeof(Information));
 
+                printf("============== kill %d\n", resistance_group_pid);
                 kill(resistance_group_pid, SIGUSR1);
                 close(fifo_fd);
 

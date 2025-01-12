@@ -134,7 +134,8 @@ int main(int argc, char **argv) {
     }
 
     for (int i = 0; i < shared_data->array_counter; i++) {
-        kill(shared_data->communication_pid[i][0], SIGKILL);
+        printf("Main: **************** kill resistant group %d\n", shared_data->communication_pid[i][0]);
+        kill(shared_data->communication_pid[i][0], SIGUSR1);
     }
 
     close(fifo_fd);
