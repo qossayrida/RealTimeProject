@@ -127,19 +127,19 @@ int main(int argc, char **argv) {
 
     kill(counter_espionage_agency_pid, SIGUSR1);
 
+    printf("Counter of array: %d\n", shared_data->array_counter);
     for (int i = 0; i < shared_data->array_counter; i++) {
-        kill(shared_data->communication_pid[i][0], SIGUSR1);
+        printf("Resistant group %d\n", shared_data->communication_pid[i][0]);
+        printf("Enemy %d\n", shared_data->communication_pid[i][1]);
+    }
+
+    for (int i = 0; i < shared_data->array_counter; i++) {
+        kill(shared_data->communication_pid[i][0], SIGKILL);
     }
 
     close(fifo_fd);
     if ((unlink(FIFO_NAME)) == 0) {
         printf("MAIN: fifo has been removed\n");
-    }
-
-    printf("Counter of array: %d\n", shared_data->array_counter);
-    for (int i = 0; i < shared_data->array_counter; i++) {
-        printf("Resistant group %d\n", shared_data->communication_pid[i][0]);
-        printf("Enemy %d\n", shared_data->communication_pid[i][1]);
     }
 
 
