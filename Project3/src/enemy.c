@@ -51,10 +51,10 @@ int main(int argc, char **argv) {
     }
     srand(time(NULL));
     char result[40];
-    if(type == For_Resistant_Group){
+    if (type == For_Resistant_Group) {
         snprintf(result, sizeof(result), "%s %d", "For_Resistant", pid_for_resistance_group);
-    } else{
-        snprintf(result, sizeof(result), "%s 0","For_Espionage");
+    } else {
+        snprintf(result, sizeof(result), "%s 0", "For_Espionage");
     }
     send_info_to_gui(fifo_gui, ENEMY_CREATED, getpid(), result);
 

@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
         char result[20];
         snprintf(result, sizeof(result), "%d", i);
 
-        send_info_to_gui(fifo_gui,  COUNTER_ESPIONAGE_AGENCY_MEMBER_CREATED, getpid(), result);
+        send_info_to_gui(fifo_gui, COUNTER_ESPIONAGE_AGENCY_MEMBER_CREATED, getpid(), result);
         if (pthread_create(&members[i].thread_id, NULL, counter_espionage_agency_member, &args[i]) != 0) {
             perror("Thread creation failed");
             return EXIT_FAILURE;
@@ -151,8 +151,8 @@ void handle_SIGUSR2() {
             if (state == 0 || state == 1) {
                 members[i].is_killed_caught_counter_espionage_agency = 1;
             }
-        } else{
-        members[i].state_after_attack = 2;
+        } else {
+            members[i].state_after_attack = 2;
         }
     }
     send_state_after_attack_to_gui();

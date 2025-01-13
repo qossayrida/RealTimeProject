@@ -116,14 +116,13 @@ static void drawScene();
 static void drawAgencySection();
 static void drawCitizenSection();
 static void drawGroupsSection();
-static void drawLegend();
 static void drawInfoOverlay();
 
 static void drawSquare(float cx, float cy, float sz);
 static void drawCircle(float cx, float cy, float r);
 static void drawTriangle(float cx, float cy, float sz, const char *text);
 static void drawText(float x, float y, const char *str, void *font);
-
+static void drawSimulationStats();
 static void pickColor(Person *p);
 
 // Create/modify
@@ -144,6 +143,36 @@ static void updateVisit(Visit *v, float dt);
 static void drawVisit(Visit *v);
 static bool  agencyAttackActive = false;
 static float agencyAttackTimer  = 0.0f;
+/******************************************************************************
+ * main
+ *
+ * If you compile this file alone, un-comment the main below.
+ ******************************************************************************/
+/*
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
+    glutInitWindowSize(g_winW, g_winH);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Counter Espionage Agency Simulation");
+
+    initOpenGL();
+    glutDisplayFunc(displayCallback);
+    glutReshapeFunc(reshapeCallback);
+    glutKeyboardFunc(keyboardCallback);
+    glutMouseFunc(mouseCallback);
+    glutTimerFunc(33, timerCallback, 0);
+
+    // Initialize visits array
+    for (int i = 0; i < MAX_VISITS; i++) {
+        g_visits[i].active = false;
+    }
+
+    glutMainLoop();
+    return 0;
+}
+*/
 
 /******************************************************************************
  * initOpenGL()
@@ -165,11 +194,14 @@ static void displayCallback()
     // SHIFT everything left by g_scrollX
     glPushMatrix();
     glTranslatef(-g_scrollX, 0, 0);
-
     drawScene();
+    glPopMatrix();
 
-    glPopMatrix(); // revert
+    // Draw overlay info
     drawInfoOverlay();
+
+    // Draw stats in the bottom-right (on top of everything)
+    drawSimulationStats();
 
     glutSwapBuffers();
 }
@@ -425,64 +457,61 @@ static void mouseCallback(int button, int state, int mx, int my)
  ******************************************************************************/
 static void timerCallback(int val)
 {
-    float dt = 0.033f; // ~30 fps
+    float dt = 0.033f;
 
-    // update group attacks
-    for (int i = 0; i < g_numGroups; i++)
-    {
-        if (g_groups[i].attackActive)
-        {
-            g_groups[i].attackTimer += dt;
-            if (g_groups[i].attackTimer > 2.0f)
-            {
-                g_groups[i].attackActive = false;
-                g_groups[i].attackTimer = 0.0f;
+    // 1) Handle group attacks
+    for (int g = 0; g < g_numGroups; g++) {
+        if (g_groups[g].attackActive) {
+            g_groups[g].attackTimer += dt;
+            if (g_groups[g].attackTimer > 2.0f) {
+                g_groups[g].attackActive = false;
+                g_groups[g].attackTimer = 0.0f;
             }
         }
-    }
-    
-    if(agencyAttackActive){
-        agencyAttackTimer += dt;
 
-        if(agencyAttackTimer>2.0f){
-            agencyAttackActive=false;
-            agencyAttackTimer=0.0f;
-        }
-    }
-
-    // update visits
-    for (int i = 0; i < MAX_VISITS; i++)
-    {
-        if (g_visits[i].active)
-        {
-            updateVisit(&g_visits[i], dt);
-        }
-    }
-
-    for (int i = 0; i < g_numGroups; i++) {
-        for(int m = 0; m < g_groups[i].numMembers; m++){
-            Person* pm = &g_groups[i].members[m];
-            if(pm->whiteTimer > 0.0f) {
+        // handle whiteTimer on members
+        for (int m = 0; m < g_groups[g].numMembers; m++) {
+            Person* pm = &g_groups[g].members[m];
+            if (pm->whiteTimer > 0.0f) {
                 pm->whiteTimer -= dt;
-                if(pm->whiteTimer <= 0.0f) {
+                if (pm->whiteTimer <= 0.0f) {
                     pm->whiteTimer = 0.0f;
-                    
-                    // Force them back to ALIVE or normal
-                    pm->killed = false;
-                    pm->state  = STATE_ALIVE;  // or whatever suits your logic
+                    pm->killed     = false;
+                    pm->state      = STATE_ALIVE;
                 }
             }
         }
     }
 
-    for(int i=0; i<g_numAgency; i++){
-        if(g_agency[i].whiteTimer>0.0f){
-            g_agency[i].whiteTimer -= dt;
-            if(g_agency[i].whiteTimer<0) g_agency[i].whiteTimer=0.0f;
+    // 2) Handle agency blinking
+    if (agencyAttackActive) {
+        agencyAttackTimer += dt;
+        if (agencyAttackTimer > 2.0f) {
+            agencyAttackActive = false;
+            agencyAttackTimer  = 0.0f;
         }
     }
 
+    // 3) Handle agency members whiteTimer
+    for (int a = 0; a < g_numAgency; a++) {
+        if (g_agency[a].whiteTimer > 0.0f) {
+            g_agency[a].whiteTimer -= dt;
+            if (g_agency[a].whiteTimer < 0.0f)
+                g_agency[a].whiteTimer = 0.0f;
+        }
+    }
+
+    // 4) Update visits
+    for (int v = 0; v < MAX_VISITS; v++) {
+        if (g_visits[v].active) {
+            updateVisit(&g_visits[v], dt);
+        }
+    }
+
+    // 5) Redraw once
     glutPostRedisplay();
+
+    // 6) Schedule next timer in 33 ms
     glutTimerFunc(33, timerCallback, 0);
 }
 
@@ -494,7 +523,7 @@ static void drawScene()
     drawAgencySection();
     drawCitizenSection();
     drawGroupsSection();
-    drawLegend();
+    drawSimulationStats();
 
     // Draw all active visits
     for (int i = 0; i < MAX_VISITS; i++)
@@ -504,6 +533,41 @@ static void drawScene()
             drawVisit(&g_visits[i]);
         }
     }
+}
+
+extern SharedMemory *shared_data;   // if you need to refer to it from gui.c
+
+static void drawSimulationStats()
+{
+    // Let's pick a bottom-right offset
+    float lineHeight = 20.0f;
+
+    // Where do we want to draw? For bottom-right, we can do something like:
+    float statsX = g_winW - 280; // Enough space to hold 2-3 lines of text
+    float statsY = 50.0f;       // from the bottom (or so)
+
+    // We might want black text:
+    glColor3f(0, 0, 0);
+
+    char buffer[128];
+
+    // 1) number_of_killed_resistant_group
+    snprintf(buffer, sizeof(buffer), "Killed RG: %d",
+             shared_data->number_of_killed_resistant_group);
+    drawText(statsX, statsY, buffer, GLUT_BITMAP_HELVETICA_12);
+    statsY += lineHeight;
+
+    // 2) number_of_injured_resistant_group
+    snprintf(buffer, sizeof(buffer), "Injured RG: %d",
+             shared_data->number_of_injured_resistant_group);
+    drawText(statsX, statsY, buffer, GLUT_BITMAP_HELVETICA_12);
+    statsY += lineHeight;
+
+    // 3) number_of_killed_caught_counter_espionage_agency
+    snprintf(buffer, sizeof(buffer), "Killed/Caught CE: %d",
+             shared_data->number_of_killed_caught_counter_espionage_agency);
+    drawText(statsX, statsY, buffer, GLUT_BITMAP_HELVETICA_12);
+    // No statsY += ... needed if it's the last line
 }
 
 /******************************************************************************
@@ -678,104 +742,6 @@ static void drawGroupsSection()
 
         }
     }
-}
-
-/******************************************************************************
- * drawLegend()
- ******************************************************************************/
-static void drawLegend()
-{
-    float w = 280, h = 300;
-    float x = g_winW - w - 10, y = 10;
-
-    glColor4f(0.8f, 0.8f, 0.8f, 0.7f);
-    glBegin(GL_QUADS);
-      glVertex2f(x, y);
-      glVertex2f(x + w, y);
-      glVertex2f(x + w, y + h);
-      glVertex2f(x, y + h);
-    glEnd();
-
-    glColor3f(0, 0, 0);
-    drawText(x + 10, y + h - 20, "Legend", GLUT_BITMAP_HELVETICA_18);
-
-    float lx = x + 20, ly = y + h - 40;
-
-    // Agency alive
-    glColor3f(0.1f, 0.1f, 0.8f);
-    drawSquare(lx, ly, 15);
-    glColor3f(0, 0, 0);
-    drawText(lx + 25, ly + 5, "= Agency Thread (Alive)", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
-
-    // Agency killed
-    glColor3f(0.8f, 0, 0);
-    drawSquare(lx, ly, 15);
-    glColor3f(0, 0, 0);
-    drawText(lx + 25, ly + 5, "= Agency Thread (Killed)", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
-
-    // Agency enemy
-    glColor3f(0,0,0);
-    drawTriangle(lx + 12, ly + 10, 10, NULL);
-    drawText(lx + 25, ly + 6, "= Agency Enemy", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
-
-    // Citizen normal alive
-    glColor3f(0.2f, 0.8f, 0.2f);
-    drawCircle(lx + 7, ly + 7, 7);
-    glColor3f(0, 0, 0);
-    drawText(lx + 25, ly + 3, "= Citizen Normal (Alive)", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
-
-    // Citizen spy alive
-    glColor3f(1.0f, 0.2f, 0.2f);
-    drawCircle(lx + 7, ly + 7, 7);
-    glColor3f(0, 0, 0);
-    drawText(lx + 25, ly + 3, "= Citizen Spy (Alive)", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
-
-    // Group normal alive => green
-    glColor3f(0.3f, 1.0f, 0.3f);
-    drawSquare(lx, ly, 12);
-    glColor3f(0, 0, 0);
-    drawText(lx + 20, ly + 3, "= Group Member (Alive)", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
-
-    // Normal injured => darker green
-    glColor3f(0.15f, 0.5f, 0.15f);
-    drawSquare(lx, ly, 12);
-    glColor3f(0, 0, 0);
-    drawText(lx + 20, ly + 3, "= Group Member (Injured)", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
-
-    // Spy alive => magenta
-    glColor3f(1.0f, 0.0f, 1.0f);
-    drawSquare(lx, ly, 12);
-    glColor3f(0, 0, 0);
-    drawText(lx + 20, ly + 3, "= Group Spy (Alive)", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
-
-    // Spy injured => darker magenta
-    glColor3f(0.5f, 0.0f, 0.5f);
-    drawSquare(lx, ly, 12);
-    glColor3f(0, 0, 0);
-    drawText(lx + 20, ly + 3, "= Group Spy (Injured)", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
-
-    // Caught => orange
-    glColor3f(1.0f, 0.6f, 0.0f);
-    drawSquare(lx, ly, 12);
-    glColor3f(0, 0, 0);
-    drawText(lx + 20, ly + 3, "= Group Member (Caught)", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
-
-    // Dead => grey
-    glColor3f(0.5f, 0.5f, 0.5f);
-    drawSquare(lx, ly, 12);
-    glColor3f(0, 0, 0);
-    drawText(lx + 20, ly + 3, "= Group Member (Dead)", GLUT_BITMAP_HELVETICA_12);
-    ly -= 20;
 }
 
 /******************************************************************************

@@ -115,7 +115,6 @@ int main(int argc, char **argv) {
     send_info_to_gui(fifo_gui, RESISTANT_CREATED, getpid(), "");
 
 
-
     printf("Resistant group: FIFO created\n");
     signal(SIGUSR1, handle_SIGUSR1);
     signal(SIGUSR2, handle_SIGUSR2);
@@ -128,10 +127,10 @@ int main(int argc, char **argv) {
     spy_index = rand() % number_of_member_in_resistant_group;
     for (int i = 0; i < number_of_member_in_resistant_group; i++) {
         char result[40];
-        if(i==spy_index){
-        snprintf(result, sizeof(result), "%s %d", "Spy", i);
-        } else{
-        snprintf(result, sizeof(result), "%s %d", "Normal", i);
+        if (i == spy_index) {
+            snprintf(result, sizeof(result), "%s %d", "Spy", i);
+        } else {
+            snprintf(result, sizeof(result), "%s %d", "Normal", i);
         }
         send_info_to_gui(fifo_gui, RESISTANT_GROUP_MEMBER_CREATED, getpid(), result);
 
@@ -153,7 +152,7 @@ int main(int argc, char **argv) {
     shared_data->communication_pid[shared_data->array_counter][2]++;
 
     while (shared_data->simulation_status) {
-        proceed=0;
+        proceed = 0;
         for (int i = 0; i < number_of_member_in_resistant_group; i++) {
 
             if (i == spy_detected_by_counter_espionage_agency) {
@@ -169,13 +168,12 @@ int main(int argc, char **argv) {
 
                 args[i].id = i;
                 args[i].sleep_time = 0;
-                if(i==spy_index){
+                if (i == spy_index) {
                     if (pthread_create(&members[i].thread_id, NULL, spy_member, &args[i]) != 0) {
                         perror("Thread creation failed");
                         return EXIT_FAILURE;
                     }
-                }
-                else {
+                } else {
                     if (pthread_create(&members[i].thread_id, NULL, normal_member, &args[i]) != 0) {
                         perror("Thread creation failed");
                         return EXIT_FAILURE;
@@ -186,13 +184,12 @@ int main(int argc, char **argv) {
             } else if (members[i].state_after_attack == INJURED_LIGHTLY) {
                 args[i].id = i;
                 args[i].sleep_time = rand() % 2;
-                if(i==spy_index){
+                if (i == spy_index) {
                     if (pthread_create(&members[i].thread_id, NULL, spy_member, &args[i]) != 0) {
                         perror("Thread creation failed");
                         return EXIT_FAILURE;
                     }
-                }
-                else{
+                } else {
                     if (pthread_create(&members[i].thread_id, NULL, normal_member, &args[i]) != 0) {
                         perror("Thread creation failed");
                         return EXIT_FAILURE;
@@ -203,7 +200,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    printf("----------------> i received signal %d\n",shared_data->simulation_status);
+    printf("----------------> i received signal %d\n", shared_data->simulation_status);
     if ((unlink(fifo_name)) == 0) {
         printf("Resistant group %d: fifo has been removed\n", getpid());
     }
@@ -213,7 +210,7 @@ int main(int argc, char **argv) {
 }
 
 void handle_SIGUSR1() {
-    printf("----------------> i received signal %d\n",shared_data->simulation_status);
+    printf("----------------> i received signal %d\n", shared_data->simulation_status);
     fflush(stdout);
     if (shared_data->simulation_status) {
         Information info;
@@ -251,9 +248,9 @@ void handle_SIGUSR2() {
         } else if (state == INJURED_SEVERELY || state == INJURED_LIGHTLY) {
             shared_data->number_of_injured_resistant_group++;
         }
-        if(state==INJURED_LIGHTLY||state==HEALTHY){
+        if (state == INJURED_LIGHTLY || state == HEALTHY) {
             members[i].suspicion_rate += 35;
-        } else{
+        } else {
             members[i].suspicion_rate = 0;
         }
 
