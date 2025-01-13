@@ -10,15 +10,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d75559d6-f224-47b6-a250-225e8f508fa3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../bin/counter_espionage_agency" beforeDir="false" afterPath="$PROJECT_DIR$/../bin/counter_espionage_agency" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../bin/main_program" beforeDir="false" afterPath="$PROJECT_DIR$/../bin/main_program" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../obj/counter_espionage_agency.o" beforeDir="false" afterPath="$PROJECT_DIR$/../obj/counter_espionage_agency.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../obj/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/../obj/main.o" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../src/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/citizen.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/citizen.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/counter_espionage_agency.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/counter_espionage_agency.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/enemy.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/enemy.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/main.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../src/resistance_group.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/resistance_group.c" afterDir="false" />
     </list>

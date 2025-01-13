@@ -101,11 +101,12 @@ int main(int argc, char **argv) {
         perror(FIFO_NAME);
         exit(1);
     }
+    fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
 
     char *pipe_fd_str = argv[3];
 
-    fifo_fd = atoi(pipe_fd_str);
-    if (fifo_fd <= 0) {
+    fifo_gui = atoi(pipe_fd_str);
+    if (fifo_gui <= 0) {
         fprintf(stderr, "Invalid pipe file descriptor\n");
         exit(EXIT_FAILURE);
     }
