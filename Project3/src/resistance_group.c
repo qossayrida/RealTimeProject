@@ -102,7 +102,19 @@ int main(int argc, char **argv) {
         perror(FIFO_NAME);
         exit(1);
     }
-    fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
+
+    char *pipe_fd_str = getenv("PIPE_FD");
+    if (pipe_fd_str == NULL) {
+        fprintf(stderr, "PIPE_FD environment variable not set\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fifo_fd = atoi(pipe_fd_str);
+    if (fifo_fd <= 0) {
+        fprintf(stderr, "Invalid pipe file descriptor\n");
+        exit(EXIT_FAILURE);
+    }
+
 
     printf("Resistant group: FIFO created\n");
     signal(SIGUSR1, handle_SIGUSR1);

@@ -64,11 +64,29 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    fifo_fd = open(FIFO_NAME, O_RDONLY | O_NONBLOCK);
+    int pipefd[2];
+    char buffer[BUFFER_SIZE];
+
+    // Step 1: Create the pipe
+    if (pipe(pipefd) == -1) {
+        perror("pipe");
+        exit(EXIT_FAILURE);
+    }
+
+    // Step 2: Set the read end of the pipe to non-blocking mode
+    int flags = fcntl(pipefd[0], F_GETFL, 0);
+    if (flags == -1) {
+        perror("fcntl");
+        exit(EXIT_FAILURE);
+    }
+    if (fcntl(pipefd[0], F_SETFL, flags | O_NONBLOCK) == -1) {
+        perror("fcntl");
+        exit(EXIT_FAILURE);
+    }
 
 
     while (shared_data->simulation_status) {
-        int bytes_read = read(fifo_fd, info_buffer, sizeof(info_buffer));
+        int bytes_read = read(pipefd[0], info_buffer, sizeof(info_buffer));
         int num_info = (bytes_read != -1) ? bytes_read / sizeof(Information) : 0;
 
 
@@ -172,6 +190,12 @@ void handle_alarm() {
 pid_t create_counter_espionage_agency(const char *program, int shm_id) {
     pid_t pid = fork();
     if (pid == 0) { // Child process
+
+        close(pipefd[0]); // Close unused read end
+        char pipefd_str[10];
+        snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
+        setenv("PIPE_FD", pipefd_str, 1);
+
         char shm_id_str[10];
         sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
@@ -186,6 +210,12 @@ pid_t create_counter_espionage_agency(const char *program, int shm_id) {
 
     pid_t enemy = fork();
     if (enemy == 0) { // Child process
+
+        close(pipefd[0]); // Close unused read end
+        char pipefd_str[10];
+        snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
+        setenv("PIPE_FD", pipefd_str, 1);
+
         char shm_id_str[10];
         char pid_str[20];
         char number_of_member_in_counter_espionage_str[10];
@@ -217,6 +247,12 @@ void create_citizens(int shm_id) {
         int type = (rand() % 100 < percentage_of_spy) ? SPY : NORMAL;
         pid_t pid = fork();
         if (pid == 0) { // Child process
+
+            close(pipefd[0]); // Close unused read end
+            char pipefd_str[10];
+            snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
+            setenv("PIPE_FD", pipefd_str, 1);
+
             char shm_id_str[10];
             char type_str[10];
             sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
@@ -240,6 +276,12 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
             config.min_number_member_in_resistant_group;
     pid_t pid = fork();
     if (pid == 0) { // Child process
+
+        close(pipefd[0]); // Close unused read end
+        char pipefd_str[10];
+        snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
+        setenv("PIPE_FD", pipefd_str, 1);
+
         char shm_id_str[10];
         char type_str[10];
         char number_of_member_in_resistant_group_str[10];
@@ -259,6 +301,12 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
 
     pid_t enemy_pid = fork();
     if (enemy_pid == 0) {
+
+        close(pipefd[0]); // Close unused read end
+        char pipefd_str[10];
+        snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
+        setenv("PIPE_FD", pipefd_str, 1);
+
         char shm_id_str[10];
         char pid_str[20];
         char number_of_member_in_resistant_group_str[10];

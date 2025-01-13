@@ -16,6 +16,7 @@
 #include "sem.h"
 
 int my_type;
+int fifo_gui;
 
 int main(int argc, char **argv) {
     if (argc < 2) {
@@ -34,10 +35,21 @@ int main(int argc, char **argv) {
 
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     SharedMemory *shared_data = (SharedMemory *) shmat(shm_id, NULL, 0);
-    int fifo_gui = open(FIFO_NAME, O_WRONLY);
 
-    int fifo_gui_fd = open(FIFO_NAME, O_WRONLY);
-    send_info_to_gui(fifo_gui_fd, CITIZEN_CREATED, getpid(), my_type == SPY ? "Spy" : "Normal");
+    char *pipe_fd_str = getenv("PIPE_FD");
+    if (pipe_fd_str == NULL) {
+        fprintf(stderr, "PIPE_FD environment variable not set\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fifo_gui = atoi(pipe_fd_str);
+    if (fifo_gui <= 0) {
+        fprintf(stderr, "Invalid pipe file descriptor\n");
+        exit(EXIT_FAILURE);
+    }
+
+
+    send_info_to_gui(fifo_gui, CITIZEN_CREATED, getpid(), my_type == SPY ? "Spy" : "Normal");
 
     srand(time(NULL));
     int sem = semget(1234, 1, 0666);

@@ -15,7 +15,7 @@
 #include "config.h"
 
 Information info_buffer[50];
-
+int fifo_gui;
 
 int main(int argc, char **argv) {
     if (argc < 3) {
@@ -41,7 +41,21 @@ int main(int argc, char **argv) {
         exit(1);
     }
     int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
-    int fifo_gui = open(FIFO_NAME, O_WRONLY);
+
+    char *pipe_fd_str = getenv("PIPE_FD");
+    if (pipe_fd_str == NULL) {
+        fprintf(stderr, "PIPE_FD environment variable not set\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fifo_gui = atoi(pipe_fd_str);
+    if (fifo_gui <= 0) {
+        fprintf(stderr, "Invalid pipe file descriptor\n");
+        exit(EXIT_FAILURE);
+    }
+
+
+
     char result[40];
     if(type == For_Resistant_Group){
         snprintf(result, sizeof(result), "%s %d", "For_Resistant", pid_for_resistance_group);

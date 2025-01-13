@@ -58,7 +58,19 @@ int main() {
 
     key = ftok("/tmp/citizen_list_queue", 65);
     msgid = msgget(key, 0666 | IPC_CREAT);
-    fifo_gui = open(FIFO_NAME, O_WRONLY);
+
+    char *pipe_fd_str = getenv("PIPE_FD");
+    if (pipe_fd_str == NULL) {
+        fprintf(stderr, "PIPE_FD environment variable not set\n");
+        exit(EXIT_FAILURE);
+    }
+
+    fifo_gui = atoi(pipe_fd_str);
+    if (fifo_gui <= 0) {
+        fprintf(stderr, "Invalid pipe file descriptor\n");
+        exit(EXIT_FAILURE);
+    }
+
 
     pthread_t queue_thread;
     // create single thread to read from message queue
