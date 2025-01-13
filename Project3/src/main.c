@@ -59,7 +59,7 @@ void updateGroupSuspicionRates(int groupID, const char *suspicionStr);
 
 static void fifoIdleFunc() {
     if (!shared_data->simulation_status) {
-        glutLeaveMainLoop();    
+        glutLeaveMainLoop();
         return;
     }
 
