@@ -19,7 +19,7 @@ Config config;
 Information info_buffer[50];
 SharedMemory *shared_data;
 int shm_id;
-int fifo_fd;
+int pipefd[2];
 pid_t counter_espionage_agency_pid;
 
 void handle_alarm();
@@ -64,8 +64,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    int pipefd[2];
-    char buffer[BUFFER_SIZE];
+
 
     // Step 1: Create the pipe
     if (pipe(pipefd) == -1) {
@@ -170,10 +169,7 @@ int main(int argc, char **argv) {
         kill(shared_data->communication_pid[i][0], SIGUSR1);
     }
 
-    close(fifo_fd);
-    if ((unlink(FIFO_NAME)) == 0) {
-        printf("MAIN: fifo has been removed\n");
-    }
+
 
 
     printf("Main: exit\n");
