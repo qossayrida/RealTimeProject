@@ -190,7 +190,7 @@ pid_t create_counter_espionage_agency(const char *program, int shm_id) {
         close(pipefd[0]); // Close unused read end
         char pipefd_str[10];
         snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
-        setenv("PIPE_FD", pipefd_str, 1);
+        setenv("PIPE_FD", pipefd_str, 2);
 
         char shm_id_str[10];
         sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
@@ -210,7 +210,7 @@ pid_t create_counter_espionage_agency(const char *program, int shm_id) {
         close(pipefd[0]); // Close unused read end
         char pipefd_str[10];
         snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
-        setenv("PIPE_FD", pipefd_str, 1);
+        setenv("PIPE_FD", pipefd_str, 2);
 
         char shm_id_str[10];
         char pid_str[20];
@@ -247,7 +247,7 @@ void create_citizens(int shm_id) {
             close(pipefd[0]); // Close unused read end
             char pipefd_str[10];
             snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
-            setenv("PIPE_FD", pipefd_str, 1);
+            setenv("PIPE_FD", pipefd_str, 2);
 
             char shm_id_str[10];
             char type_str[10];
@@ -276,7 +276,7 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
         close(pipefd[0]); // Close unused read end
         char pipefd_str[10];
         snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
-        setenv("PIPE_FD", pipefd_str, 1);
+        setenv("PIPE_FD", pipefd_str, 2);
 
         char shm_id_str[10];
         char type_str[10];
@@ -301,7 +301,7 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
         close(pipefd[0]); // Close unused read end
         char pipefd_str[10];
         snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
-        setenv("PIPE_FD", pipefd_str, 1);
+        setenv("PIPE_FD", pipefd_str, 2);
 
         char shm_id_str[10];
         char pid_str[20];
