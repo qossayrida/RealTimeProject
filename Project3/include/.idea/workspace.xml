@@ -9,10 +9,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d75559d6-f224-47b6-a250-225e8f508fa3" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../config.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/../src/main.c" afterDir="false" />
-    </list>
+    <list default="true" id="d75559d6-f224-47b6-a250-225e8f508fa3" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
