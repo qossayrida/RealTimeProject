@@ -120,7 +120,7 @@ int main(int argc, char **argv) {
         } else{
         snprintf(result, sizeof(result), "%s %d", "Normal", i);
         }
-        send_info_to_gui(fifo_gui, ENEMY_CREATED, getpid(), result);
+        send_info_to_gui(fifo_gui, RESISTANT_GROUP_MEMBER_CREATED, getpid(), result);
 
         args[i].id = i;
         args[i].sleep_time = 0;
