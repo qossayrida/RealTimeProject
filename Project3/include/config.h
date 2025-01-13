@@ -47,7 +47,9 @@ enum {
     ENEMY_CREATED,
     CITIZEN_CREATED,
     COUNTER_ESPIONAGE_AGENCY_MEMBER_CREATED,
-    RESISTANT_GROUP_MEMBER_CREATED
+    RESISTANT_GROUP_MEMBER_CREATED,
+    RESISTANT_CREATED,
+    SUSPICION_RATES_RESISTANT_GROUP
 };
 
 typedef struct {
@@ -87,7 +89,7 @@ typedef struct {
 typedef struct {
     int type;
     int id;
-    char content[20];
+    char content[40];
 } Information;
 
 

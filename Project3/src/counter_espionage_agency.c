@@ -56,6 +56,7 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
+    srand(time(NULL));
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     shared_data = (SharedMemory *) shmat(shm_id, NULL, 0);
     config = shared_data->config;
@@ -148,8 +149,6 @@ void handle_SIGUSR2() {
             int state = rand() % 3; // 0-2 kill, caught,normal
             members[i].state_after_attack = state;
             if (state == 0 || state == 1) {
-                printf("*************************************\n");
-
                 members[i].is_killed_caught_counter_espionage_agency = 1;
             }
         } else{

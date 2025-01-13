@@ -49,9 +49,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Invalid pipe file descriptor\n");
         exit(EXIT_FAILURE);
     }
-
-
-
+    srand(time(NULL));
     char result[40];
     if(type == For_Resistant_Group){
         snprintf(result, sizeof(result), "%s %d", "For_Resistant", pid_for_resistance_group);
@@ -81,7 +79,7 @@ int main(int argc, char **argv) {
                     // modify probability to attack use suitable formula
                     probability_to_attack += time_spent;
                 } else if (info_buffer[i].type == CITIZEN) {
-                    char result[40];
+                    char result[64];
                     snprintf(result, sizeof(result), "%s %d", info_buffer[i].content, info_buffer[i].id);
                     send_info_to_gui(fifo_gui, ENEMY_RECEIVE_FROM_CITIZEN, getpid(), result);
 
@@ -105,7 +103,7 @@ int main(int argc, char **argv) {
 
             while (shared_data->simulation_status) {
                 int time_spent = time(NULL) - created_time;
-                if (time_spent > 10) {
+                if (time_spent > 5) {
                     kill(pid_for_resistance_group, SIGUSR2);
                     send_info_to_gui(fifo_gui, ENEMY_ATTACK_COUNTER_ESPIONAGE_AGENCY, getpid(), "");
                     created_time = time(NULL);
