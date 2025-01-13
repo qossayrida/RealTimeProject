@@ -50,7 +50,12 @@ void regular_analyzes();
 void send_state_after_attack_to_gui();
 
 
-int main() {
+int main(int argc, char **argv) {
+    if (argc < 2) {
+        fprintf(stderr, "Usage: %s <pipe>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     shared_data = (SharedMemory *) shmat(shm_id, NULL, 0);
     config = shared_data->config;
@@ -59,11 +64,10 @@ int main() {
     key = ftok("/tmp/citizen_list_queue", 65);
     msgid = msgget(key, 0666 | IPC_CREAT);
 
-    char *pipe_fd_str = getenv("PIPE_FD");
-    if (pipe_fd_str == NULL) {
-        fprintf(stderr, "PIPE_FD environment variable not set\n");
-        exit(EXIT_FAILURE);
-    }
+    char *pipe_fd_str = argv[1];
+
+    printf("Child process received pipe write end: %s\n", pipe_fd_str);
+
 
     fifo_gui = atoi(pipe_fd_str);
     if (fifo_gui <= 0) {

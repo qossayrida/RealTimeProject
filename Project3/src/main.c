@@ -51,20 +51,6 @@ int main(int argc, char **argv) {
     // Initialize semaphore
     init_semaphore();
 
-    counter_espionage_agency_pid = create_counter_espionage_agency("./bin/counter_espionage_agency", shm_id);
-    create_resistant_group_and_enemy(shm_id, Social_Type);
-    create_citizens(shm_id);
-
-    signal(SIGALRM, handle_alarm);
-    alarm(config.time_create_resistant_group);
-
-
-    if (mknod(FIFO_NAME, S_IFIFO | 0666, 0) < 0) {
-        perror(FIFO_NAME);
-        exit(1);
-    }
-
-
 
     // Step 1: Create the pipe
     if (pipe(pipefd) == -1) {
@@ -81,6 +67,22 @@ int main(int argc, char **argv) {
     if (fcntl(pipefd[0], F_SETFL, flags | O_NONBLOCK) == -1) {
         perror("fcntl");
         exit(EXIT_FAILURE);
+    }
+
+    printf("Parent process passing pipe write end: %d\n", pipefd[1]);
+
+
+    counter_espionage_agency_pid = create_counter_espionage_agency("./bin/counter_espionage_agency", shm_id);
+    create_resistant_group_and_enemy(shm_id, Social_Type);
+    create_citizens(shm_id);
+
+    signal(SIGALRM, handle_alarm);
+    alarm(config.time_create_resistant_group);
+
+
+    if (mknod(FIFO_NAME, S_IFIFO | 0666, 0) < 0) {
+        perror(FIFO_NAME);
+        exit(1);
     }
 
 
@@ -190,12 +192,11 @@ pid_t create_counter_espionage_agency(const char *program, int shm_id) {
         close(pipefd[0]); // Close unused read end
         char pipefd_str[10];
         snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
-        setenv("PIPE_FD", pipefd_str, 2);
 
         char shm_id_str[10];
         sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
-        execlp(program, program, NULL);    // Replace process with new program
+        execlp(program, program,pipefd_str, NULL);    // Replace process with new program
         perror("execlp failed");
         exit(1); // Exit if execlp fails
     } else if (pid < 0) {
@@ -210,7 +211,6 @@ pid_t create_counter_espionage_agency(const char *program, int shm_id) {
         close(pipefd[0]); // Close unused read end
         char pipefd_str[10];
         snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
-        setenv("PIPE_FD", pipefd_str, 2);
 
         char shm_id_str[10];
         char pid_str[20];
@@ -221,7 +221,7 @@ pid_t create_counter_espionage_agency(const char *program, int shm_id) {
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
         snprintf(pid_str, sizeof(pid_str), "%d", pid);
         sprintf(number_of_member_in_counter_espionage_str, "%d", config.number_of_member_in_counter_espionage_agency);
-        execlp("./bin/enemy", "./bin/enemy", pid_str, number_of_member_in_counter_espionage_str, type_str, NULL);
+        execlp("./bin/enemy", "./bin/enemy", pid_str, number_of_member_in_counter_espionage_str, type_str,pipefd_str, NULL);
         perror("execlp failed");
         exit(1); // Exit if execlp fails
     } else if (enemy < 0) {
@@ -247,14 +247,13 @@ void create_citizens(int shm_id) {
             close(pipefd[0]); // Close unused read end
             char pipefd_str[10];
             snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
-            setenv("PIPE_FD", pipefd_str, 2);
 
             char shm_id_str[10];
             char type_str[10];
             sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
             setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
             sprintf(type_str, "%d", type);
-            execlp("./bin/citizen", "./bin/citizen", type_str, NULL);
+            execlp("./bin/citizen", "./bin/citizen", type_str,pipefd_str, NULL);
             perror("execlp failed");
             exit(1); // Exit if execlp fails
         } else if (pid < 0) {
@@ -276,7 +275,6 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
         close(pipefd[0]); // Close unused read end
         char pipefd_str[10];
         snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
-        setenv("PIPE_FD", pipefd_str, 2);
 
         char shm_id_str[10];
         char type_str[10];
@@ -285,7 +283,7 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
         sprintf(type_str, "%d", type);
         sprintf(number_of_member_in_resistant_group_str, "%d", number_of_member_in_resistant_group);
-        execlp("./bin/resistance_group", "./bin/resistance_group", type_str, number_of_member_in_resistant_group_str,
+        execlp("./bin/resistance_group", "./bin/resistance_group", type_str, number_of_member_in_resistant_group_str,pipefd_str,
                NULL);
         perror("execlp failed");
         exit(1); // Exit if execlp fails
@@ -301,7 +299,6 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
         close(pipefd[0]); // Close unused read end
         char pipefd_str[10];
         snprintf(pipefd_str, sizeof(pipefd_str), "%d", pipefd[1]);
-        setenv("PIPE_FD", pipefd_str, 2);
 
         char shm_id_str[10];
         char pid_str[20];
@@ -312,7 +309,7 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
         snprintf(pid_str, sizeof(pid_str), "%d", pid);
         sprintf(number_of_member_in_resistant_group_str, "%d", number_of_member_in_resistant_group);
-        execlp("./bin/enemy", "./bin/enemy", pid_str, number_of_member_in_resistant_group_str, type_str, NULL);
+        execlp("./bin/enemy", "./bin/enemy", pid_str, number_of_member_in_resistant_group_str, type_str,pipefd_str, NULL);
         perror("execlp failed");
         exit(1); // Exit if execlp fails
     } else if (enemy_pid < 0) {

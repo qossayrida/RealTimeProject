@@ -18,8 +18,8 @@ Information info_buffer[50];
 int fifo_gui;
 
 int main(int argc, char **argv) {
-    if (argc < 3) {
-        fprintf(stderr, "Usage: %s <pid_for_resistance_group> <number_of_members>\n", argv[0]);
+    if (argc < 5) {
+        fprintf(stderr, "Usage: %s <pid_for_resistance_group> <number_of_members> <pipe>\n", argv[0]);
         return EXIT_FAILURE;
     }
     int pid_for_resistance_group = atoi(argv[1]);
@@ -42,11 +42,7 @@ int main(int argc, char **argv) {
     }
     int fifo_fd = open(fifo_name, O_RDONLY | O_NONBLOCK);
 
-    char *pipe_fd_str = getenv("PIPE_FD");
-    if (pipe_fd_str == NULL) {
-        fprintf(stderr, "PIPE_FD environment variable not set\n");
-        exit(EXIT_FAILURE);
-    }
+    char *pipe_fd_str = argv[4];
 
     fifo_gui = atoi(pipe_fd_str);
     if (fifo_gui <= 0) {

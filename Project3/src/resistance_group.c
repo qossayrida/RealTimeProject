@@ -64,8 +64,8 @@ void send_state_after_attack_to_gui();
 
 
 int main(int argc, char **argv) {
-    if (argc < 3) {
-        fprintf(stderr, "Usage: %s <type> <number_of_members>\n", argv[0]);
+    if (argc < 4) {
+        fprintf(stderr, "Usage: %s <type> <number_of_members> <pipe>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -93,7 +93,6 @@ int main(int argc, char **argv) {
 
     key = ftok("/tmp/citizen_list_queue", 65);
     msgid = msgget(key, 0666 | IPC_CREAT);
-    fifo_gui = open(FIFO_NAME, O_WRONLY);
 
 
     pid_t pid = getpid();
@@ -103,11 +102,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    char *pipe_fd_str = getenv("PIPE_FD");
-    if (pipe_fd_str == NULL) {
-        fprintf(stderr, "PIPE_FD environment variable not set\n");
-        exit(EXIT_FAILURE);
-    }
+    char *pipe_fd_str = argv[3];
 
     fifo_fd = atoi(pipe_fd_str);
     if (fifo_fd <= 0) {

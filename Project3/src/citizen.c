@@ -19,8 +19,8 @@ int my_type;
 int fifo_gui;
 
 int main(int argc, char **argv) {
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s <type>\n", argv[0]);
+    if (argc < 3) {
+        fprintf(stderr, "Usage: %s <type> <pipe>\n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -36,12 +36,7 @@ int main(int argc, char **argv) {
     int shm_id = atoi(getenv("SHM_ID")); // Shared memory ID passed via environment
     SharedMemory *shared_data = (SharedMemory *) shmat(shm_id, NULL, 0);
 
-    char *pipe_fd_str = getenv("PIPE_FD");
-    if (pipe_fd_str == NULL) {
-        fprintf(stderr, "PIPE_FD environment variable not set\n");
-        exit(EXIT_FAILURE);
-    }
-
+    char *pipe_fd_str = argv[2];
     fifo_gui = atoi(pipe_fd_str);
     if (fifo_gui <= 0) {
         fprintf(stderr, "Invalid pipe file descriptor\n");
