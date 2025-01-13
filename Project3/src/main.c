@@ -24,144 +24,155 @@ int pipefd[2];
 pid_t counter_espionage_agency_pid;
 
 void handle_alarm();
-pid_t create_counter_espionage_agency(const char *program, int shm_id);
-void create_citizens(int shm_id);
-void create_resistant_group_and_enemy(int shm_id, int type);
-void createCitizenToGUI(int ID, const char *content);
-void createGroupMemberToGUI(int ID, const char *content);
-void createAgencyToGUI(int ID);
-void createEnemyToGUI(int enemyID, const char *content);
-void createGroupToGUI(int groupID, const char *content);
-void citizenVisitGroupStart(int ID, const char *content);
-void citizenVisitGroupEnd(int ID, const char *content);
-int findGroupIndexByID(int groupID);
-void updateGroupMembersAfterAttack(int groupID, const char* statesStr);
-void updateAgencyMembersAfterAttack(const char* statesStr);
-static void handleNewStateForMember(int grpIndex, int memberIndex, int code);
-static void handleNewStateForAgencyMember(int memberIndex, int code);
-void updateGroupSuspicionRates(int groupID, const char* suspicionStr);
 
-static void fifoIdleFunc()
-{
-    if (!shared_data->simulation_status)
-    {
+pid_t create_counter_espionage_agency(const char *program, int shm_id);
+
+void create_citizens(int shm_id);
+
+void create_resistant_group_and_enemy(int shm_id, int type);
+
+void createCitizenToGUI(int ID, const char *content);
+
+void createGroupMemberToGUI(int ID, const char *content);
+
+void createAgencyToGUI(int ID);
+
+void createEnemyToGUI(int enemyID, const char *content);
+
+void createGroupToGUI(int groupID, const char *content);
+
+void citizenVisitGroupStart(int ID, const char *content);
+
+void citizenVisitGroupEnd(int ID, const char *content);
+
+int findGroupIndexByID(int groupID);
+
+void updateGroupMembersAfterAttack(int groupID, const char *statesStr);
+
+void updateAgencyMembersAfterAttack(const char *statesStr);
+
+static void handleNewStateForMember(int grpIndex, int memberIndex, int code);
+
+static void handleNewStateForAgencyMember(int memberIndex, int code);
+
+void updateGroupSuspicionRates(int groupID, const char *suspicionStr);
+
+static void fifoIdleFunc() {
+    if (!shared_data->simulation_status) {
+        glutLeaveMainLoop();    
         return;
     }
 
     int bytes_read = read(pipefd[0], info_buffer, sizeof(info_buffer));
     int num_info = (bytes_read != -1) ? bytes_read / sizeof(Information) : 0;
 
-    for (int i = 0; i < num_info; i++)
-    {
-        switch (info_buffer[i].type)
-        {
-        case COUNTER_ESPIONAGE_AGENCY:
-            printf("Main: Received from counter espionage agency: %s\n", info_buffer[i].content);
-            break;
+    for (int i = 0; i < num_info; i++) {
+        switch (info_buffer[i].type) {
+            case COUNTER_ESPIONAGE_AGENCY:
+                printf("Main: Received from counter espionage agency: %s\n", info_buffer[i].content);
+                break;
 
-        case RESISTANT_GROUP_STATE_AFTER_ATTACK:
-            updateGroupMembersAfterAttack(info_buffer[i].id, info_buffer[i].content);
-            printf("Main: resistant group %d state after attack: %s\n",
-                   info_buffer[i].id, info_buffer[i].content);
-            break;
+            case RESISTANT_GROUP_STATE_AFTER_ATTACK:
+                updateGroupMembersAfterAttack(info_buffer[i].id, info_buffer[i].content);
+                printf("Main: resistant group %d state after attack: %s\n",
+                       info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case COUNTER_ESPIONAGE_AGENCY_STATE_AFTER_ATTACK:
-            printf("Main: agency state after attack: %s\n", info_buffer[i].content);
-            updateAgencyMembersAfterAttack(info_buffer[i].content);
-            break;
+            case COUNTER_ESPIONAGE_AGENCY_STATE_AFTER_ATTACK:
+                printf("Main: agency state after attack: %s\n", info_buffer[i].content);
+                updateAgencyMembersAfterAttack(info_buffer[i].content);
+                break;
 
-        case RESISTANT_GROUP_RETURN_FROM_INJURED:
-            printf("Main: resistant group %d return from injured: %s\n", info_buffer[i].id,
-                    info_buffer[i].content);
-            break;
+            case RESISTANT_GROUP_RETURN_FROM_INJURED:
+                printf("Main: resistant group %d return from injured: %s\n", info_buffer[i].id,
+                       info_buffer[i].content);
+                break;
 
-        case ENEMY_RECEIVE_FROM_RESISTANT_GROUP:
-            printf("Main: enemy %d receive from resistance group: %s\n",
-                   info_buffer[i].id, info_buffer[i].content);
-            break;
+            case ENEMY_RECEIVE_FROM_RESISTANT_GROUP:
+                printf("Main: enemy %d receive from resistance group: %s\n",
+                       info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case ENEMY_RECEIVE_FROM_CITIZEN:
-            printf("Main: enemy %d receive from citizen: %s\n",
-                   info_buffer[i].id, info_buffer[i].content);
-            break;
+            case ENEMY_RECEIVE_FROM_CITIZEN:
+                printf("Main: enemy %d receive from citizen: %s\n",
+                       info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case ENEMY_ATTACK_RESISTANT_GROUP:
-            startEnemyAttack(false, info_buffer[i].id);
-            printf("Main: enemy %d attacks group: %s\n",
-                   info_buffer[i].id, info_buffer[i].content);
-            break;
+            case ENEMY_ATTACK_RESISTANT_GROUP:
+                startEnemyAttack(false, info_buffer[i].id);
+                printf("Main: enemy %d attacks group: %s\n",
+                       info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case ENEMY_ATTACK_COUNTER_ESPIONAGE_AGENCY:
-            startEnemyAttack(true, 0); 
-            printf("Main: enemy %d attack espionage agency: %s\n",
-                   info_buffer[i].id, info_buffer[i].content);
-            break;
+            case ENEMY_ATTACK_COUNTER_ESPIONAGE_AGENCY:
+                startEnemyAttack(true, 0);
+                printf("Main: enemy %d attack espionage agency: %s\n",
+                       info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case CITIZEN_CREATED:
-            printf("Main: citizen %d created: %s\n", info_buffer[i].id, info_buffer[i].content);
-            createCitizenToGUI(info_buffer[i].id, info_buffer[i].content);
-            break;
+            case CITIZEN_CREATED:
+                printf("Main: citizen %d created: %s\n", info_buffer[i].id, info_buffer[i].content);
+                createCitizenToGUI(info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case COUNTER_ESPIONAGE_LOG_ABOUT_CITIZEN:
-            printf("Main: agency log about citizen %d: %s\n",
-                   info_buffer[i].id, info_buffer[i].content);
-            break;
+            case COUNTER_ESPIONAGE_LOG_ABOUT_CITIZEN:
+                printf("Main: agency log about citizen %d: %s\n",
+                       info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case CITIZEN_MEET_RESISTANT_GROUP_START:
-            printf("Main: citizen %d meet group %s start\n",
-                   info_buffer[i].id, info_buffer[i].content);
-            citizenVisitGroupStart(info_buffer[i].id, info_buffer[i].content);
-            break;
+            case CITIZEN_MEET_RESISTANT_GROUP_START:
+                printf("Main: citizen %d meet group %s start\n",
+                       info_buffer[i].id, info_buffer[i].content);
+                citizenVisitGroupStart(info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case CITIZEN_MEET_RESISTANT_GROUP_END:
-            printf("Main: citizen %d meet group %s end\n",
-                   info_buffer[i].id, info_buffer[i].content);
-            citizenVisitGroupEnd(info_buffer[i].id, info_buffer[i].content);
-            break;
+            case CITIZEN_MEET_RESISTANT_GROUP_END:
+                printf("Main: citizen %d meet group %s end\n",
+                       info_buffer[i].id, info_buffer[i].content);
+                citizenVisitGroupEnd(info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case RESISTANT_GROUP_MEMBER_CREATED:
-            printf("Main: resistant group member %d created: %s\n", info_buffer[i].id, info_buffer[i].content);
-            createGroupMemberToGUI(info_buffer[i].id, info_buffer[i].content);
-            break;
-            
-        case COUNTER_ESPIONAGE_AGENCY_MEMBER_CREATED:
-            printf("Main: counter espionage agency member %d created: %s\n", info_buffer[i].id,
-                    info_buffer[i].content);
-            createAgencyToGUI(info_buffer[i].id);
-            break;
+            case RESISTANT_GROUP_MEMBER_CREATED:
+                printf("Main: resistant group member %d created: %s\n", info_buffer[i].id, info_buffer[i].content);
+                createGroupMemberToGUI(info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case ENEMY_CREATED:
-            printf("Main: enemy %d created: %s\n", info_buffer[i].id, info_buffer[i].content);
-            createEnemyToGUI(info_buffer[i].id, info_buffer[i].content);
-            break;
-        
-        case RESISTANT_CREATED:
-            printf("Main: resistant %d type %s\n", info_buffer[i].id, info_buffer[i].content);
-            createGroupToGUI(info_buffer[i].id, info_buffer[i].content);
-            break;
+            case COUNTER_ESPIONAGE_AGENCY_MEMBER_CREATED:
+                printf("Main: counter espionage agency member %d created: %s\n", info_buffer[i].id,
+                       info_buffer[i].content);
+                createAgencyToGUI(info_buffer[i].id);
+                break;
 
-        case SUSPICION_RATES_RESISTANT_GROUP:
-            printf("Main: suspicion rates resistant group %d: %s\n", info_buffer[i].id, info_buffer[i].content);
-            updateGroupSuspicionRates(info_buffer[i].id, info_buffer[i].content);
-            break;
+            case ENEMY_CREATED:
+                printf("Main: enemy %d created: %s\n", info_buffer[i].id, info_buffer[i].content);
+                createEnemyToGUI(info_buffer[i].id, info_buffer[i].content);
+                break;
 
-        case COUNTER_ESPIONAGE_AGENCY_DETECTED_SPY:
-            printf("Main: spy detected in resistant group %d: %s\n", info_buffer[i].id, info_buffer[i].content);
-            break;
+            case RESISTANT_CREATED:
+                printf("Main: resistant %d type %s\n", info_buffer[i].id, info_buffer[i].content);
+                createGroupToGUI(info_buffer[i].id, info_buffer[i].content);
+                break;
+
+            case SUSPICION_RATES_RESISTANT_GROUP:
+                printf("Main: suspicion rates resistant group %d: %s\n", info_buffer[i].id, info_buffer[i].content);
+                updateGroupSuspicionRates(info_buffer[i].id, info_buffer[i].content);
+                break;
+
+            case COUNTER_ESPIONAGE_AGENCY_DETECTED_SPY:
+                printf("Main: spy detected in resistant group %d: %s\n", info_buffer[i].id, info_buffer[i].content);
+                break;
         }
 
         if ((shared_data->number_of_killed_resistant_group >= config.killed_resistance_members_threshold) ||
             (shared_data->number_of_injured_resistant_group >= config.injured_resistance_members_threshold) ||
             (shared_data->number_of_killed_caught_counter_espionage_agency >=
-             config.killed_caught_counter_members_threshold))
-        {
+             config.killed_caught_counter_members_threshold)) {
             printf("Main: Condition => end simulation\n");
             shared_data->simulation_status = 0;
         }
     }
 
-    if (!shared_data->simulation_status)
-    {
+    if (!shared_data->simulation_status) {
         kill(counter_espionage_agency_pid, SIGUSR1);
 
         printf("Counter of array: %d\n", shared_data->array_counter);
@@ -176,12 +187,10 @@ static void fifoIdleFunc()
         }
 
         printf("Main: exit\n");
-
     }
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <config_file>\n", argv[0]);
         return EXIT_FAILURE;
@@ -274,7 +283,7 @@ pid_t create_counter_espionage_agency(const char *program, int shm_id) {
         char shm_id_str[10];
         sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
-        execlp(program, program,pipefd_str, NULL);    // Replace process with new program
+        execlp(program, program, pipefd_str, NULL);    // Replace process with new program
         perror("execlp failed");
         exit(1); // Exit if execlp fails
     } else if (pid < 0) {
@@ -299,7 +308,8 @@ pid_t create_counter_espionage_agency(const char *program, int shm_id) {
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
         snprintf(pid_str, sizeof(pid_str), "%d", pid);
         sprintf(number_of_member_in_counter_espionage_str, "%d", config.number_of_member_in_counter_espionage_agency);
-        execlp("./bin/enemy", "./bin/enemy", pid_str, number_of_member_in_counter_espionage_str, type_str,pipefd_str, NULL);
+        execlp("./bin/enemy", "./bin/enemy", pid_str, number_of_member_in_counter_espionage_str, type_str, pipefd_str,
+               NULL);
         perror("execlp failed");
         exit(1); // Exit if execlp fails
     } else if (enemy < 0) {
@@ -331,7 +341,7 @@ void create_citizens(int shm_id) {
             sprintf(shm_id_str, "%d", shm_id); // Convert shm_id to string
             setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
             sprintf(type_str, "%d", type);
-            execlp("./bin/citizen", "./bin/citizen", type_str,pipefd_str, NULL);
+            execlp("./bin/citizen", "./bin/citizen", type_str, pipefd_str, NULL);
             perror("execlp failed");
             exit(1); // Exit if execlp fails
         } else if (pid < 0) {
@@ -361,7 +371,8 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
         sprintf(type_str, "%d", type);
         sprintf(number_of_member_in_resistant_group_str, "%d", number_of_member_in_resistant_group);
-        execlp("./bin/resistance_group", "./bin/resistance_group", type_str, number_of_member_in_resistant_group_str,pipefd_str,
+        execlp("./bin/resistance_group", "./bin/resistance_group", type_str, number_of_member_in_resistant_group_str,
+               pipefd_str,
                NULL);
         perror("execlp failed");
         exit(1); // Exit if execlp fails
@@ -387,7 +398,8 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
         setenv("SHM_ID", shm_id_str, 1);   // Set SHM_ID as an environment variable
         snprintf(pid_str, sizeof(pid_str), "%d", pid);
         sprintf(number_of_member_in_resistant_group_str, "%d", number_of_member_in_resistant_group);
-        execlp("./bin/enemy", "./bin/enemy", pid_str, number_of_member_in_resistant_group_str, type_str,pipefd_str, NULL);
+        execlp("./bin/enemy", "./bin/enemy", pid_str, number_of_member_in_resistant_group_str, type_str, pipefd_str,
+               NULL);
         perror("execlp failed");
         exit(1); // Exit if execlp fails
     } else if (enemy_pid < 0) {
@@ -397,8 +409,7 @@ void create_resistant_group_and_enemy(int shm_id, int type) {
     shared_data->communication_pid[shared_data->array_counter][1] = enemy_pid;
 }
 
-void createCitizenToGUI(int ID, const char *content)
-{
+void createCitizenToGUI(int ID, const char *content) {
 
     bool isSpy = (strcmp(content, "Spy") == 0);
     char name[32];
@@ -408,33 +419,30 @@ void createCitizenToGUI(int ID, const char *content)
     glutPostRedisplay();
 }
 
-void createAgencyToGUI(int ID){
+void createAgencyToGUI(int ID) {
     char snum[10];
-    sprintf(snum,"%d",ID);
+    sprintf(snum, "%d", ID);
     createAgencyThread(snum);
     glutPostRedisplay();
 }
 
-void createEnemyToGUI(int enemyID, const char *content)
-{
+void createEnemyToGUI(int enemyID, const char *content) {
 
     char token1[32], token2[32];
     int n = sscanf(content, "%s %s", token1, token2);
-    if(n < 1) {
+    if (n < 1) {
         printf("createEnemyToGUI: not enough tokens in '%s'\n", content);
         return;
     }
 
-    if(n == 1) strcpy(token2, "0");
+    if (n == 1) strcpy(token2, "0");
 
     bool forResistant = false;
-    if(!strcmp(token1, "For_Resistant")) {
+    if (!strcmp(token1, "For_Resistant")) {
         forResistant = true;
-    }
-    else if(!strcmp(token1, "For_Espionage")) {
+    } else if (!strcmp(token1, "For_Espionage")) {
         forResistant = false;
-    }
-    else {
+    } else {
         printf("createEnemyToGUI: unknown token1 '%s'\n", token1);
         return;
     }
@@ -445,8 +453,7 @@ void createEnemyToGUI(int enemyID, const char *content)
     createEnemy(enemyName, forResistant, token2);
 }
 
-void createGroupToGUI(int groupID, const char *content)
-{
+void createGroupToGUI(int groupID, const char *content) {
     char groupName[32];
     sprintf(groupName, "G%d", groupID);
 
@@ -455,8 +462,7 @@ void createGroupToGUI(int groupID, const char *content)
     printf("[Main] Created group G%d\n", groupID);
 }
 
-void createGroupMemberToGUI(int ID, const char *content)
-{
+void createGroupMemberToGUI(int ID, const char *content) {
     char token1[32], token2[32];
     int result = sscanf(content, "%s %s", token1, token2);
     if (result < 2) {
@@ -470,7 +476,7 @@ void createGroupMemberToGUI(int ID, const char *content)
     sprintf(groupName, "G%d", ID);
 
     char memberName[64];
-    snprintf(memberName, sizeof(memberName),"M%s", token2);
+    snprintf(memberName, sizeof(memberName), "M%s", token2);
 
     MemberState defaultState = STATE_ALIVE;
 
@@ -479,7 +485,7 @@ void createGroupMemberToGUI(int ID, const char *content)
     glutPostRedisplay();
 }
 
-void citizenVisitGroupStart(int ID, const char *content){
+void citizenVisitGroupStart(int ID, const char *content) {
     char citizenName[32];
     sprintf(citizenName, "%d", ID);
 
@@ -491,18 +497,16 @@ void citizenVisitGroupStart(int ID, const char *content){
     citizenVisitGroup(citizenName, groupName, stayDuration);
 }
 
-void citizenVisitGroupEnd(int ID, const char *content){
+void citizenVisitGroupEnd(int ID, const char *content) {
     char citizenName[32];
     sprintf(citizenName, "C%d", ID);
 
-    for (int v = 0; v < MAX_VISITS; v++)
-    {
+    for (int v = 0; v < MAX_VISITS; v++) {
         if (g_visits[v].active &&
-            !strcmp(g_visits[v].person.name, citizenName))
-        {
+            !strcmp(g_visits[v].person.name, citizenName)) {
             if (g_visits[v].state == VISIT_STAYING) {
                 g_visits[v].state = VISIT_TRAVEL_BACK;
-                g_visits[v].timer = 0.0f; 
+                g_visits[v].timer = 0.0f;
                 printf("Main: forcing citizen %d to return.\n", ID);
             }
             break;
@@ -510,8 +514,7 @@ void citizenVisitGroupEnd(int ID, const char *content){
     }
 }
 
-void updateGroupMembersAfterAttack(int groupID, const char* statesStr)
-{
+void updateGroupMembersAfterAttack(int groupID, const char *statesStr) {
     int grpIndex = findGroupIndexByID(groupID);
     if (grpIndex < 0) {
         printf("No group with ID=%d\n", groupID);
@@ -522,11 +525,10 @@ void updateGroupMembersAfterAttack(int groupID, const char* statesStr)
     strncpy(buf, statesStr, sizeof(buf));
     buf[sizeof(buf) - 1] = '\0';
 
-    char* token = strtok(buf, " \t");
-    int   idx   = 0;
+    char *token = strtok(buf, " \t");
+    int idx = 0;
 
-    while (token && idx < g_groups[grpIndex].numMembers)
-    {
+    while (token && idx < g_groups[grpIndex].numMembers) {
         int code = atoi(token);
         handleNewStateForMember(grpIndex, idx, code);
 
@@ -538,96 +540,88 @@ void updateGroupMembersAfterAttack(int groupID, const char* statesStr)
     glutPostRedisplay();
 }
 
-int findGroupIndexByID(int groupID)
-{
-    for(int i=0; i<g_numGroups; i++){
+int findGroupIndexByID(int groupID) {
+    for (int i = 0; i < g_numGroups; i++) {
 
         char groupName[32];
         sprintf(groupName, "G%d", groupID);
-        if (!strcmp(g_groups[i].groupName, groupName))
-        {
+        if (!strcmp(g_groups[i].groupName, groupName)) {
             return i;
         }
     }
     return -1;
 }
 
-static void handleNewStateForMember(int grpIndex, int memberIndex, int code)
-{
-    Person* pm = &g_groups[grpIndex].members[memberIndex];
+static void handleNewStateForMember(int grpIndex, int memberIndex, int code) {
+    Person *pm = &g_groups[grpIndex].members[memberIndex];
 
-    switch (code)
-    {
-    case KILLED:  // 0
-    case CAUGHT:  // 1
-    case INJURED_SEVERELY: // 2
-        pm->whiteTimer = 1.0f;  
-        break;
-
-    case INJURED_LIGHTLY: // 3
-        pm->state  = STATE_INJURED;
-        pm->killed = false;
-        pm->whiteTimer = 0.0f; 
-        break;
-
-    case HEALTHY:         // 4
-    default:
-        pm->state  = STATE_ALIVE;
-        pm->killed = false;
-        pm->whiteTimer = 0.0f;
-        break;
-    }
-}
-
-static void handleNewStateForAgencyMember(int memberIndex, int code)
-{
-    Person* p = &g_agency[memberIndex];
     switch (code) {
-    case 0: // KILLED
-    case 1: // CAUGHT
-    case 2: // INJURED_SEVERELY
-        // show them white for 1 second
-        p->whiteTimer = 1.0f;
-        break;
+        case KILLED:  // 0
+        case CAUGHT:  // 1
+        case INJURED_SEVERELY: // 2
+            pm->whiteTimer = 1.0f;
+            break;
 
-    case 3: // INJURED_LIGHTLY
-        // e.g., state = STATE_INJURED, no white
-        p->whiteTimer = 0.0f;
-        p->state      = STATE_INJURED;
-        p->killed     = false;
-        break;
+        case INJURED_LIGHTLY: // 3
+            pm->state = STATE_INJURED;
+            pm->killed = false;
+            pm->whiteTimer = 0.0f;
+            break;
 
-    case 4: // HEALTHY
-    default:
-        p->whiteTimer = 0.0f;
-        p->state      = STATE_ALIVE;
-        p->killed     = false;
-        break;
+        case HEALTHY:         // 4
+        default:
+            pm->state = STATE_ALIVE;
+            pm->killed = false;
+            pm->whiteTimer = 0.0f;
+            break;
     }
 }
 
-void updateAgencyMembersAfterAttack(const char* statesStr)
-{
+static void handleNewStateForAgencyMember(int memberIndex, int code) {
+    Person *p = &g_agency[memberIndex];
+    switch (code) {
+        case 0: // KILLED
+        case 1: // CAUGHT
+        case 2: // INJURED_SEVERELY
+            // show them white for 1 second
+            p->whiteTimer = 1.0f;
+            break;
+
+        case 3: // INJURED_LIGHTLY
+            // e.g., state = STATE_INJURED, no white
+            p->whiteTimer = 0.0f;
+            p->state = STATE_INJURED;
+            p->killed = false;
+            break;
+
+        case 4: // HEALTHY
+        default:
+            p->whiteTimer = 0.0f;
+            p->state = STATE_ALIVE;
+            p->killed = false;
+            break;
+    }
+}
+
+void updateAgencyMembersAfterAttack(const char *statesStr) {
     char buf[256];
     strncpy(buf, statesStr, sizeof(buf));
-    buf[sizeof(buf)-1] = '\0'; 
+    buf[sizeof(buf) - 1] = '\0';
 
-    char* token = strtok(buf, " \t");
-    int idx      = 0;
-    
-    while (token && idx < g_numAgency)
-    {
+    char *token = strtok(buf, " \t");
+    int idx = 0;
+
+    while (token && idx < g_numAgency) {
         int code = atoi(token);
         handleNewStateForAgencyMember(idx, code);
         token = strtok(NULL, " \t");
         idx++;
     }
-    
+
     glutPostRedisplay();
 }
 
-void updateGroupSuspicionRates(int groupID, const char* suspicionStr)
-{
+void updateGroupSuspicionRates(int groupID, const char *suspicionStr) {
     int grpIndex = findGroupIndexByID(groupID);
     if (grpIndex < 0) {
         printf("No group found with ID=%d\n", groupID);
@@ -636,13 +630,12 @@ void updateGroupSuspicionRates(int groupID, const char* suspicionStr)
 
     char buf[256];
     strncpy(buf, suspicionStr, sizeof(buf));
-    buf[sizeof(buf)-1] = '\0';
+    buf[sizeof(buf) - 1] = '\0';
 
     int idx = 0;
-    char* token = strtok(buf, " \t");
-    while (token && idx < g_groups[grpIndex].numMembers)
-    {
-        float suspicionVal = atof(token); 
+    char *token = strtok(buf, " \t");
+    while (token && idx < g_groups[grpIndex].numMembers) {
+        float suspicionVal = atof(token);
         g_groups[grpIndex].members[idx].suspicion = suspicionVal;
 
         token = strtok(NULL, " \t");
