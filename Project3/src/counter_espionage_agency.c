@@ -78,6 +78,8 @@ int main() {
     for (int i = 0; i < config.number_of_member_in_counter_espionage_agency; i++) {
         args[i] = i;
         members[i].creation_time = time(NULL);
+        members[i].state_after_attack = 2;
+
 
         char result[20];
         snprintf(result, sizeof(result), "%d", i);
@@ -101,7 +103,7 @@ int main() {
                 }
                 members[i].is_killed_caught_counter_espionage_agency = 0;
                 members[i].creation_time = time(NULL);
-                members[i].state_after_attack = 0;
+                members[i].state_after_attack = 2;
             }
         }
     }
@@ -126,13 +128,17 @@ void handle_SIGUSR1() {
 void handle_SIGUSR2() {
     for (int i = 0; i < config.number_of_member_in_counter_espionage_agency; i++) {
         if ((time(NULL) - members[i].creation_time) > 10) {
+
             int state = rand() % 3; // 0-2 kill, caught,normal
             members[i].state_after_attack = state;
             if (state == 0 || state == 1) {
+                printf("*************************************\n");
+
                 members[i].is_killed_caught_counter_espionage_agency = 1;
             }
+        } else{
+        members[i].state_after_attack = 2;
         }
-        members[i].state_after_attack = 0;
     }
     send_state_after_attack_to_gui();
 }
@@ -223,7 +229,6 @@ void regular_analyzes() {
 
 
 void send_state_after_attack_to_gui() {
-    printf("*************************************\n");
     char state_str[20];
     memset(state_str, 0, sizeof(state_str));
     for (int i = 0; i < config.number_of_member_in_counter_espionage_agency; i++) {
