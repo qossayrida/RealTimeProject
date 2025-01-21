@@ -1,4 +1,4 @@
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE  1
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 000C                  00045 start   
 000C   2050           00046     CALL    inid    ; Initialize the display
                       00047 
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE  2
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -116,7 +116,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 002D   14F4           00098     BSF  Select,  RS   ; Select data mode
 002E   2040           00099     CALL    send        ; Send the character to LCD
 002F   0008           00100     RETURN
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE  3
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -175,7 +175,7 @@ Message[305]: Using default destination of 1 (file).
                       00043 ;--------------------------------------------------------------
 003B   1508           00044 pulseE  BSF     PORTD,E         ; Set E high
 003C   2030           00045         CALL    onems           ; Delay 1ms
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE  4
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -234,7 +234,7 @@ Message[305]: Using default destination of 1 (file).
 0061   2040           00095         CALL    send            ; and send code
 0062   3001           00096         MOVLW   0x01            ; Code to clear display
 0063   2040           00097         CALL    send            ; and send code
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE  5
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -252,7 +252,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00107 ;--------------------------------------------------------------
                       00107 
                       00108     END
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE  6
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE  6
 
 
 SYMBOL TABLE
@@ -311,7 +311,7 @@ CIS                               00000003
 CKE                               00000006
 CKP                               00000004
 CM0                               00000000
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE  7
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE  7
 
 
 SYMBOL TABLE
@@ -370,7 +370,7 @@ NOT_A                             00000005
 NOT_ADDRESS                       00000005
 NOT_BO                            00000000
 NOT_BOR                           00000000
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE  8
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE  8
 
 
 SYMBOL TABLE
@@ -429,7 +429,7 @@ RCIE                              00000005
 RCIF                              00000005
 RCREG                             0000001A
 RCSTA                             00000018
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE  9
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE  9
 
 
 SYMBOL TABLE
@@ -488,7 +488,7 @@ TMR1IE                            00000000
 TMR1IF                            00000000
 TMR1L                             0000000E
 TMR1ON                            00000000
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE 10
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE 10
 
 
 SYMBOL TABLE
@@ -547,7 +547,7 @@ _PWRTE_ON                         00003FF7
 _RC_OSC                           00003FFF
 _WDT_OFF                          00003FFB
 _WDT_ON                           00003FFF
-MPASM  5.43                          MAIN.ASM   1-21-2025  18:39:22         PAGE 11
+MPASM  5.43                          MAIN.ASM   1-21-2025  19:44:14         PAGE 11
 
 
 SYMBOL TABLE
