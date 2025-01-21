@@ -13,6 +13,11 @@
     INCLUDE "P16F877A.INC"    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                Data Section
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;			 Program begins
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
@@ -48,22 +53,36 @@ start
     MOVLW   'O'         ; Load ASCII code for 'O'
     CALL    display_char
 
+
 loop    GOTO    loop    ; Stay in infinite loop
 
 
 
 ;----------------------------------------------------
 ;----------------------------------------------------
-;	  Subroutine to display a character on LCD
+;	  			Subroutine for LCD
 ;----------------------------------------------------
 ;----------------------------------------------------
 
-; Receives character in W and uses the LCD driver routines
-display_char    BSF  Select,  RS       ; Select data mode
-    CALL    send     ; Send the character to LCD
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;    		Print Message 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;    		Print character 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+display_char    
+	BSF  Select,  RS    ; Select data mode
+    CALL    send     	; Send the character to LCD
     RETURN
 
-; Include LCD driver routine
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;       Include LCD driver routine
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
     INCLUDE "LCDIS.INC"
 
