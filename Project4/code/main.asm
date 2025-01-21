@@ -57,6 +57,12 @@ start
     MOVLW   'O'
     CALL    display_char
 
+	; Print "level 1" or "level 2" based on W
+    MOVLW   1   ; Load 1 into W for level 1
+    CALL    print_level
+    MOVLW   22   ; Load 22 into W for level 22
+    CALL    print_level
+
 loop
     BANKSEL BUTTONS    ; Select bank for BUTTONS
     MOVF    BUTTONS, W ; Move BUTTONS state to W
@@ -89,6 +95,62 @@ toggle_RC6
 toggle_RC7
     XORWF   LEDS, F    ; Toggle RC7
     GOTO    loop
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;           Print Level Subroutine
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+print_level
+    ; Display "LEVEL "
+    MOVLW   'L'
+    CALL    display_char
+    MOVLW   'E'
+    CALL    display_char
+    MOVLW   'V'
+    CALL    display_char
+    MOVLW   'E'
+    CALL    display_char
+    MOVLW   'L'
+    CALL    display_char
+    MOVLW   ' '          ; Space after "LEVEL"
+    CALL    display_char
+
+    ; Convert number in W to ASCII and display
+    MOVWF   TEMP         ; Store the level number in TEMP
+    CLRF    DIGIT1       ; Clear tens digit counter
+
+div_loop
+    MOVLW   10
+    SUBWF   TEMP, W      ; Subtract 10 from TEMP and store in W
+    BTFSS   STATUS, C    ; Skip next instruction if W >= TEMP (no borrow)
+    GOTO    done_div     ; If borrow occurred, exit loop
+    INCF    DIGIT1, F    ; Increment tens digit counter
+    MOVF    W, F         ; Move result back to TEMP
+    GOTO    div_loop     ; Repeat subtraction
+
+done_div
+    ; TEMP now contains the ones digit, DIGIT1 contains the tens digit
+
+    ; Display tens digit
+    MOVF    DIGIT1, W    ; Move tens digit to W
+    ADDLW   '0'          ; Convert to ASCII
+    CALL    display_char ; Display the tens digit
+
+    ; Display ones digit
+    MOVF    TEMP, W      ; Move ones digit to W
+    ADDLW   '0'          ; Convert to ASCII
+    CALL    display_char ; Display the ones digit
+
+    RETURN
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                Variables
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+TEMP        RES     1    ; Temporary storage for level number
+DIGIT1      RES     1    ; Tens digit
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;              Subroutine for LCD
