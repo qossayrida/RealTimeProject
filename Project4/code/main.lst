@@ -1,4 +1,4 @@
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE  1
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 000C                  00045 start   
 000C   206F           00046     CALL    inid    ; Initialize the display
                       00047 
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE  2
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -113,58 +113,57 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00095 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00096 
 002A                  00097 print_level
-                      00098 
-002A   00C9           00099         MOVWF   temp          ; Store W into temp
-                      00100 
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE  3
+002A   00C9           00098     MOVWF   temp          ; Store W into temp
+                      00099 
+                      00100     ; Display "LEVEL "
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00101     ; Display "LEVEL "
-002B   304C           00102     MOVLW   'L'
-002C   204C           00103     CALL    display_char
-002D   3045           00104     MOVLW   'E'
-002E   204C           00105     CALL    display_char
-002F   3056           00106     MOVLW   'V'
-0030   204C           00107     CALL    display_char
-0031   3045           00108     MOVLW   'E'
-0032   204C           00109     CALL    display_char
-0033   304C           00110     MOVLW   'L'
-0034   204C           00111     CALL    display_char
-0035   3020           00112     MOVLW   ' '          ; Space after "LEVEL"
-0036   204C           00113     CALL    display_char
-                      00114 
-                      00115         ; Store W (level) into temp variable
-0037   01CA           00116     CLRF    tens          ; Clear tens register
-0038   01CB           00117     CLRF    ones          ; Clear ones register
-                      00118 
-0039                  00119 tens_loop
-0039   0090           00120         MOVWF   10          ; Update temp with the new value
-Warning[202]: Argument out of range.  Least significant bits used.
-003A   02C9           00121     SUBWF   temp,temp            ; Subtract 10 from W
-003B   1C03           00122     BTFSS   STATUS, C     ; If result is negative (W < 10), stop loop
-003C   2840           00123     GOTO    ones_calc     ; Go to calculate ones digit
-003D   00C9           00124     MOVWF   temp          ; Update temp with the new value
-003E   0ACA           00125     INCF    tens, F       ; Increment tens counter
-003F   2839           00126     GOTO    tens_loop     ; Repeat the loop
-                      00127 
-0040                  00128 ones_calc
-0040   0849           00129     MOVF    temp, W       ; Remaining value in temp is the ones digit
-0041   00CB           00130     MOVWF   ones          ; Store it in ones register
-                      00131 
-                      00132 ; Convert tens digit to ASCII and display
-0042   084A           00133     MOVF    tens, W       ; Load tens value into W
-0043   3E30           00134     ADDLW   '0'           ; Convert to ASCII
-0044   204C           00135     CALL    display_char  ; Display tens digit
-                      00136 
-                      00137 ; Convert ones digit to ASCII and display
-0045   084B           00138     MOVF    ones, W       ; Load ones value into W
-0046   3E30           00139     ADDLW   '0'           ; Convert to ASCII
-0047   204C           00140     CALL    display_char  ; Display ones digit
-                      00141 
-0048   0008           00142     RETURN
+002B   304C           00101     MOVLW   'L'
+002C   204C           00102     CALL    display_char
+002D   3045           00103     MOVLW   'E'
+002E   204C           00104     CALL    display_char
+002F   3056           00105     MOVLW   'V'
+0030   204C           00106     CALL    display_char
+0031   3045           00107     MOVLW   'E'
+0032   204C           00108     CALL    display_char
+0033   304C           00109     MOVLW   'L'
+0034   204C           00110     CALL    display_char
+0035   3020           00111     MOVLW   ' '          ; Space after "LEVEL"
+0036   204C           00112     CALL    display_char
+                      00113 
+                      00114     ; Initialize tens and ones to zero
+0037   01CA           00115     CLRF    tens          ; Clear tens register
+0038   01CB           00116     CLRF    ones          ; Clear ones register
+                      00117 
+0039                  00118 tens_loop
+0039   3010           00119     MOVLW   10          ; Update temp with the new value
+003A   02C9           00120     SUBWF   temp,1            ; Subtract 10 from W
+003B   1C03           00121     BTFSS   STATUS, C     ; If result is negative (W < 10), stop loop
+003C   283F           00122     GOTO    ones_calc     ; Go to calculate ones digit
+003D   0ACA           00123     INCF    tens, F       ; Increment tens counter
+003E   2839           00124     GOTO    tens_loop     ; Repeat the loop
+                      00125 
+003F                  00126 ones_calc
+003F   07C9           00127     ADDWF   temp,1
+0040   0849           00128     MOVF    temp, W       ; Remaining value in temp is the ones digit
+0041   00CB           00129     MOVWF   ones          ; Store it in ones register
+                      00130 
+                      00131     ; Convert tens digit to ASCII and display
+0042   084A           00132     MOVF    tens, W       ; Load tens value into W
+0043   3E30           00133     ADDLW   '0'           ; Convert to ASCII
+0044   204C           00134     CALL    display_char  ; Display tens digit
+                      00135 
+                      00136     ; Convert ones digit to ASCII and display
+0045   084B           00137     MOVF    ones, W       ; Load ones value into W
+0046   3E30           00138     ADDLW   '0'           ; Convert to ASCII
+0047   204C           00139     CALL    display_char  ; Display ones digit
+                      00140 
+0048   0008           00141     RETURN
+                      00142 
                       00143 
                       00144 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00145 ; Variables declaration
@@ -175,13 +174,13 @@ Warning[202]: Argument out of range.  Least significant bits used.
 004B   3FFF           00150 ones    RES 1            ; Reserve one byte for ones digit
                       00151 
                       00152 
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE  4
+                      00153 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00153 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00154 ;              Subroutine for LCD
                       00155 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00156 
@@ -234,13 +233,13 @@ Message[305]: Using default destination of 1 (file).
 0056   204F           00036 loopX   CALL    onems           ; Delay 1ms
 Message[305]: Using default destination of 1 (file).
 0057   0BF1           00037                 DECFSZ  TimerX          ; Repeat X times 
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE  5
+0058   2856           00038                 GOTO    loopX           ; until Z
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0058   2856           00038                 GOTO    loopX           ; until Z
 0059   0008           00039                 RETURN                  ; and finish
                       00040 
                       00041 ;--------------------------------------------------------------
@@ -293,13 +292,13 @@ Message[305]: Using default destination of 1 (file).
 0079   204F           00087         CALL    onems           ; Wait 1ms
 007A   205A           00088         CALL    pulseE          ; Latch initial code again
 007B   1208           00089         BCF     PORTD,4         ; Set 4-bit mode
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE  6
+007C   205A           00090         CALL    pulseE          ; Latch it
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE  6
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-007C   205A           00090         CALL    pulseE          ; Latch it
                       00091         
 007D   3028           00092         MOVLW   0x28            ; Set 4-bit mode, 2 lines
 007E   205F           00093         CALL    send            ; and send code
@@ -319,7 +318,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00107 ;--------------------------------------------------------------
                       00167 
                       00168     END
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE  7
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE  7
 
 
 SYMBOL TABLE
@@ -378,7 +377,7 @@ CIS                               00000003
 CKE                               00000006
 CKP                               00000004
 CM0                               00000000
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE  8
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE  8
 
 
 SYMBOL TABLE
@@ -437,7 +436,7 @@ NOT_A                             00000005
 NOT_ADDRESS                       00000005
 NOT_BO                            00000000
 NOT_BOR                           00000000
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE  9
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE  9
 
 
 SYMBOL TABLE
@@ -496,7 +495,7 @@ RCIE                              00000005
 RCIF                              00000005
 RCREG                             0000001A
 RCSTA                             00000018
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE 10
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE 10
 
 
 SYMBOL TABLE
@@ -555,7 +554,7 @@ TMR1IE                            00000000
 TMR1IF                            00000000
 TMR1L                             0000000E
 TMR1ON                            00000000
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE 11
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE 11
 
 
 SYMBOL TABLE
@@ -614,7 +613,7 @@ _PWRTE_ON                         00003FF7
 _RC_OSC                           00003FFF
 _WDT_OFF                          00003FFB
 _WDT_ON                           00003FFF
-MPASM  5.43                          MAIN.ASM   1-21-2025  22:16:21         PAGE 12
+MPASM  5.43                          MAIN.ASM   1-21-2025  22:38:22         PAGE 12
 
 
 SYMBOL TABLE
@@ -634,7 +633,7 @@ loop1                             00000051
 loopX                             00000056
 onems                             0000004F
 ones                              0000004B
-ones_calc                         00000040
+ones_calc                         0000003F
 print_level                       0000002A
 pulseE                            0000005A
 send                              0000005F
@@ -663,7 +662,7 @@ Program Memory Words Free:  8054
 
 
 Errors   :     0
-Warnings :     1 reported,     0 suppressed
+Warnings :     0 reported,     0 suppressed
 Messages :     6 reported,     0 suppressed
 
 

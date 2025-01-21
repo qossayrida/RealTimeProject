@@ -95,8 +95,7 @@ toggle_RC7
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 print_level
-
-	MOVWF   temp          ; Store W into temp
+    MOVWF   temp          ; Store W into temp
 
     ; Display "LEVEL "
     MOVLW   'L'
@@ -112,34 +111,35 @@ print_level
     MOVLW   ' '          ; Space after "LEVEL"
     CALL    display_char
 
- 	; Store W (level) into temp variable
+    ; Initialize tens and ones to zero
     CLRF    tens          ; Clear tens register
     CLRF    ones          ; Clear ones register
 
 tens_loop
-	MOVWF   10          ; Update temp with the new value
-    SUBWF   temp,temp            ; Subtract 10 from W
+    MOVLW   10          ; Update temp with the new value
+    SUBWF   temp,1            ; Subtract 10 from W
     BTFSS   STATUS, C     ; If result is negative (W < 10), stop loop
     GOTO    ones_calc     ; Go to calculate ones digit
-    MOVWF   temp          ; Update temp with the new value
     INCF    tens, F       ; Increment tens counter
     GOTO    tens_loop     ; Repeat the loop
 
 ones_calc
+    ADDWF   temp,1
     MOVF    temp, W       ; Remaining value in temp is the ones digit
     MOVWF   ones          ; Store it in ones register
 
-; Convert tens digit to ASCII and display
+    ; Convert tens digit to ASCII and display
     MOVF    tens, W       ; Load tens value into W
     ADDLW   '0'           ; Convert to ASCII
     CALL    display_char  ; Display tens digit
 
-; Convert ones digit to ASCII and display
+    ; Convert ones digit to ASCII and display
     MOVF    ones, W       ; Load ones value into W
     ADDLW   '0'           ; Convert to ASCII
     CALL    display_char  ; Display ones digit
 
     RETURN
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Variables declaration
