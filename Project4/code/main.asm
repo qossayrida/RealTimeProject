@@ -28,17 +28,6 @@
 
     ORG 0       ; Default start address 
     NOP         ; Required for ICD mode
-
-    BANKSEL TRISC       ; Select bank 1
-    CLRF    TRISC       ; Set PORTC as output
-    MOVLW   0xF0        ; Set RB4-RB7 as input (1) and others as output (0)
-    MOVWF   TRISB       ; Configure TRISB register
-	CLRF    TRISD       ; Display port is output
-
-    BANKSEL PORTC       ; Select bank 0
-    CLRF    PORTC       ; Clear LED outputs
-	CLRF    PORTD       ; Clear display outputs
-
     GOTO    start       ; Jump to main program
 
 
@@ -100,6 +89,20 @@ other_int
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 start   
+
+	BANKSEL TRISC       ; Select bank 1
+    CLRF    TRISC       ; Set PORTC as output
+    MOVLW   0xF0        ; Set RB4-RB7 as input (1) and others as output (0)
+    MOVWF   TRISB       ; Configure TRISB register
+    CLRF    TRISD       ; Display port is output
+
+    BANKSEL PORTC       ; Select bank 0
+    CLRF    PORTC       ; Clear LED outputs
+    CLRF    PORTD       ; Clear display outputs
+    MOVLW    B'10001000'    ; enable GIE (bit 7), RBIE (bit 3)
+    MOVWF    INTCON        ; PortB pins
+
+
     CALL    inid    ; Initialize the display
 
 

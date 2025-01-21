@@ -1,4 +1,4 @@
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE  1
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -37,212 +37,193 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00028 
 0000                  00029     ORG 0       ; Default start address 
 0000   0000           00030     NOP         ; Required for ICD mode
-                      00031 
-0001   1683 1303      00032     BANKSEL TRISC       ; Select bank 1
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0003   0187           00033     CLRF    TRISC       ; Set PORTC as output
-0004   30F0           00034     MOVLW   0xF0        ; Set RB4-RB7 as input (1) and others as output (0)
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0005   0086           00035     MOVWF   TRISB       ; Configure TRISB register
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0006   0188           00036         CLRF    TRISD       ; Display port is output
+0001   2830           00031     GOTO    start       ; Jump to main program
+                      00032 
+                      00033 
+                      00034 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00035 ;        Interrupt Service Routine
+                      00036 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00037 
-0007   1283 1303      00038     BANKSEL PORTC       ; Select bank 0
-0009   0187           00039     CLRF    PORTC       ; Clear LED outputs
-000A   0188           00040         CLRF    PORTD       ; Clear display outputs
+0004                  00038         ORG     004
+0004   1C0B           00039         BTFSS INTCON, 0 ; Check if the source of interrupt is change on RB4...7.
+0005   282E           00040         goto other_int
                       00041 
-000B   2830           00042     GOTO    start       ; Jump to main program
-                      00043 
-                      00044 
-                      00045 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00046 ;        Interrupt Service Routine
-                      00047 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE  2
+0006   1A06           00042         BTFSC PORTB, 4  ; Check if PortB.4 (column 4)
+0007   2810           00043         goto check_col_2
+0008   1283 1303      00044     BANKSEL BUTTONS         ; Select bank for BUTTONS
+000A   0806           00045     MOVF    BUTTONS, W      ; Read PORTB states
+000B   1283 1303      00046     BANKSEL LEDS            ; Select bank for LEDS
+000D   0687           00047         XORWF   LEDS, F
+000E   100B           00048         BCF INTCON, 0   ; Reset the interrupt flag
+000F   282E           00049         goto other_int
+                      00050 
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00048 
-0004                  00049         ORG     004
-Error[118]  : Overwriting previous address contents (0004)
-Error[118]  : Overwriting previous address contents (0004)
-0004   1C0B           00050         BTFSS 0x0B, 0   ; Check if the source of interrupt is change on RB4...7.
-Error[118]  : Overwriting previous address contents (0005)
-Error[118]  : Overwriting previous address contents (0005)
-0005   282E           00051         goto other_int
-                      00052 
-Error[118]  : Overwriting previous address contents (0006)
-Error[118]  : Overwriting previous address contents (0006)
-0006   1A06           00053         BTFSC PORTB, 4  ; Check if PortB.4 (column 4)
-Error[118]  : Overwriting previous address contents (0007)
-Error[118]  : Overwriting previous address contents (0007)
-0007   2810           00054         goto check_col_2
-Error[118]  : Overwriting previous address contents (0008)
-Error[118]  : Overwriting previous address contents (0008)
-Error[118]  : Overwriting previous address contents (0009)
-Error[118]  : Overwriting previous address contents (0009)
-0008   1283 1303      00055     BANKSEL BUTTONS         ; Select bank for BUTTONS
-Error[118]  : Overwriting previous address contents (000A)
-Error[118]  : Overwriting previous address contents (000A)
-000A   0806           00056     MOVF    BUTTONS, W      ; Read PORTB states
-Error[118]  : Overwriting previous address contents (000B)
-Error[118]  : Overwriting previous address contents (000B)
-000B   1283 1303      00057     BANKSEL LEDS            ; Select bank for LEDS
-000D   0687           00058         XORWF   LEDS, F
-000E   100B           00059         BCF 0x0B, 0     ; Reset the interrupt flag
-000F   282E           00060         goto other_int
-                      00061 
-0010                  00062 check_col_2
-0010   1A86           00063         BTFSC PORTB, 5  ; Check if PortB.5 (column 5)
-0011   281A           00064         goto check_col_3
-0012   1283 1303      00065         BANKSEL BUTTONS         ; Select bank for BUTTONS
-0014   0806           00066     MOVF    BUTTONS, W      ; Read PORTB states
-0015   1283 1303      00067     BANKSEL LEDS            ; Select bank for LEDS
-0017   0687           00068         XORWF   LEDS, F
-0018   100B           00069         BCF 0x0B, 0     ; Reset the interrupt flag
-0019   282E           00070         goto other_int
-                      00071 
-001A                  00072 check_col_3
-001A   1B06           00073         BTFSC PORTB, 6  ; Check if PortB.6 (column 6)
-001B   282E           00074         goto other_int
-001C   1283 1303      00075         BANKSEL BUTTONS         ; Select bank for BUTTONS
-001E   0806           00076     MOVF    BUTTONS, W      ; Read PORTB states
-001F   1283 1303      00077     BANKSEL LEDS            ; Select bank for LEDS
-0021   0687           00078         XORWF   LEDS, F
-0022   100B           00079         BCF 0x0B, 0     ; Reset the interrupt flag
-0023   282E           00080         goto other_int
-                      00081 
-0024                  00082 check_col_4
-0024   1B86           00083         BTFSC PORTB, 7  ; Check if PortB.7 (column 7)
-0025   282E           00084         goto other_int
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE  3
+0010                  00051 check_col_2
+0010   1A86           00052         BTFSC PORTB, 5  ; Check if PortB.5 (column 5)
+0011   281A           00053         goto check_col_3
+0012   1283 1303      00054         BANKSEL BUTTONS         ; Select bank for BUTTONS
+0014   0806           00055     MOVF    BUTTONS, W      ; Read PORTB states
+0015   1283 1303      00056     BANKSEL LEDS            ; Select bank for LEDS
+0017   0687           00057         XORWF   LEDS, F
+0018   100B           00058         BCF INTCON, 0   ; Reset the interrupt flag
+0019   282E           00059         goto other_int
+                      00060 
+001A                  00061 check_col_3
+001A   1B06           00062         BTFSC PORTB, 6  ; Check if PortB.6 (column 6)
+001B   282E           00063         goto other_int
+001C   1283 1303      00064         BANKSEL BUTTONS         ; Select bank for BUTTONS
+001E   0806           00065     MOVF    BUTTONS, W      ; Read PORTB states
+001F   1283 1303      00066     BANKSEL LEDS            ; Select bank for LEDS
+0021   0687           00067         XORWF   LEDS, F
+0022   100B           00068         BCF INTCON, 0   ; Reset the interrupt flag
+0023   282E           00069         goto other_int
+                      00070 
+0024                  00071 check_col_4
+0024   1B86           00072         BTFSC PORTB, 7  ; Check if PortB.7 (column 7)
+0025   282E           00073         goto other_int
+0026   1283 1303      00074     BANKSEL BUTTONS         ; Select bank for BUTTONS
+0028   0806           00075     MOVF    BUTTONS, W      ; Read PORTB states
+0029   1283 1303      00076     BANKSEL LEDS            ; Select bank for LEDS
+002B   0687           00077         XORWF   LEDS, F
+002C   100B           00078         BCF INTCON, 0   ; Reset the interrupt flag
+002D   282E           00079         goto other_int
+                      00080 
+002E                  00081 other_int
+002E   0886           00082         movf PORTB,1    ; Read PortB (to itself) to end mismatch condition
+002F   0009           00083         RETFIE                  ; Return from interrupt
+                      00084 
+                      00085 
+                      00086 
+                      00087 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00088 ;               MAIN LOOP
+                      00089 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00090 
+0030                  00091 start   
+                      00092 
+0030   1683 1303      00093         BANKSEL TRISC       ; Select bank 1
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0032   0187           00094     CLRF    TRISC       ; Set PORTC as output
+0033   30F0           00095     MOVLW   0xF0        ; Set RB4-RB7 as input (1) and others as output (0)
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0034   0086           00096     MOVWF   TRISB       ; Configure TRISB register
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0035   0188           00097     CLRF    TRISD       ; Display port is output
+                      00098 
+0036   1283 1303      00099     BANKSEL PORTC       ; Select bank 0
+0038   0187           00100     CLRF    PORTC       ; Clear LED outputs
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0026   1283 1303      00085     BANKSEL BUTTONS         ; Select bank for BUTTONS
-0028   0806           00086     MOVF    BUTTONS, W      ; Read PORTB states
-0029   1283 1303      00087     BANKSEL LEDS            ; Select bank for LEDS
-002B   0687           00088         XORWF   LEDS, F
-002C   100B           00089         BCF 0x0B, 0     ; Reset the interrupt flag
-002D   282E           00090         goto other_int
-                      00091 
-002E                  00092 other_int
-002E   0886           00093         movf PORTB,1    ; Read PortB (to itself) to end mismatch condition
-002F   0009           00094         RETFIE                  ; Return from interrupt
-                      00095 
-                      00096 
-                      00097 
-                      00098 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00099 ;               MAIN LOOP
-                      00100 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00101 
-0030                  00102 start   
-0030   207E           00103     CALL    inid    ; Initialize the display
+0039   0188           00101     CLRF    PORTD       ; Clear display outputs
+003A   3088           00102     MOVLW    B'10001000'    ; enable GIE (bit 7), RBIE (bit 3)
+003B   008B           00103     MOVWF    INTCON        ; PortB pins
                       00104 
                       00105 
-0031   3001           00106     MOVLW   1   ; Load 1 into W for level 1
-0032   2039           00107     CALL    print_level
+003C   208A           00106     CALL    inid    ; Initialize the display
+                      00107 
                       00108 
-0033   10F4           00109         BCF     Select, RS      ; Ensure command mode (RS = 0)
-0034   30C0           00110     MOVLW   0xC0            ; Load the command for setting the cursor to the second row
-0035   206E           00111     CALL    send            ; Send the command using the send subroutine
-                      00112 
-0036   3022           00113     MOVLW   22   ; Load 22 into W for level 22
-0037   2039           00114     CALL    print_level
+003D   3001           00109     MOVLW   1   ; Load 1 into W for level 1
+003E   2045           00110     CALL    print_level
+                      00111 
+003F   10F4           00112         BCF     Select, RS      ; Ensure command mode (RS = 0)
+0040   30C0           00113     MOVLW   0xC0            ; Load the command for setting the cursor to the second row
+0041   207A           00114     CALL    send            ; Send the command using the send subroutine
                       00115 
-0038                  00116 loop 
-0038   2838           00117         GOTO    loop       ; Stay in infinite loop
+0042   3022           00116     MOVLW   22   ; Load 22 into W for level 22
+0043   2045           00117     CALL    print_level
                       00118 
-                      00119 
-                      00120 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00121 ;           Print Level Subroutine
-                      00122 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00123 
-0039                  00124 print_level
-0039   00D8           00125     MOVWF   temp          ; Store W into temp
+0044                  00119 loop 
+0044   2844           00120         GOTO    loop       ; Stay in infinite loop
+                      00121 
+                      00122 
+                      00123 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00124 ;           Print Level Subroutine
+                      00125 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00126 
-                      00127     ; Display "LEVEL "
-003A   304C           00128     MOVLW   'L'
-003B   205B           00129     CALL    display_char
-003C   3045           00130     MOVLW   'E'
-003D   205B           00131     CALL    display_char
-003E   3056           00132     MOVLW   'V'
-003F   205B           00133     CALL    display_char
-0040   3045           00134     MOVLW   'E'
-0041   205B           00135     CALL    display_char
-0042   304C           00136     MOVLW   'L'
-0043   205B           00137     CALL    display_char
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE  4
+0045                  00127 print_level
+0045   00E4           00128     MOVWF   temp          ; Store W into temp
+                      00129 
+                      00130     ; Display "LEVEL "
+0046   304C           00131     MOVLW   'L'
+0047   2067           00132     CALL    display_char
+0048   3045           00133     MOVLW   'E'
+0049   2067           00134     CALL    display_char
+004A   3056           00135     MOVLW   'V'
+004B   2067           00136     CALL    display_char
+004C   3045           00137     MOVLW   'E'
+004D   2067           00138     CALL    display_char
+004E   304C           00139     MOVLW   'L'
+004F   2067           00140     CALL    display_char
+0050   3020           00141     MOVLW   ' '          ; Space after "LEVEL"
+0051   2067           00142     CALL    display_char
+                      00143 
+                      00144     ; Initialize tens and ones to zero
+0052   01E5           00145     CLRF    tens          ; Clear tens register
+0053   01E6           00146     CLRF    ones          ; Clear ones register
+                      00147 
+0054                  00148 tens_loop
+0054   3010           00149     MOVLW   10          ; Update temp with the new value
+0055   02E4           00150     SUBWF   temp,1            ; Subtract 10 from W
+0056   1C03           00151     BTFSS   STATUS, C     ; If result is negative (W < 10), stop loop
+0057   285A           00152     GOTO    ones_calc     ; Go to calculate ones digit
+0058   0AE5           00153     INCF    tens, F       ; Increment tens counter
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0044   3020           00138     MOVLW   ' '          ; Space after "LEVEL"
-0045   205B           00139     CALL    display_char
-                      00140 
-                      00141     ; Initialize tens and ones to zero
-0046   01D9           00142     CLRF    tens          ; Clear tens register
-0047   01DA           00143     CLRF    ones          ; Clear ones register
-                      00144 
-0048                  00145 tens_loop
-0048   3010           00146     MOVLW   10          ; Update temp with the new value
-0049   02D8           00147     SUBWF   temp,1            ; Subtract 10 from W
-004A   1C03           00148     BTFSS   STATUS, C     ; If result is negative (W < 10), stop loop
-004B   284E           00149     GOTO    ones_calc     ; Go to calculate ones digit
-004C   0AD9           00150     INCF    tens, F       ; Increment tens counter
-004D   2848           00151     GOTO    tens_loop     ; Repeat the loop
-                      00152 
-004E                  00153 ones_calc
-004E   07D8           00154     ADDWF   temp,1
-004F   0858           00155     MOVF    temp, W       ; Remaining value in temp is the ones digit
-0050   00DA           00156     MOVWF   ones          ; Store it in ones register
-                      00157 
-                      00158     ; Convert tens digit to ASCII and display
-0051   0859           00159     MOVF    tens, W       ; Load tens value into W
-0052   3E30           00160     ADDLW   '0'           ; Convert to ASCII
-0053   205B           00161     CALL    display_char  ; Display tens digit
-                      00162 
-                      00163     ; Convert ones digit to ASCII and display
-0054   085A           00164     MOVF    ones, W       ; Load ones value into W
-0055   3E30           00165     ADDLW   '0'           ; Convert to ASCII
-0056   205B           00166     CALL    display_char  ; Display ones digit
-                      00167 
-0057   0008           00168     RETURN
-                      00169 
+0059   2854           00154     GOTO    tens_loop     ; Repeat the loop
+                      00155 
+005A                  00156 ones_calc
+005A   07E4           00157     ADDWF   temp,1
+005B   0864           00158     MOVF    temp, W       ; Remaining value in temp is the ones digit
+005C   00E6           00159     MOVWF   ones          ; Store it in ones register
+                      00160 
+                      00161     ; Convert tens digit to ASCII and display
+005D   0865           00162     MOVF    tens, W       ; Load tens value into W
+005E   3E30           00163     ADDLW   '0'           ; Convert to ASCII
+005F   2067           00164     CALL    display_char  ; Display tens digit
+                      00165 
+                      00166     ; Convert ones digit to ASCII and display
+0060   0866           00167     MOVF    ones, W       ; Load ones value into W
+0061   3E30           00168     ADDLW   '0'           ; Convert to ASCII
+0062   2067           00169     CALL    display_char  ; Display ones digit
                       00170 
-                      00171 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00172 ; Variables declaration
-                      00173 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00174 
-0058   3FFF           00175 temp    RES 1            ; Temporary variable to store the value
-0059   3FFF           00176 tens    RES 1            ; Reserve one byte for tens digit
-005A   3FFF           00177 ones    RES 1            ; Reserve one byte for ones digit
-                      00178 
-                      00179 
-                      00180 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00181 ;              Subroutine for LCD
-                      00182 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00183 
-005B                  00184 display_char    
-005B   14F4           00185     BSF  Select,  RS    ; Select data mode
-005C   206E           00186     CALL    send        ; Send the character to LCD
-005D   0008           00187     RETURN
-                      00188 
-                      00189 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00190 ;       Include LCD driver routine
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE  5
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
-                      00191 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00192 
-                      00193     INCLUDE "LCDIS.INC"
+0063   0008           00171     RETURN
+                      00172 
+                      00173 
+                      00174 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00175 ; Variables declaration
+                      00176 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00177 
+0064   3FFF           00178 temp    RES 1            ; Temporary variable to store the value
+0065   3FFF           00179 tens    RES 1            ; Reserve one byte for tens digit
+0066   3FFF           00180 ones    RES 1            ; Reserve one byte for ones digit
+                      00181 
+                      00182 
+                      00183 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00184 ;              Subroutine for LCD
+                      00185 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00186 
+0067                  00187 display_char    
+0067   14F4           00188     BSF  Select,  RS    ; Select data mode
+0068   207A           00189     CALL    send        ; Send the character to LCD
+0069   0008           00190     RETURN
+                      00191 
+                      00192 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00193 ;       Include LCD driver routine
+                      00194 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00195 
+                      00196     INCLUDE "LCDIS.INC"
                       00001 ;--------------------------------------------------------------
                       00002 ;       LCDIS.INC               MPB     19-12-05
                       00003 ;
@@ -253,6 +234,12 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00008 ;--------------------------------------------------------------
                       00009 
   00000070            00010 Timer1  EQU     70              ; 1ms count register
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE  5
+
+
+LOC  OBJECT CODE     LINE SOURCE TEXT
+  VALUE
+
   00000071            00011 TimerX  EQU     71              ; Xms count register
   00000072            00012 Var     EQU     72              ; Output variable
   00000073            00013 Point   EQU     73              ; Program table pointer
@@ -266,108 +253,102 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00021 ;--------------------------------------------------------------
                       00022 ;       1ms delay with 1us cycle time (1000 cycles)
                       00023 ;--------------------------------------------------------------
-005E   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
-005F   00F0           00025                 MOVWF   Timer1          ; Load count    2 + (1 + 1 + 2) * 248 + 1 + 2 + 2
-0060   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
+006A   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
+006B   00F0           00025                 MOVWF   Timer1          ; Load count    2 + (1 + 1 + 2) * 248 + 1 + 2 + 2
+006C   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
 Message[305]: Using default destination of 1 (file).
-0061   0BF0           00027                 DECFSZ  Timer1          ; Count
-0062   2860           00028                 GOTO    loop1           ; until Z
-0063   0008           00029                 RETURN                  ; and finish
+006D   0BF0           00027                 DECFSZ  Timer1          ; Count
+006E   286C           00028                 GOTO    loop1           ; until Z
+006F   0008           00029                 RETURN                  ; and finish
                       00030 
                       00031 ;--------------------------------------------------------------
                       00032 ;       Delay Xms
                       00033 ;       Receives count in W, uses Onems
                       00034 ;--------------------------------------------------------------
-0064   00F1           00035 xms             MOVWF   TimerX          ; Count for X ms
-0065   205E           00036 loopX   CALL    onems           ; Delay 1ms
+0070   00F1           00035 xms             MOVWF   TimerX          ; Count for X ms
+0071   206A           00036 loopX   CALL    onems           ; Delay 1ms
 Message[305]: Using default destination of 1 (file).
-0066   0BF1           00037                 DECFSZ  TimerX          ; Repeat X times 
-0067   2865           00038                 GOTO    loopX           ; until Z
-0068   0008           00039                 RETURN                  ; and finish
+0072   0BF1           00037                 DECFSZ  TimerX          ; Repeat X times 
+0073   2871           00038                 GOTO    loopX           ; until Z
+0074   0008           00039                 RETURN                  ; and finish
                       00040 
                       00041 ;--------------------------------------------------------------
                       00042 ;       Generate data/command clock siganl E
                       00043 ;--------------------------------------------------------------
-0069   1508           00044 pulseE  BSF     PORTD,E         ; Set E high
-006A   205E           00045         CALL    onems           ; Delay 1ms
-006B   1108           00046         BCF     PORTD,E         ; Reset E low
-006C   205E           00047         CALL    onems           ; Delay 1ms
-006D   0008           00048         RETURN                  ; done
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE  6
-
-
-LOC  OBJECT CODE     LINE SOURCE TEXT
-  VALUE
-
+0075   1508           00044 pulseE  BSF     PORTD,E         ; Set E high
+0076   206A           00045         CALL    onems           ; Delay 1ms
+0077   1108           00046         BCF     PORTD,E         ; Reset E low
+0078   206A           00047         CALL    onems           ; Delay 1ms
+0079   0008           00048         RETURN                  ; done
                       00049 
                       00050 ;--------------------------------------------------------------
                       00051 ;       Send a command byte in two nibbles from RB4 - RB7
                       00052 ;       Receives command in W, uses PulseE and Onems
                       00053 ;--------------------------------------------------------------
-006E   00F5           00054 send    MOVWF   OutCod          ; Store output code
-006F   39F0           00055         ANDLW   0F0             ; Clear low nybble
-0070   0088           00056         MOVWF   PORTD           ; Output high nybble
-0071   18F4           00057         BTFSC   Select,RS       ; Test RS bit
-0072   1488           00058         BSF     PORTD,RS        ; and set for data
-0073   2069           00059         CALL    pulseE          ; and clock display register
-0074   205E           00060         CALL    onems           ; wait 1ms for display
+007A   00F5           00054 send    MOVWF   OutCod          ; Store output code
+007B   39F0           00055         ANDLW   0F0             ; Clear low nybble
+007C   0088           00056         MOVWF   PORTD           ; Output high nybble
+007D   18F4           00057         BTFSC   Select,RS       ; Test RS bit
+007E   1488           00058         BSF     PORTD,RS        ; and set for data
+007F   2075           00059         CALL    pulseE          ; and clock display register
+0080   206A           00060         CALL    onems           ; wait 1ms for display
                       00061 
-Message[305]: Using default destination of 1 (file).
-0075   0EF5           00062         SWAPF   OutCod          ; Swap low and high nybbles 
-0076   0875           00063         MOVF    OutCod,W        ; Retrieve output code
-0077   39F0           00064         ANDLW   0F0             ; Clear low nybble
-0078   0088           00065         MOVWF   PORTD           ; Output low nybble
-0079   18F4           00066         BTFSC   Select,RS       ; Test RS bit
-007A   1488           00067         BSF     PORTD,RS        ; and set for data
-007B   2069           00068         CALL    pulseE          ; and clock display register
-007C   205E           00069         CALL    onems           ; wait 1ms for display
-007D   0008           00070         RETURN                  ; done
-                      00071 
-                      00072 ;--------------------------------------------------------------
-                      00073 ;       Initialise the display
-                      00074 ;       Uses Send
-                      00075 ;--------------------------------------------------------------
-007E   3064           00076 inid    MOVLW   D'100'          ; Load count for 100ms delay
-007F   2064           00077         CALL    xms             ; and wait for display start
-0080   30F0           00078         MOVLW   0F0             ; Mask for select code
-0081   00F4           00079         MOVWF   Select          ; High nybble not masked
-                      00080 
-0082   3030           00081         MOVLW   0x30            ; Load initial nibble
-0083   0088           00082         MOVWF   PORTD           ; and output it to display
-0084   2069           00083         CALL    pulseE          ; Latch initial code
-0085   3005           00084         MOVLW   D'5'            ; Set delay 5ms
-0086   2064           00085         CALL    xms             ; and wait
-0087   2069           00086         CALL    pulseE          ; Latch initial code again
-0088   205E           00087         CALL    onems           ; Wait 1ms
-0089   2069           00088         CALL    pulseE          ; Latch initial code again
-008A   1208           00089         BCF     PORTD,4         ; Set 4-bit mode
-008B   2069           00090         CALL    pulseE          ; Latch it
-                      00091         
-008C   3028           00092         MOVLW   0x28            ; Set 4-bit mode, 2 lines
-008D   206E           00093         CALL    send            ; and send code
-008E   3008           00094         MOVLW   0x08            ; Switch off display
-008F   206E           00095         CALL    send            ; and send code
-0090   3001           00096         MOVLW   0x01            ; Code to clear display
-0091   206E           00097         CALL    send            ; and send code
-0092   3006           00098         MOVLW   0x06            ; Enable cursor auto inc  
-0093   206E           00099         CALL    send            ; and send code
-0094   3080           00100         MOVLW   0x80            ; Zero display address
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE  7
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE  6
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0095   206E           00101         CALL    send            ; and send code
-0096   300C           00102         MOVLW   0x0C            ; Turn on display  
-0097   206E           00103         CALL    send            ; and send code
+Message[305]: Using default destination of 1 (file).
+0081   0EF5           00062         SWAPF   OutCod          ; Swap low and high nybbles 
+0082   0875           00063         MOVF    OutCod,W        ; Retrieve output code
+0083   39F0           00064         ANDLW   0F0             ; Clear low nybble
+0084   0088           00065         MOVWF   PORTD           ; Output low nybble
+0085   18F4           00066         BTFSC   Select,RS       ; Test RS bit
+0086   1488           00067         BSF     PORTD,RS        ; and set for data
+0087   2075           00068         CALL    pulseE          ; and clock display register
+0088   206A           00069         CALL    onems           ; wait 1ms for display
+0089   0008           00070         RETURN                  ; done
+                      00071 
+                      00072 ;--------------------------------------------------------------
+                      00073 ;       Initialise the display
+                      00074 ;       Uses Send
+                      00075 ;--------------------------------------------------------------
+008A   3064           00076 inid    MOVLW   D'100'          ; Load count for 100ms delay
+008B   2070           00077         CALL    xms             ; and wait for display start
+008C   30F0           00078         MOVLW   0F0             ; Mask for select code
+008D   00F4           00079         MOVWF   Select          ; High nybble not masked
+                      00080 
+008E   3030           00081         MOVLW   0x30            ; Load initial nibble
+008F   0088           00082         MOVWF   PORTD           ; and output it to display
+0090   2075           00083         CALL    pulseE          ; Latch initial code
+0091   3005           00084         MOVLW   D'5'            ; Set delay 5ms
+0092   2070           00085         CALL    xms             ; and wait
+0093   2075           00086         CALL    pulseE          ; Latch initial code again
+0094   206A           00087         CALL    onems           ; Wait 1ms
+0095   2075           00088         CALL    pulseE          ; Latch initial code again
+0096   1208           00089         BCF     PORTD,4         ; Set 4-bit mode
+0097   2075           00090         CALL    pulseE          ; Latch it
+                      00091         
+0098   3028           00092         MOVLW   0x28            ; Set 4-bit mode, 2 lines
+0099   207A           00093         CALL    send            ; and send code
+009A   3008           00094         MOVLW   0x08            ; Switch off display
+009B   207A           00095         CALL    send            ; and send code
+009C   3001           00096         MOVLW   0x01            ; Code to clear display
+009D   207A           00097         CALL    send            ; and send code
+009E   3006           00098         MOVLW   0x06            ; Enable cursor auto inc  
+009F   207A           00099         CALL    send            ; and send code
+00A0   3080           00100         MOVLW   0x80            ; Zero display address
+00A1   207A           00101         CALL    send            ; and send code
+00A2   300C           00102         MOVLW   0x0C            ; Turn on display  
+00A3   207A           00103         CALL    send            ; and send code
                       00104 
-0098   0008           00105         RETURN                  ; Done
+00A4   0008           00105         RETURN                  ; Done
                       00106 
                       00107 ;--------------------------------------------------------------
-                      00194 
-                      00195     END
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE  8
+                      00197 
+                      00198     END
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE  7
 
 
 SYMBOL TABLE
@@ -426,7 +407,7 @@ CIS                               00000003
 CKE                               00000006
 CKP                               00000004
 CM0                               00000000
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE  9
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE  8
 
 
 SYMBOL TABLE
@@ -485,7 +466,7 @@ NOT_A                             00000005
 NOT_ADDRESS                       00000005
 NOT_BO                            00000000
 NOT_BOR                           00000000
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE 10
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE  9
 
 
 SYMBOL TABLE
@@ -544,7 +525,7 @@ RCIE                              00000005
 RCIF                              00000005
 RCREG                             0000001A
 RCSTA                             00000018
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE 11
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE 10
 
 
 SYMBOL TABLE
@@ -603,7 +584,7 @@ TMR1IE                            00000000
 TMR1IF                            00000000
 TMR1L                             0000000E
 TMR1ON                            00000000
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE 12
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE 11
 
 
 SYMBOL TABLE
@@ -662,7 +643,7 @@ _PWRTE_ON                         00003FF7
 _RC_OSC                           00003FFF
 _WDT_OFF                          00003FFB
 _WDT_ON                           00003FFF
-MPASM  5.43                          MAIN.ASM   1-21-2025  23:09:19         PAGE 13
+MPASM  5.43                          MAIN.ASM   1-21-2025  23:26:21         PAGE 12
 
 
 SYMBOL TABLE
@@ -678,39 +659,39 @@ __DEBUG                           1
 check_col_2                       00000010
 check_col_3                       0000001A
 check_col_4                       00000024
-display_char                      0000005B
-inid                              0000007E
-loop                              00000038
-loop1                             00000060
-loopX                             00000065
-onems                             0000005E
-ones                              0000005A
-ones_calc                         0000004E
+display_char                      00000067
+inid                              0000008A
+loop                              00000044
+loop1                             0000006C
+loopX                             00000071
+onems                             0000006A
+ones                              00000066
+ones_calc                         0000005A
 other_int                         0000002E
-print_level                       00000039
-pulseE                            00000069
-send                              0000006E
+print_level                       00000045
+pulseE                            00000075
+send                              0000007A
 start                             00000030
-temp                              00000058
-tens                              00000059
-tens_loop                         00000048
-xms                               00000064
+temp                              00000064
+tens                              00000065
+tens_loop                         00000054
+xms                               00000070
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 
-0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
+0000 : XX--XXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0040 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
-0080 : XXXXXXXXXXXXXXXX XXXXXXXXX------- ---------------- ----------------
+0080 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXX----------- ----------------
 2000 : -------X-------- ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Words Used:   153
-Program Memory Words Free:  8039
+Program Memory Words Used:   163
+Program Memory Words Free:  8029
 
 
-Errors   :    16
+Errors   :     0
 Warnings :     0 reported,     0 suppressed
 Messages :     6 reported,     0 suppressed
 
