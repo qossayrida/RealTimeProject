@@ -19,6 +19,9 @@
 #define BUTTONS PORTB
 #define LEDS    PORTC
 
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;             Program begins
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -35,7 +38,61 @@
     BANKSEL PORTC       ; Select bank 0
     CLRF    PORTC       ; Clear LED outputs
 	CLRF    PORTD       ; Clear display outputs
+
     GOTO    start       ; Jump to main program
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;        Interrupt Service Routine
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	ORG	004
+	BTFSS INTCON, 0	; Check if the source of interrupt is change on RB4...7.
+	goto other_int
+
+	BTFSC PORTB, 4	; Check if PortB.4 (column 4)
+	goto check_col_2
+    BANKSEL BUTTONS         ; Select bank for BUTTONS
+    MOVF    BUTTONS, W      ; Read PORTB states
+    BANKSEL LEDS            ; Select bank for LEDS
+	XORWF   LEDS, F
+	BCF INTCON, 0	; Reset the interrupt flag
+	goto other_int
+
+check_col_2
+	BTFSC PORTB, 5	; Check if PortB.5 (column 5)
+	goto check_col_3
+	BANKSEL BUTTONS         ; Select bank for BUTTONS
+    MOVF    BUTTONS, W      ; Read PORTB states
+    BANKSEL LEDS            ; Select bank for LEDS
+	XORWF   LEDS, F
+	BCF INTCON, 0	; Reset the interrupt flag
+	goto other_int
+
+check_col_3
+	BTFSC PORTB, 6	; Check if PortB.6 (column 6)
+	goto other_int
+	BANKSEL BUTTONS         ; Select bank for BUTTONS
+    MOVF    BUTTONS, W      ; Read PORTB states
+    BANKSEL LEDS            ; Select bank for LEDS
+	XORWF   LEDS, F
+	BCF INTCON, 0	; Reset the interrupt flag
+	goto other_int
+
+check_col_4
+	BTFSC PORTB, 7	; Check if PortB.7 (column 7)
+	goto other_int
+    BANKSEL BUTTONS         ; Select bank for BUTTONS
+    MOVF    BUTTONS, W      ; Read PORTB states
+    BANKSEL LEDS            ; Select bank for LEDS
+	XORWF   LEDS, F
+	BCF INTCON, 0	; Reset the interrupt flag
+	goto other_int
+
+other_int
+	movf PORTB,1 	; Read PortB (to itself) to end mismatch condition
+	RETFIE			; Return from interrupt
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -56,38 +113,8 @@ start
     MOVLW   22   ; Load 22 into W for level 22
     CALL    print_level
 
-loop
-    BANKSEL BUTTONS    ; Select bank for BUTTONS
-    MOVF    BUTTONS, W ; Move BUTTONS state to W
-    BANKSEL LEDS       ; Select bank for LEDS
-    
-    ; Check each button and toggle corresponding LED
-    BTFSS   W, 4       ; Check if RB4 is pressed
-    GOTO    toggle_RC4 ; If pressed, toggle RC4
-    BTFSS   W, 5       ; Check if RB5 is pressed
-    GOTO    toggle_RC5 ; If pressed, toggle RC5
-    BTFSS   W, 6       ; Check if RB6 is pressed
-    GOTO    toggle_RC6 ; If pressed, toggle RC6
-    BTFSS   W, 7       ; Check if RB7 is pressed
-    GOTO    toggle_RC7 ; If pressed, toggle RC7
-
-    GOTO    loop       ; Stay in infinite loop
-
-toggle_RC4
-    XORWF   LEDS, F    ; Toggle RC4
-    GOTO    loop
-
-toggle_RC5
-    XORWF   LEDS, F    ; Toggle RC5
-    GOTO    loop
-
-toggle_RC6
-    XORWF   LEDS, F    ; Toggle RC6
-    GOTO    loop
-
-toggle_RC7
-    XORWF   LEDS, F    ; Toggle RC7
-    GOTO    loop
+loop 
+	GOTO    loop       ; Stay in infinite loop
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
