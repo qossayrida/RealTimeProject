@@ -117,8 +117,8 @@ print_level
     CLRF    ones          ; Clear ones register
 
 tens_loop
-    MOVF    temp, W       ; Load current value of temp into W
-    SUBLW   10            ; Subtract 10 from W
+	MOVWF   10          ; Update temp with the new value
+    SUBWF   temp,temp            ; Subtract 10 from W
     BTFSS   STATUS, C     ; If result is negative (W < 10), stop loop
     GOTO    ones_calc     ; Go to calculate ones digit
     MOVWF   temp          ; Update temp with the new value
