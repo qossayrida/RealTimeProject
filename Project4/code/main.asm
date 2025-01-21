@@ -20,8 +20,6 @@
 #define LEDS    PORTC
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;             Program begins
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -116,6 +114,13 @@ start
     MOVLW   22   ; Load 22 into W for level 22
     CALL    print_level
 
+	CALL    one_second_delay
+	CALL    print_try_again
+	CALL    one_second_delay
+	CALL    print_congratulations
+	CALL    one_second_delay
+	CALL 	print_press_any_button
+
 loop 
 	GOTO    loop       ; Stay in infinite loop
 
@@ -179,6 +184,168 @@ temp    RES 1            ; Temporary variable to store the value
 tens    RES 1            ; Reserve one byte for tens digit
 ones    RES 1            ; Reserve one byte for ones digit
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;           Print "Press any button"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+print_press_any_button
+
+	; Move cursor to the beginning of the first row
+	BCF     Select, RS      ; Ensure command mode (RS = 0)
+	MOVLW 0x80      ; Command to set cursor to the first row, first column
+	CALL send       ; Send the command
+
+    MOVLW   'P'
+    CALL    display_char
+    MOVLW   'r'
+    CALL    display_char
+    MOVLW   'e'
+    CALL    display_char
+    MOVLW   's'
+    CALL    display_char
+    MOVLW   's'
+    CALL    display_char
+    MOVLW   ' '
+	CALL    display_char
+	MOVLW   'a'
+    CALL    display_char
+    MOVLW   'n'
+    CALL    display_char
+    MOVLW   'y'
+    CALL    display_char          
+	MOVLW   ' '          
+    CALL    display_char
+	MOVLW   'b'
+    CALL    display_char
+    MOVLW   'u'
+    CALL    display_char
+    MOVLW   't'
+    CALL    display_char
+    MOVLW   't'
+    CALL    display_char
+    MOVLW   'o'
+    CALL    display_char
+    MOVLW   'n'          
+    CALL    display_char
+
+	BCF     Select, RS      ; Ensure command mode (RS = 0)
+    MOVLW   0xC0            ; Load the command for setting the cursor to the second row
+    CALL    send            ; Send the command using the send subroutine
+
+	MOVLW   't'
+    CALL    display_char
+    MOVLW   'o'
+    CALL    display_char
+    MOVLW   ' '
+    CALL    display_char
+    MOVLW   's'
+    CALL    display_char
+    MOVLW   't'
+    CALL    display_char
+    MOVLW   'a'          
+    CALL    display_char
+	MOVLW   'r'
+    CALL    display_char
+    MOVLW   't'
+    CALL    display_char
+
+RETURN
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;         Print "Congratulations"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+print_congratulations
+
+    ; Move cursor to the beginning of the first row
+    BCF     Select, RS      ; Ensure command mode (RS = 0)
+    MOVLW   0x80            ; Command to set cursor to the first row, first column
+    CALL    send            ; Send the command
+
+    ; Print "Congratulations"
+    MOVLW   'C'
+    CALL    display_char
+    MOVLW   'o'
+    CALL    display_char
+    MOVLW   'n'
+    CALL    display_char
+    MOVLW   'g'
+    CALL    display_char
+    MOVLW   'r'
+    CALL    display_char
+    MOVLW   'a'
+    CALL    display_char
+    MOVLW   't'
+    CALL    display_char
+    MOVLW   'u'
+    CALL    display_char
+    MOVLW   'l'
+    CALL    display_char
+    MOVLW   'a'
+    CALL    display_char
+    MOVLW   't'
+    CALL    display_char
+    MOVLW   'i'
+    CALL    display_char
+    MOVLW   'o'
+    CALL    display_char
+    MOVLW   'n'
+    CALL    display_char
+    MOVLW   's'
+    CALL    display_char
+
+    RETURN
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;         Print "Try again"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+print_try_again
+
+    ; Move cursor to the beginning of the first row
+    BCF     Select, RS      ; Ensure command mode (RS = 0)
+    MOVLW   0x80            ; Command to set cursor to the first row, first column
+    CALL    send            ; Send the command
+
+    ; Print "Try again"
+    MOVLW   'T'
+    CALL    display_char
+    MOVLW   'r'
+    CALL    display_char
+    MOVLW   'y'
+    CALL    display_char
+    MOVLW   ' '
+    CALL    display_char
+    MOVLW   'a'
+    CALL    display_char
+    MOVLW   'g'
+    CALL    display_char
+    MOVLW   'a'
+    CALL    display_char
+    MOVLW   'i'
+    CALL    display_char
+    MOVLW   'n'
+    CALL    display_char
+
+    RETURN
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;           one second delay
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+one_second_delay
+
+    MOVLW    D'250'
+    CALL    xms
+    MOVLW    D'250'
+    CALL    xms
+    MOVLW    D'250'
+    CALL    xms
+    MOVLW    D'250'
+    CALL    xms
+
+    RETURN               
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;              Subroutine for LCD
