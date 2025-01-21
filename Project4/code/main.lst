@@ -1,83 +1,87 @@
-MPASM  5.43                          MAIN.ASM   1-21-2025  16:50:43         PAGE  1
+MPASM  5.43                          MAIN.ASM   1-21-2025  16:58:19         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00001 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00002 ;
-                      00003 ;   DISPLAY_HELLO.ASM    MPB     Ver 1.0     21-01-2025
-                      00004 ;
-                      00005 ;   Display "HELLO" on 16x2 LCD
-                      00006 ;
-                      00007 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00008 
-                      00009     PROCESSOR 16F877
-                      00010 ;   Clock = XT 4MHz, standard fuse settings
-2007   3731           00011     __CONFIG 0x3731 ; 00011011100110001
-                      00012 
-                      00013 ; LABEL EQUATES ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00014 
-                      00015     INCLUDE "P16F877A.INC"    
+                      00001 ;----------------------------------------------------
+                      00002 ;----------------------------------------------------
+                      00003 ;                               MAIN.ASM        21-01-2025
+                      00004 ;----------------------------------------------------
+                      00005 ;----------------------------------------------------
+                      00006 
+                      00007 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00008 ;                         Configuration
+                      00009 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00010  
+                      00011     PROCESSOR 16F877
+2007   3731           00012     __CONFIG 0x3731 
+                      00013     INCLUDE "P16F877A.INC"    
                       00001         LIST
                       00002 ; P16F877A.INC  Standard Header File, Version 1.00    Microchip Technology, Inc.
                       00398         LIST
-                      00016 
-                      00017 ; Program begins ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00014 
+                      00015 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00016 ;                        Program begins
+                      00017 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
                       00018 
 0000                  00019     ORG 0       ; Default start address 
 0000   0000           00020     NOP         ; Required for ICD mode
                       00021 
 0001   1683 1303      00022     BANKSEL TRISC       ; Select bank 1
-0003   30F0           00023     MOVLW   B'11110000' ; Keypad direction code
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0004   0087           00024     MOVWF   TRISC       ; Set PORTC directions
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0005   0188           00025     CLRF    TRISD       ; Display port is output
-                      00026 
-0006   1283 1303      00027     BANKSEL PORTC       ; Select bank 0
-0008   30FF           00028     MOVLW   0FF         ; Set keypad outputs high
-0009   0087           00029     MOVWF   PORTC       ; 
-000A   0188           00030     CLRF    PORTD       ; Clear display outputs
-000B   280C           00031     GOTO    start       ; Jump to main program
-                      00032 
-                      00033 ; MAIN LOOP ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00034 
-000C   203B           00035 start   CALL    inid    ; Initialize the display
-                      00036 
-                      00037 ; Display "HELLO" on the LCD
-                      00038 
-000D   3048           00039     MOVLW   'H'         ; Load ASCII code for 'H'
-000E   2018           00040     CALL    display_char
-000F   3045           00041     MOVLW   'E'         ; Load ASCII code for 'E'
-0010   2018           00042     CALL    display_char
-0011   304C           00043     MOVLW   'L'         ; Load ASCII code for 'L'
-0012   2018           00044     CALL    display_char
-0013   304C           00045     MOVLW   'L'         ; Load ASCII code for 'L'
-0014   2018           00046     CALL    display_char
-0015   304F           00047     MOVLW   'O'         ; Load ASCII code for 'O'
-0016   2018           00048     CALL    display_char
-MPASM  5.43                          MAIN.ASM   1-21-2025  16:50:43         PAGE  2
+0003   0188           00023     CLRF    TRISD       ; Display port is output
+                      00024 
+0004   1283 1303      00025     BANKSEL PORTC       ; Select bank 0
+0006   0188           00026     CLRF    PORTD       ; Clear display outputs
+0007   2808           00027     GOTO    start       ; Jump to main program
+                      00028 
+                      00029 
+                      00030 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00031 ;                               MAIN LOOP
+                      00032 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00033 
+0008                  00034 start   
+                      00035 
+0008   2037           00036         CALL    inid    ; Initialize the display
+                      00037 
+                      00038 ; Display "HELLO" on the LCD
+                      00039 
+0009   3048           00040     MOVLW   'H'         ; Load ASCII code for 'H'
+000A   2014           00041     CALL    display_char
+000B   3045           00042     MOVLW   'E'         ; Load ASCII code for 'E'
+000C   2014           00043     CALL    display_char
+000D   304C           00044     MOVLW   'L'         ; Load ASCII code for 'L'
+000E   2014           00045     CALL    display_char
+000F   304C           00046     MOVLW   'L'         ; Load ASCII code for 'L'
+0010   2014           00047     CALL    display_char
+0011   304F           00048     MOVLW   'O'         ; Load ASCII code for 'O'
+0012   2014           00049     CALL    display_char
+MPASM  5.43                          MAIN.ASM   1-21-2025  16:58:19         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00049 
-0017   2817           00050 loop    GOTO    loop    ; Stay in infinite loop
-                      00051 
-                      00052 ; Subroutine to display a character on LCD
-                      00053 ;--------------------------------------------
+                      00050 
+0013   2813           00051 loop    GOTO    loop    ; Stay in infinite loop
+                      00052 
+                      00053 
                       00054 
-                      00055 ; Receives character in W and uses the LCD driver routines
-                      00056 
-0018   14F4           00057 display_char    BSF  Select,  RS       ; Select data mode
-0019   202B           00058     CALL    send     ; Send the character to LCD
-001A   0008           00059     RETURN
+                      00055 ;----------------------------------------------------
+                      00056 ;----------------------------------------------------
+                      00057 ;         Subroutine to display a character on LCD
+                      00058 ;----------------------------------------------------
+                      00059 ;----------------------------------------------------
                       00060 
-                      00061 ; Include LCD driver routine
-                      00062 
-                      00063     INCLUDE "LCDIS.INC"
+                      00061 ; Receives character in W and uses the LCD driver routines
+0014   14F4           00062 display_char    BSF  Select,  RS       ; Select data mode
+0015   2027           00063     CALL    send     ; Send the character to LCD
+0016   0008           00064     RETURN
+                      00065 
+                      00066 ; Include LCD driver routine
+                      00067 
+                      00068     INCLUDE "LCDIS.INC"
                       00001 ;--------------------------------------------------------------
                       00002 ;       LCDIS.INC               MPB     19-12-05
                       00003 ;
@@ -101,108 +105,108 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00021 ;--------------------------------------------------------------
                       00022 ;       1ms delay with 1us cycle time (1000 cycles)
                       00023 ;--------------------------------------------------------------
-001B   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
-001C   00F0           00025                 MOVWF   Timer1          ; Load count    2 + (1 + 1 + 2) * 248 + 1 + 2 + 2
-001D   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
+0017   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
+0018   00F0           00025                 MOVWF   Timer1          ; Load count    2 + (1 + 1 + 2) * 248 + 1 + 2 + 2
+0019   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
 Message[305]: Using default destination of 1 (file).
-001E   0BF0           00027                 DECFSZ  Timer1          ; Count
-001F   281D           00028                 GOTO    loop1           ; until Z
-0020   0008           00029                 RETURN                  ; and finish
+001A   0BF0           00027                 DECFSZ  Timer1          ; Count
+001B   2819           00028                 GOTO    loop1           ; until Z
+001C   0008           00029                 RETURN                  ; and finish
                       00030 
                       00031 ;--------------------------------------------------------------
                       00032 ;       Delay Xms
                       00033 ;       Receives count in W, uses Onems
-                      00034 ;--------------------------------------------------------------
-0021   00F1           00035 xms             MOVWF   TimerX          ; Count for X ms
-0022   201B           00036 loopX   CALL    onems           ; Delay 1ms
-Message[305]: Using default destination of 1 (file).
-MPASM  5.43                          MAIN.ASM   1-21-2025  16:50:43         PAGE  3
+MPASM  5.43                          MAIN.ASM   1-21-2025  16:58:19         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0023   0BF1           00037                 DECFSZ  TimerX          ; Repeat X times 
-0024   2822           00038                 GOTO    loopX           ; until Z
-0025   0008           00039                 RETURN                  ; and finish
+                      00034 ;--------------------------------------------------------------
+001D   00F1           00035 xms             MOVWF   TimerX          ; Count for X ms
+001E   2017           00036 loopX   CALL    onems           ; Delay 1ms
+Message[305]: Using default destination of 1 (file).
+001F   0BF1           00037                 DECFSZ  TimerX          ; Repeat X times 
+0020   281E           00038                 GOTO    loopX           ; until Z
+0021   0008           00039                 RETURN                  ; and finish
                       00040 
                       00041 ;--------------------------------------------------------------
                       00042 ;       Generate data/command clock siganl E
                       00043 ;--------------------------------------------------------------
-0026   1508           00044 pulseE  BSF     PORTD,E         ; Set E high
-0027   201B           00045         CALL    onems           ; Delay 1ms
-0028   1108           00046         BCF     PORTD,E         ; Reset E low
-0029   201B           00047         CALL    onems           ; Delay 1ms
-002A   0008           00048         RETURN                  ; done
+0022   1508           00044 pulseE  BSF     PORTD,E         ; Set E high
+0023   2017           00045         CALL    onems           ; Delay 1ms
+0024   1108           00046         BCF     PORTD,E         ; Reset E low
+0025   2017           00047         CALL    onems           ; Delay 1ms
+0026   0008           00048         RETURN                  ; done
                       00049 
                       00050 ;--------------------------------------------------------------
                       00051 ;       Send a command byte in two nibbles from RB4 - RB7
                       00052 ;       Receives command in W, uses PulseE and Onems
                       00053 ;--------------------------------------------------------------
-002B   00F5           00054 send    MOVWF   OutCod          ; Store output code
-002C   39F0           00055         ANDLW   0F0             ; Clear low nybble
-002D   0088           00056         MOVWF   PORTD           ; Output high nybble
-002E   18F4           00057         BTFSC   Select,RS       ; Test RS bit
-002F   1488           00058         BSF     PORTD,RS        ; and set for data
-0030   2026           00059         CALL    pulseE          ; and clock display register
-0031   201B           00060         CALL    onems           ; wait 1ms for display
+0027   00F5           00054 send    MOVWF   OutCod          ; Store output code
+0028   39F0           00055         ANDLW   0F0             ; Clear low nybble
+0029   0088           00056         MOVWF   PORTD           ; Output high nybble
+002A   18F4           00057         BTFSC   Select,RS       ; Test RS bit
+002B   1488           00058         BSF     PORTD,RS        ; and set for data
+002C   2022           00059         CALL    pulseE          ; and clock display register
+002D   2017           00060         CALL    onems           ; wait 1ms for display
                       00061 
 Message[305]: Using default destination of 1 (file).
-0032   0EF5           00062         SWAPF   OutCod          ; Swap low and high nybbles 
-0033   0875           00063         MOVF    OutCod,W        ; Retrieve output code
-0034   39F0           00064         ANDLW   0F0             ; Clear low nybble
-0035   0088           00065         MOVWF   PORTD           ; Output low nybble
-0036   18F4           00066         BTFSC   Select,RS       ; Test RS bit
-0037   1488           00067         BSF     PORTD,RS        ; and set for data
-0038   2026           00068         CALL    pulseE          ; and clock display register
-0039   201B           00069         CALL    onems           ; wait 1ms for display
-003A   0008           00070         RETURN                  ; done
+002E   0EF5           00062         SWAPF   OutCod          ; Swap low and high nybbles 
+002F   0875           00063         MOVF    OutCod,W        ; Retrieve output code
+0030   39F0           00064         ANDLW   0F0             ; Clear low nybble
+0031   0088           00065         MOVWF   PORTD           ; Output low nybble
+0032   18F4           00066         BTFSC   Select,RS       ; Test RS bit
+0033   1488           00067         BSF     PORTD,RS        ; and set for data
+0034   2022           00068         CALL    pulseE          ; and clock display register
+0035   2017           00069         CALL    onems           ; wait 1ms for display
+0036   0008           00070         RETURN                  ; done
                       00071 
                       00072 ;--------------------------------------------------------------
                       00073 ;       Initialise the display
                       00074 ;       Uses Send
                       00075 ;--------------------------------------------------------------
-003B   3064           00076 inid    MOVLW   D'100'          ; Load count for 100ms delay
-003C   2021           00077         CALL    xms             ; and wait for display start
-003D   30F0           00078         MOVLW   0F0             ; Mask for select code
-003E   00F4           00079         MOVWF   Select          ; High nybble not masked
+0037   3064           00076 inid    MOVLW   D'100'          ; Load count for 100ms delay
+0038   201D           00077         CALL    xms             ; and wait for display start
+0039   30F0           00078         MOVLW   0F0             ; Mask for select code
+003A   00F4           00079         MOVWF   Select          ; High nybble not masked
                       00080 
-003F   3030           00081         MOVLW   0x30            ; Load initial nibble
-0040   0088           00082         MOVWF   PORTD           ; and output it to display
-0041   2026           00083         CALL    pulseE          ; Latch initial code
-0042   3005           00084         MOVLW   D'5'            ; Set delay 5ms
-0043   2021           00085         CALL    xms             ; and wait
-0044   2026           00086         CALL    pulseE          ; Latch initial code again
-0045   201B           00087         CALL    onems           ; Wait 1ms
-0046   2026           00088         CALL    pulseE          ; Latch initial code again
-MPASM  5.43                          MAIN.ASM   1-21-2025  16:50:43         PAGE  4
+003B   3030           00081         MOVLW   0x30            ; Load initial nibble
+003C   0088           00082         MOVWF   PORTD           ; and output it to display
+003D   2022           00083         CALL    pulseE          ; Latch initial code
+003E   3005           00084         MOVLW   D'5'            ; Set delay 5ms
+MPASM  5.43                          MAIN.ASM   1-21-2025  16:58:19         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0047   1208           00089         BCF     PORTD,4         ; Set 4-bit mode
-0048   2026           00090         CALL    pulseE          ; Latch it
+003F   201D           00085         CALL    xms             ; and wait
+0040   2022           00086         CALL    pulseE          ; Latch initial code again
+0041   2017           00087         CALL    onems           ; Wait 1ms
+0042   2022           00088         CALL    pulseE          ; Latch initial code again
+0043   1208           00089         BCF     PORTD,4         ; Set 4-bit mode
+0044   2022           00090         CALL    pulseE          ; Latch it
                       00091         
-0049   3028           00092         MOVLW   0x28            ; Set 4-bit mode, 2 lines
-004A   202B           00093         CALL    send            ; and send code
-004B   3008           00094         MOVLW   0x08            ; Switch off display
-004C   202B           00095         CALL    send            ; and send code
-004D   3001           00096         MOVLW   0x01            ; Code to clear display
-004E   202B           00097         CALL    send            ; and send code
-004F   3006           00098         MOVLW   0x06            ; Enable cursor auto inc  
-0050   202B           00099         CALL    send            ; and send code
-0051   3080           00100         MOVLW   0x80            ; Zero display address
-0052   202B           00101         CALL    send            ; and send code
-0053   300C           00102         MOVLW   0x0C            ; Turn on display  
-0054   202B           00103         CALL    send            ; and send code
+0045   3028           00092         MOVLW   0x28            ; Set 4-bit mode, 2 lines
+0046   2027           00093         CALL    send            ; and send code
+0047   3008           00094         MOVLW   0x08            ; Switch off display
+0048   2027           00095         CALL    send            ; and send code
+0049   3001           00096         MOVLW   0x01            ; Code to clear display
+004A   2027           00097         CALL    send            ; and send code
+004B   3006           00098         MOVLW   0x06            ; Enable cursor auto inc  
+004C   2027           00099         CALL    send            ; and send code
+004D   3080           00100         MOVLW   0x80            ; Zero display address
+004E   2027           00101         CALL    send            ; and send code
+004F   300C           00102         MOVLW   0x0C            ; Turn on display  
+0050   2027           00103         CALL    send            ; and send code
                       00104 
-0055   0008           00105         RETURN                  ; Done
+0051   0008           00105         RETURN                  ; Done
                       00106 
                       00107 ;--------------------------------------------------------------
-                      00064 
-                      00065     END ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-MPASM  5.43                          MAIN.ASM   1-21-2025  16:50:43         PAGE  5
+                      00069 
+                      00070     END
+MPASM  5.43                          MAIN.ASM   1-21-2025  16:58:19         PAGE  5
 
 
 SYMBOL TABLE
@@ -261,7 +265,7 @@ CKE                               00000006
 CKP                               00000004
 CM0                               00000000
 CM1                               00000001
-MPASM  5.43                          MAIN.ASM   1-21-2025  16:50:43         PAGE  6
+MPASM  5.43                          MAIN.ASM   1-21-2025  16:58:19         PAGE  6
 
 
 SYMBOL TABLE
@@ -320,7 +324,7 @@ NOT_BO                            00000000
 NOT_BOR                           00000000
 NOT_DONE                          00000002
 NOT_PD                            00000003
-MPASM  5.43                          MAIN.ASM   1-21-2025  16:50:43         PAGE  7
+MPASM  5.43                          MAIN.ASM   1-21-2025  16:58:19         PAGE  7
 
 
 SYMBOL TABLE
@@ -379,7 +383,7 @@ RCREG                             0000001A
 RCSTA                             00000018
 RD                                00000000
 READ_WRITE                        00000002
-MPASM  5.43                          MAIN.ASM   1-21-2025  16:50:43         PAGE  8
+MPASM  5.43                          MAIN.ASM   1-21-2025  16:58:19         PAGE  8
 
 
 SYMBOL TABLE
@@ -438,7 +442,7 @@ TMR1L                             0000000E
 TMR1ON                            00000000
 TMR2                              00000011
 TMR2IE                            00000001
-MPASM  5.43                          MAIN.ASM   1-21-2025  16:50:43         PAGE  9
+MPASM  5.43                          MAIN.ASM   1-21-2025  16:58:19         PAGE  9
 
 
 SYMBOL TABLE
@@ -497,7 +501,7 @@ _WDT_OFF                          00003FFB
 _WDT_ON                           00003FFF
 _WRT_1FOURTH                      00003BFF
 _WRT_256                          00003DFF
-MPASM  5.43                          MAIN.ASM   1-21-2025  16:50:43         PAGE 10
+MPASM  5.43                          MAIN.ASM   1-21-2025  16:58:19         PAGE 10
 
 
 SYMBOL TABLE
@@ -508,32 +512,32 @@ _WRT_OFF                          00003FFF
 _XT_OSC                           00003FFD
 __16F877A                         00000001
 __DEBUG                           1
-display_char                      00000018
-inid                              0000003B
-loop                              00000017
-loop1                             0000001D
-loopX                             00000022
-onems                             0000001B
-pulseE                            00000026
-send                              0000002B
-start                             0000000C
-xms                               00000021
+display_char                      00000014
+inid                              00000037
+loop                              00000013
+loop1                             00000019
+loopX                             0000001E
+onems                             00000017
+pulseE                            00000022
+send                              00000027
+start                             00000008
+xms                               0000001D
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 
 0000 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
-0040 : XXXXXXXXXXXXXXXX XXXXXX---------- ---------------- ----------------
+0040 : XXXXXXXXXXXXXXXX XX-------------- ---------------- ----------------
 2000 : -------X-------- ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Words Used:    86
-Program Memory Words Free:  8106
+Program Memory Words Used:    82
+Program Memory Words Free:  8110
 
 
 Errors   :     0
 Warnings :     0 reported,     0 suppressed
-Messages :     5 reported,     0 suppressed
+Messages :     4 reported,     0 suppressed
 
 
