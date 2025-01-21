@@ -45,21 +45,14 @@
 start   
     CALL    inid    ; Initialize the display
 
-    ; Display "HELLO" on the LCD
-    MOVLW   'H'
-    CALL    display_char
-    MOVLW   'E'
-    CALL    display_char
-    MOVLW   'L'
-    CALL    display_char
-    MOVLW   'L'
-    CALL    display_char
-    MOVLW   'O'
-    CALL    display_char
 
-	; Print "level 1" or "level 2" based on W
     MOVLW   1   ; Load 1 into W for level 1
     CALL    print_level
+
+ 	BCF     Select, RS      ; Ensure command mode (RS = 0)
+    MOVLW   0xC0            ; Load the command for setting the cursor to the second row
+    CALL    send            ; Send the command using the send subroutine
+
     MOVLW   22   ; Load 22 into W for level 22
     CALL    print_level
 
@@ -102,6 +95,9 @@ toggle_RC7
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 print_level
+
+	MOVWF   temp          ; Store W into temp
+
     ; Display "LEVEL "
     MOVLW   'L'
     CALL    display_char
@@ -116,40 +112,42 @@ print_level
     MOVLW   ' '          ; Space after "LEVEL"
     CALL    display_char
 
-    ; Convert number in W to ASCII and display
-    MOVWF   TEMP         ; Store the level number in TEMP
-    CLRF    DIGIT1       ; Clear tens digit counter
+ 	; Store W (level) into temp variable
+    CLRF    tens          ; Clear tens register
+    CLRF    ones          ; Clear ones register
 
-div_loop
-    MOVLW   10
-    SUBWF   TEMP, W      ; Subtract 10 from TEMP and store in W
-    BTFSS   STATUS, C    ; Skip next instruction if W >= TEMP (no borrow)
-    GOTO    done_div     ; If borrow occurred, exit loop
-    INCF    DIGIT1, F    ; Increment tens digit counter
-    MOVF    W, F         ; Move result back to TEMP
-    GOTO    div_loop     ; Repeat subtraction
+tens_loop
+    MOVF    temp, W       ; Load current value of temp into W
+    SUBLW   10            ; Subtract 10 from W
+    BTFSS   STATUS, C     ; If result is negative (W < 10), stop loop
+    GOTO    ones_calc     ; Go to calculate ones digit
+    MOVWF   temp          ; Update temp with the new value
+    INCF    tens, F       ; Increment tens counter
+    GOTO    tens_loop     ; Repeat the loop
 
-done_div
-    ; TEMP now contains the ones digit, DIGIT1 contains the tens digit
+ones_calc
+    MOVF    temp, W       ; Remaining value in temp is the ones digit
+    MOVWF   ones          ; Store it in ones register
 
-    ; Display tens digit
-    MOVF    DIGIT1, W    ; Move tens digit to W
-    ADDLW   '0'          ; Convert to ASCII
-    CALL    display_char ; Display the tens digit
+; Convert tens digit to ASCII and display
+    MOVF    tens, W       ; Load tens value into W
+    ADDLW   '0'           ; Convert to ASCII
+    CALL    display_char  ; Display tens digit
 
-    ; Display ones digit
-    MOVF    TEMP, W      ; Move ones digit to W
-    ADDLW   '0'          ; Convert to ASCII
-    CALL    display_char ; Display the ones digit
+; Convert ones digit to ASCII and display
+    MOVF    ones, W       ; Load ones value into W
+    ADDLW   '0'           ; Convert to ASCII
+    CALL    display_char  ; Display ones digit
 
     RETURN
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;                Variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Variables declaration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-TEMP        RES     1    ; Temporary storage for level number
-DIGIT1      RES     1    ; Tens digit
+temp    RES 1            ; Temporary variable to store the value
+tens    RES 1            ; Reserve one byte for tens digit
+ones    RES 1            ; Reserve one byte for ones digit
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -157,7 +155,7 @@ DIGIT1      RES     1    ; Tens digit
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 display_char    
-    BSF  Select,  RS   ; Select data mode
+    BSF  Select,  RS    ; Select data mode
     CALL    send        ; Send the character to LCD
     RETURN
 
