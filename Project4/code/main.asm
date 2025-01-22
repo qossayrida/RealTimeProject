@@ -102,12 +102,14 @@ start
     MOVLW    B'11001000'    ; enable GIE (bit 7), RBIE (bit 3)
     MOVWF    INTCON        ; PortB pins
 
+;**************** TIMER2 CONFIG ****************
 	MOVLW   0x00            ; Clear the Timer 2 control register
     MOVWF   T2CON           ; Initialize Timer 2 control register
     MOVLW   0x01            ; Load prescaler value (prescaler 1:4)
     MOVWF   T2CON           ; Apply the prescaler value
     BSF     T2CON, TMR2ON   ; Enable Timer 2
 
+;**************** TIMER1 CONFIG ****************
 ;	BANKSEL OVERFLOW_CNT
 ;    CLRF    OVERFLOW_CNT        ; Clear overflow counter
 ;    MOVLW   B'00110001'          ; Prescaler 1:8, Internal clock, Timer1 ON
@@ -123,14 +125,13 @@ start
 ;    BANKSEL  PIE1
 ;    BSF     PIE1, 0   ; Enable Timer1 overflow interrupt
 
+;**************** TIMER0 CONFIG ****************
 ;	CLRF    COUNTER        ; Clear overflow counter
 ;    MOVLW   B'10000111'           ; Set prescaler to 1:256
 ;    BANKSEL OPTION_REG
 ;    MOVWF   OPTION_REG     ; Configure prescaler for Timer0
 ;    MOVLW   0x85          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
 ;    MOVWF   TMR0           ; Load Timer0 with preload value
-
-
 
 
 
