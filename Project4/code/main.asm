@@ -44,63 +44,60 @@ ones    EQU 37            ; Reserve one byte for ones digit
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	ORG	004
-	
-	BANKSEL  PIR1
-    BTFSC 	PIR1,0
-    goto 	TIMER1_ISR
-    BANKSEL INTCON
-	BTFSC   INTCON, 2  
-	goto 	TIMER0_ISR
 
 	BTFSS INTCON, 0	; Check if the source of interrupt is change on RB4...7.
 	goto other_int
 
+
 	BANKSEL game_state        ; Select the bank for game_state
     MOVLW 1                   ; Load value 1 into W
     XORWF game_state,0 	  	  ; Compare W with game_state
-    BTFSS STATUS, Z           ; If game_state != 1
+    BTFSS STATUS, Z           ; If game_state == 0
     GOTO set_game_state       ; Set game_state to 1 and exit
-	BANKSEL  PORTB 
       
 
 	BTFSC PORTB, 4	; Check if PortB.4 (column 4)
 	goto check_col_2
+
     BANKSEL BUTTONS         ; Select bank for BUTTONS
     MOVF    BUTTONS, W      ; Read PORTB states
     BANKSEL LEDS            ; Select bank for LEDS
 	XORWF   LEDS, F
 	BCF INTCON, 0	; Reset the interrupt flag
-	goto other_int
+	RETFIE
 
 check_col_2
 	BTFSC PORTB, 5	; Check if PortB.5 (column 5)
 	goto check_col_3
+
 	BANKSEL BUTTONS         ; Select bank for BUTTONS
     MOVF    BUTTONS, W      ; Read PORTB states
     BANKSEL LEDS            ; Select bank for LEDS
 	XORWF   LEDS, F
 	BCF INTCON, 0	; Reset the interrupt flag
-	goto other_int
+	RETFIE
 
 check_col_3
 	BTFSC PORTB, 6	; Check if PortB.6 (column 6)
-	goto other_int
+	goto check_col_4
+
 	BANKSEL BUTTONS         ; Select bank for BUTTONS
     MOVF    BUTTONS, W      ; Read PORTB states
     BANKSEL LEDS            ; Select bank for LEDS
 	XORWF   LEDS, F
 	BCF INTCON, 0	; Reset the interrupt flag
-	goto other_int
+	RETFIE
 
 check_col_4
 	BTFSC PORTB, 7	; Check if PortB.7 (column 7)
-	goto other_int
+	RETFIE
+
     BANKSEL BUTTONS         ; Select bank for BUTTONS
     MOVF    BUTTONS, W      ; Read PORTB states
     BANKSEL LEDS            ; Select bank for LEDS
 	XORWF   LEDS, F
 	BCF INTCON, 0	; Reset the interrupt flag
-	goto other_int
+	RETFIE
 
 
 set_game_state
@@ -108,9 +105,17 @@ set_game_state
     MOVLW 1                   ; Load value 1
     MOVWF game_state          ; Set game_state = 1
     BCF INTCON, 0             ; Reset the interrupt flag
-    RETFIE 
+    RETFIE
 
 other_int
+
+	BANKSEL  PIR1
+    BTFSC 	PIR1,0
+    goto 	TIMER1_ISR
+    BANKSEL INTCON
+	BTFSC   INTCON, 2  
+	goto 	TIMER0_ISR
+	
 	movf PORTB,1 	; Read PortB (to itself) to end mismatch condition
 	RETFIE			; Return from interrupt
 
@@ -179,7 +184,7 @@ start
 	CALL 	clear_display
 	
 	MOVLW   0
-    XORWF   game_state, 1     ; Compare W with game_state
+    XORWF   game_state, 0     ; Compare W with game_state
     BTFSS   STATUS, Z         ; If game_state != 1, skip to set_game_state
 	GOTO    wait_until_press
 	CALL 	print_press_any_button
@@ -187,7 +192,7 @@ start
 	CALL 	clear_display
 
     MOVLW   0         
-    XORWF   game_state, 1     ; Compare W with game_state
+    XORWF   game_state, 0     ; Compare W with game_state
     BTFSS   STATUS, Z         ; If game_state != 1, skip to set_game_state
 	GOTO    wait_until_press
 	CALL 	print_press_any_button
@@ -195,11 +200,10 @@ start
 	CALL 	clear_display
 
 	MOVLW   0
-    XORWF   game_state, 1     ; Compare W with game_state
+    XORWF   game_state, 0     ; Compare W with game_state
     BTFSS   STATUS, Z         ; If game_state != 1, skip to set_game_state
 	GOTO    wait_until_press
 	CALL 	print_press_any_button
-	CALL    one_second_delay
 
 
 wait_until_press:
@@ -508,12 +512,13 @@ TIMER1_ISR:
 
     SUBWF  OVERFLOW_CNT,0            ; Subtract 10 from W
     BTFSS   STATUS, Z
-
     GOTO    EXIT_ISR       ; If not 2, exit ISR
-
     CLRF    OVERFLOW_CNT   ; Reset overflow counter
-    BANKSEL PORTC       ; Select bank 0
-    BSF PORTC,5      ; Clear LED outputs
+    
+
+	MOVLW   0x20
+    BANKSEL LEDS            ; Select bank for LEDS
+	XORWF   LEDS, F
 
 
 EXIT_ISR:
@@ -533,10 +538,11 @@ TIMER0_ISR:
     BTFSS   STATUS, Z     
     GOTO    Exit_ISR       ; If not, exit ISR
     CLRF    COUNTER        ; Reset counter after 31 overflows (2 seconds)
-	BSF PORTC,5      ; Clear LED outputs
     
-	BANKSEL PORTC       ; Select bank 0
-    BSF PORTC,5      ; Clear LED outputs
+	
+    MOVLW   0x40
+    BANKSEL LEDS            ; Select bank for LEDS
+	XORWF   LEDS, F
 
 Exit_ISR:
    RETFIE
