@@ -1,6 +1,6 @@
 ;----------------------------------------------------
 ;----------------------------------------------------
-;                  MAIN.ASM        21-01-2025
+;         MAIN.ASM        21-01-2025
 ;----------------------------------------------------
 ;----------------------------------------------------
 
@@ -19,6 +19,8 @@
 #define BUTTONS PORTB
 #define LEDS    PORTC
 
+COUNTER    EQU    30
+OVERFLOW_CNT    EQU    31
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;             Program begins
@@ -97,7 +99,7 @@ start
     BANKSEL PORTC       ; Select bank 0
     CLRF    PORTC       ; Clear LED outputs
     CLRF    PORTD       ; Clear display outputs
-    MOVLW    B'10001000'    ; enable GIE (bit 7), RBIE (bit 3)
+    MOVLW    B'11001000'    ; enable GIE (bit 7), RBIE (bit 3)
     MOVWF    INTCON        ; PortB pins
 
 	MOVLW   0x00            ; Clear the Timer 2 control register
@@ -105,6 +107,31 @@ start
     MOVLW   0x01            ; Load prescaler value (prescaler 1:4)
     MOVWF   T2CON           ; Apply the prescaler value
     BSF     T2CON, TMR2ON   ; Enable Timer 2
+
+;	BANKSEL OVERFLOW_CNT
+;    CLRF    OVERFLOW_CNT        ; Clear overflow counter
+;    MOVLW   B'00110001'          ; Prescaler 1:8, Internal clock, Timer1 ON
+;    BANKSEL T1CON
+;    MOVWF   T1CON          ; Load into T1CON register
+
+    ; Load TIMER1 initial value (TMR1H:TMR1L = 0x17B8 for 59,464 ticks)
+;    MOVLW   0x17           ; High byte of initial value
+;    MOVWF   TMR1H          ; Load TMR1H
+;    MOVLW   0xB8           ; Low byte of initial value
+;    MOVWF   TMR1L          ; Load TMR1L
+
+;    BANKSEL  PIE1
+;    BSF     PIE1, 0   ; Enable Timer1 overflow interrupt
+
+;	CLRF    COUNTER        ; Clear overflow counter
+;    MOVLW   B'10000111'           ; Set prescaler to 1:256
+;    BANKSEL OPTION_REG
+;    MOVWF   OPTION_REG     ; Configure prescaler for Timer0
+;    MOVLW   0x85          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
+;    MOVWF   TMR0           ; Load Timer0 with preload value
+
+
+
 
 
     CALL    inid    ; Initialize the display
@@ -335,12 +362,6 @@ one_second_delay
 
     MOVLW    D'250'
     CALL    xms
-    MOVLW    D'250'
-    CALL    xms
-    MOVLW    D'250'
-    CALL    xms
-    MOVLW    D'250'
-    CALL    xms
 
     RETURN               
 
@@ -378,6 +399,49 @@ random_value
     
     ; Return with WREG containing a random value between 1 and 4
     RETURN
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 		 	Timer one minute
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+TIMER1_ISR:
+    BANKSEL  PIR1
+
+    BCF     PIR1, 0   ; Clear Timer1 interrupt flag
+    INCF    OVERFLOW_CNT, F ; Increment overflow counter
+
+    MOVLW   117          ; Check if 2 overflows occurred
+
+    SUBWF  OVERFLOW_CNT,0            ; Subtract 10 from W
+    BTFSS   STATUS, Z
+
+    GOTO    EXIT_ISR       ; If not 2, exit ISR
+
+    CLRF    OVERFLOW_CNT   ; Reset overflow counter
+    BANKSEL PORTC       ; Select bank 0
+    BSF PORTC,5      ; Clear LED outputs
+
+
+EXIT_ISR:
+    RETFIE
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 		 	Timer two second
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+TIMER0_ISR:
+    
+    BCF     INTCON, 2   ; Clear Timer0 interrupt flag
+    INCF    COUNTER, F     ; Increment the overflow counter
+    MOVLW   45           ; Compare counter with 31 overflows (2 seconds)
+    SUBWF   COUNTER,0            ; Subtract 10 from W
+    BTFSS   STATUS, Z     
+    GOTO    Exit_ISR       ; If not, exit ISR
+    CLRF    COUNTER        ; Reset counter after 31 overflows (2 seconds)
+    
+Exit_ISR:
+   RETFIE
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 		Variables declaration
