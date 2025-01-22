@@ -100,18 +100,24 @@ start
     MOVLW    B'10001000'    ; enable GIE (bit 7), RBIE (bit 3)
     MOVWF    INTCON        ; PortB pins
 
+	MOVLW   0x00            ; Clear the Timer 2 control register
+    MOVWF   T2CON           ; Initialize Timer 2 control register
+    MOVLW   0x01            ; Load prescaler value (prescaler 1:4)
+    MOVWF   T2CON           ; Apply the prescaler value
+    BSF     T2CON, TMR2ON   ; Enable Timer 2
+
 
     CALL    inid    ; Initialize the display
 
 
-    MOVLW   1   ; Load 1 into W for level 1
+	CALL    random_value
     CALL    print_level
 
  	BCF     Select, RS      ; Ensure command mode (RS = 0)
     MOVLW   0xC0            ; Load the command for setting the cursor to the second row
     CALL    send            ; Send the command using the send subroutine
 
-    MOVLW   22   ; Load 22 into W for level 22
+	CALL    random_value
     CALL    print_level
 
 	CALL    one_second_delay
@@ -174,15 +180,6 @@ ones_calc
     CALL    display_char  ; Display ones digit
 
     RETURN
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Variables declaration
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-temp    RES 1            ; Temporary variable to store the value
-tens    RES 1            ; Reserve one byte for tens digit
-ones    RES 1            ; Reserve one byte for ones digit
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;           Print "Press any button"
@@ -355,6 +352,45 @@ display_char
     BSF  Select,  RS    ; Select data mode
     CALL    send        ; Send the character to LCD
     RETURN
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 		 Generate a random value
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+random_value
+
+    BSF     T2CON, TMR2ON    ; Turn on Timer 2
+    BSF     T2CON, T2CKPS0   ; Prescaler setting (e.g., 1:4, modify as needed)
+    BSF     T2CON, T2CKPS1   ; Prescaler setting (e.g., 1:4, modify as needed)
+    
+    ; Wait for Timer 2 to overflow (set Timer 2 to generate a pseudo-random value)
+    MOVF    TMR2, W          ; Move Timer 2 value into WREG
+    XORLW   0xA3            ; XOR WREG with some constant (e.g., 0xA3) to introduce randomness
+    MOVWF   random_reg      ; Store result in random_reg
+    
+    ; Mask the result to get a value between 0 and 3 (mod 4)
+    MOVF    random_reg, W   ; Get the value from random_reg
+    ANDLW   0x03            ; Mask the lower 2 bits (values from 0 to 3)
+    
+    ; Add 1 to make the range from 1 to 4
+    ADDLW   0x01            ; Add 1 to the result (range now 1 to 4)
+    
+    ; Return with WREG containing a random value between 1 and 4
+    RETURN
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 		Variables declaration
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+generated_sequence   RES     22      ; Allocate an array of 22 bytes
+user_sequence   RES     22      ; Allocate an array of 22 bytes
+random_reg  RES 1            ; Reserve space for the random value
+temp    RES 1            ; Temporary variable to store the value
+tens    RES 1            ; Reserve one byte for tens digit
+ones    RES 1            ; Reserve one byte for ones digit
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;       Include LCD driver routine
