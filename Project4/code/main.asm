@@ -29,6 +29,7 @@ temp    EQU 35            ; Temporary variable to store the value
 tens    EQU 36            ; Reserve one byte for tens digit
 ones    EQU 37            ; Reserve one byte for ones digit
 loop_size     EQU 38      ; Reserve one byte for loop_size
+index    	EQU 39      ; Reserve one byte for loop_size
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;             Program begins
@@ -261,9 +262,18 @@ continue_program:
     BANKSEL loop_size        ; Select the bank for loop_size
     MOVWF   loop_size        ; Store the result in loop_size
 
+   ; Initialize index for generated_sequence
+    BANKSEL generated_sequence
+    CLRF    index            ; Clear index (start from 0)
+
 main_loop:
     ; Generate a random value (1-4)
     CALL    random_value     ; random_value returns a value (1-4) in W
+
+    ; Save the random value in generated_sequence
+    BANKSEL generated_sequence
+    MOVWF   generated_sequence + index ; Store W in generated_sequence[index]
+    INCF    index, F         ; Increment index for the next value
 
     ; Check the random value and turn on the corresponding RC pin
     BANKSEL PORTC            ; Select the bank for PORTC
@@ -328,6 +338,7 @@ end_loop:
     ; Enable interrupts
     BANKSEL INTCON          ; Select the bank containing INTCON
     BSF     INTCON, GIE     ; Set the Global Interrupt Enable (GIE) bit to enable interrupts
+
 
 loop 
 	GOTO    loop       ; Stay in infinite loop
