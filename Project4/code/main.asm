@@ -57,7 +57,7 @@ ones    EQU 37            ; Reserve one byte for ones digit
 
 	BANKSEL game_state        ; Select the bank for game_state
     MOVLW 1                   ; Load value 1 into W
-    XORWF game_state,0 	  ; Compare W with game_state
+    XORWF game_state,0 	  	  ; Compare W with game_state
     BTFSS STATUS, Z           ; If game_state != 1
     GOTO set_game_state       ; Set game_state to 1 and exit
 	BANKSEL  PORTB 
@@ -108,7 +108,7 @@ set_game_state
     MOVLW 1                   ; Load value 1
     MOVWF game_state          ; Set game_state = 1
     BCF INTCON, 0             ; Reset the interrupt flag
-    GOTO start_after_press_ISR
+    RETFIE 
 
 other_int
 	movf PORTB,1 	; Read PortB (to itself) to end mismatch condition
@@ -172,35 +172,47 @@ start
     MOVWF game_state          ; Set game_state = 0
 
     CALL    inid    			; Initialize the display
-
-	CALL 	print_press_any_button
-	CALL    one_second_delay
-	CALL 	clear_display
-
-	CALL 	print_press_any_button
-	CALL    one_second_delay
-	CALL 	clear_display
-
-	CALL 	print_press_any_button
-	CALL    one_second_delay
-	CALL 	clear_display
-
+	
 	
 	CALL 	print_press_any_button
 	CALL    one_second_delay
+	CALL 	clear_display
+	
+	MOVLW   0
+    XORWF   game_state, 1     ; Compare W with game_state
+    BTFSS   STATUS, Z         ; If game_state != 1, skip to set_game_state
+	GOTO    wait_until_press
+	CALL 	print_press_any_button
+	CALL    one_second_delay
+	CALL 	clear_display
+
+    MOVLW   0         
+    XORWF   game_state, 1     ; Compare W with game_state
+    BTFSS   STATUS, Z         ; If game_state != 1, skip to set_game_state
+	GOTO    wait_until_press
+	CALL 	print_press_any_button
+	CALL    one_second_delay
+	CALL 	clear_display
+
+	MOVLW   0
+    XORWF   game_state, 1     ; Compare W with game_state
+    BTFSS   STATUS, Z         ; If game_state != 1, skip to set_game_state
+	GOTO    wait_until_press
+	CALL 	print_press_any_button
+	CALL    one_second_delay
 
 
-loop 
-	CALL 	print_try_again
-	GOTO    loop       ; Stay in infinite loop
+wait_until_press:
+    BANKSEL game_state        ; Select the bank for game_state
+    MOVLW   1                 ; Load value 1 into W
+    XORWF   game_state, 0     ; Compare W with game_state
+    BTFSS   STATUS, Z         ; If game_state != 1, skip to set_game_state
+    GOTO    wait_until_press  ; If game_state == 0, stay in the loop
+    GOTO    continue_program  ; If game_state == 1, continue with the program
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;           Start New Level
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
-start_after_press_ISR
+continue_program:
 
 	CALL 	clear_display
 
@@ -214,7 +226,9 @@ start_after_press_ISR
 	CALL    random_value
     CALL    print_level
 
-	goto other_int
+loop 
+	GOTO    loop       ; Stay in infinite loop
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
