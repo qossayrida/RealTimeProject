@@ -108,15 +108,17 @@ set_game_state
     RETFIE
 
 other_int
+	BCF INTCON, RBIF	; Reset the interrupt flag
+
+    BANKSEL INTCON
+	BTFSC   INTCON, T0IF   
+	goto 	TIMER0_ISR
 
 	BANKSEL  PIR1
-    BTFSC 	PIR1,0
+    BTFSC 	PIR1,TMR1IF 
     goto 	TIMER1_ISR
-    BANKSEL INTCON
-	BTFSC   INTCON, 2  
-	goto 	TIMER0_ISR
-	
-	movf PORTB,1 	; Read PortB (to itself) to end mismatch condition
+
+
 	RETFIE			; Return from interrupt
 
 
@@ -136,7 +138,7 @@ start
     BANKSEL PORTC       ; Select bank 0
     CLRF    PORTC       ; Clear LED outputs
     CLRF    PORTD       ; Clear display outputs
-    MOVLW    B'11101000'    ; enable GIE (bit 7), RBIE (bit 3)
+    MOVLW    B'10101000'    ; enable GIE (bit 7), RBIE (bit 3)
     MOVWF    INTCON        ; PortB pins
 
 ;**************** TIMER2 CONFIG ****************
@@ -533,11 +535,11 @@ TIMER0_ISR:
     
     BCF     INTCON, 2      ; Clear Timer0 interrupt flag
     INCF    COUNTER, F     ; Increment the overflow counter
-    MOVLW   45             ; Compare counter with 31 overflows (2 seconds)
+    MOVLW   45             ; Compare counter with 45 overflows (2 seconds)
     SUBWF   COUNTER,0      ; Subtract 10 from W
     BTFSS   STATUS, Z     
     GOTO    Exit_ISR       ; If not, exit ISR
-    CLRF    COUNTER        ; Reset counter after 31 overflows (2 seconds)
+    CLRF    COUNTER        ; Reset counter after 45 overflows (2 seconds)
     
 	
     MOVLW   0x40
