@@ -44,90 +44,119 @@ index    	EQU 39      ; Reserve one byte for loop_size
 ;        Interrupt Service Routine
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-	ORG	004
+    ORG     004
 
-	BTFSS INTCON, 0	; Check if the source of interrupt is change on RB4...7.
-	goto other_int
+ISR:
+    ; Check if the interrupt is from Port B change
+    BTFSS   INTCON, RBIF       ; Check if the source of interrupt is change on RB4...7.
+    GOTO    other_int          ; If not, handle other interrupts
 
+              
+    ; Check which button was pressed and flash the corresponding LED
+    BANKSEL PORTB              ; Select the bank for PORTB
 
-	BTFSC PORTB, 4	; Check if PortB.4 (column 4)
-	goto check_col_2
+    ; Check if RB4 was pressed
+    BTFSS   PORTB, 4           ; Check if RB4 is low (button pressed)
+    GOTO    check_RB5          ; If not, check RB5
 
-	BANKSEL game_state        ; Select the bank for game_state
-    MOVLW 1                   ; Load value 1 into W
-    XORWF game_state,0 	  	  ; Compare W with game_state
-    BTFSS STATUS, Z           ; If game_state == 0
-    GOTO set_game_state       ; Set game_state to 1 and exit
+	; Handle Port B change interrupt
+    BANKSEL game_state         ; Select the bank for game_state
+    MOVF    game_state, W      ; Load game_state into W
+    BTFSC   STATUS, Z          ; Check if game_state == 0 (first time)
+    GOTO    set_game_state ; If not first time, handle button press
 
-    BANKSEL BUTTONS         ; Select bank for BUTTONS
-    MOVF    BUTTONS, W      ; Read PORTB states
-    BANKSEL LEDS            ; Select bank for LEDS
-	XORWF   LEDS, F
-	BCF INTCON, 0	; Reset the interrupt flag
-	RETFIE
+    ; Flash RC4 for one second
+    BANKSEL PORTC              ; Select the bank for PORTC
+    BSF     PORTC, 4           ; Set RC4 high
+    CALL    one_second_delay   ; Delay for one second
+    BCF     PORTC, 4           ; Set RC4 low
 
-check_col_2
-	BTFSC PORTB, 5	; Check if PortB.5 (column 5)
-	goto check_col_3
+    ; Store 1 in user_sequence
+    BANKSEL user_sequence      ; Select the bank for user_sequence
+    MOVLW   1                  ; Load value 1 into W
+    CALL    store_user_input   ; Store the value in user_sequence
+    GOTO    end_isr            ; Skip to the end of the ISR
 
-	BANKSEL game_state        ; Select the bank for game_state
-    MOVLW 1                   ; Load value 1 into W
-    XORWF game_state,0 	  	  ; Compare W with game_state
-    BTFSS STATUS, Z           ; If game_state == 0
-    GOTO set_game_state       ; Set game_state to 1 and exit
+check_RB5:
+    ; Check if RB5 was pressed
+    BTFSS   PORTB, 5           ; Check if RB5 is low (button pressed)
+    GOTO    check_RB6          ; If not, check RB6
 
-	BANKSEL BUTTONS         ; Select bank for BUTTONS
-    MOVF    BUTTONS, W      ; Read PORTB states
-    BANKSEL LEDS            ; Select bank for LEDS
-	XORWF   LEDS, F
-	BCF INTCON, 0	; Reset the interrupt flag
-	RETFIE
+	; Handle Port B change interrupt
+    BANKSEL game_state         ; Select the bank for game_state
+    MOVF    game_state, W      ; Load game_state into W
+    BTFSC   STATUS, Z          ; Check if game_state == 0 (first time)
+    GOTO    set_game_state ; If not first time, handle button press
 
-check_col_3
-	BTFSC PORTB, 6	; Check if PortB.6 (column 6)
-	goto check_col_4
+    ; Flash RC5 for one second
+    BANKSEL PORTC              ; Select the bank for PORTC
+    BSF     PORTC, 5           ; Set RC5 high
+    CALL    one_second_delay   ; Delay for one second
+    BCF     PORTC, 5           ; Set RC5 low
 
-	BANKSEL game_state        ; Select the bank for game_state
-    MOVLW 1                   ; Load value 1 into W
-    XORWF game_state,0 	  	  ; Compare W with game_state
-    BTFSS STATUS, Z           ; If game_state == 0
-    GOTO set_game_state       ; Set game_state to 1 and exit
+    ; Store 2 in user_sequence
+    BANKSEL user_sequence      ; Select the bank for user_sequence
+    MOVLW   2                  ; Load value 2 into W
+    CALL    store_user_input   ; Store the value in user_sequence
+    GOTO    end_isr            ; Skip to the end of the ISR
 
-	BANKSEL BUTTONS         ; Select bank for BUTTONS
-    MOVF    BUTTONS, W      ; Read PORTB states
-    BANKSEL LEDS            ; Select bank for LEDS
-	XORWF   LEDS, F
-	BCF INTCON, 0	; Reset the interrupt flag
-	RETFIE
+check_RB6:
+    ; Check if RB6 was pressed
+    BTFSS   PORTB, 6           ; Check if RB6 is low (button pressed)
+    GOTO    check_RB7          ; If not, check RB7
 
-check_col_4
-	BTFSC PORTB, 7	; Check if PortB.7 (column 7)
-	RETFIE
+	; Handle Port B change interrupt
+    BANKSEL game_state         ; Select the bank for game_state
+    MOVF    game_state, W      ; Load game_state into W
+    BTFSC   STATUS, Z          ; Check if game_state == 0 (first time)
+    GOTO    set_game_state ; If not first time, handle button press
 
-	BANKSEL game_state        ; Select the bank for game_state
-    MOVLW 1                   ; Load value 1 into W
-    XORWF game_state,0 	  	  ; Compare W with game_state
-    BTFSS STATUS, Z           ; If game_state == 0
-    GOTO set_game_state       ; Set game_state to 1 and exit
+    ; Flash RC6 for one second
+    BANKSEL PORTC              ; Select the bank for PORTC
+    BSF     PORTC, 6           ; Set RC6 high
+    CALL    one_second_delay   ; Delay for one second
+    BCF     PORTC, 6           ; Set RC6 low
 
-    BANKSEL BUTTONS         ; Select bank for BUTTONS
-    MOVF    BUTTONS, W      ; Read PORTB states
-    BANKSEL LEDS            ; Select bank for LEDS
-	XORWF   LEDS, F
-	BCF INTCON, 0	; Reset the interrupt flag
-	RETFIE
+    ; Store 3 in user_sequence
+    BANKSEL user_sequence      ; Select the bank for user_sequence
+    MOVLW   3                  ; Load value 3 into W
+    CALL    store_user_input   ; Store the value in user_sequence
+    GOTO    end_isr            ; Skip to the end of the ISR
 
+check_RB7:
+    ; Check if RB7 was pressed
+    BTFSS   PORTB, 7           ; Check if RB7 is low (button pressed)
+    GOTO    end_isr            ; If not, skip to the end of the ISR
 
-set_game_state
-    BANKSEL game_state        ; Select bank for game_state
-    MOVLW 1                   ; Load value 1
-    MOVWF game_state          ; Set game_state = 1
-    BCF INTCON, 0             ; Reset the interrupt flag
-    RETFIE
+	; Handle Port B change interrupt
+    BANKSEL game_state         ; Select the bank for game_state
+    MOVF    game_state, W      ; Load game_state into W
+    BTFSC   STATUS, Z          ; Check if game_state == 0 (first time)
+    GOTO    set_game_state ; If not first time, handle button press
 
-other_int
-	BCF INTCON, RBIF	; Reset the interrupt flag
+    ; Flash RC7 for one second
+    BANKSEL PORTC              ; Select the bank for PORTC
+    BSF     PORTC, 7           ; Set RC7 high
+    CALL    one_second_delay   ; Delay for one second
+    BCF     PORTC, 7           ; Set RC7 low
 
+    ; Store 4 in user_sequence
+    BANKSEL user_sequence      ; Select the bank for user_sequence
+    MOVLW   4                  ; Load value 4 into W
+    CALL    store_user_input   ; Store the value in user_sequence
+
+set_game_state:
+    ; First time: Set game_state to 1 and do nothing else
+    MOVLW   1                  ; Load value 1 into W
+    MOVWF   game_state         ; Set game_state = 1
+
+end_isr:
+    ; Clear the Port B change interrupt flag
+    BCF     INTCON, RBIF       ; Clear the Port B change interrupt flag
+    RETFIE                     ; Return from interrupt
+
+other_int:
+    ; Handle other interrupts (Timer 0, Timer 1, etc.)
     BANKSEL INTCON
 	BTFSC   INTCON, T0IF   
 	goto 	TIMER0_ISR
@@ -136,9 +165,18 @@ other_int
     BTFSC 	PIR1,TMR1IF 
     goto 	TIMER1_ISR
 
+    RETFIE                     ; Return from interrupt
 
-	movf PORTB,1 	; Read PortB (to itself) to end mismatch condition
-	RETFIE			; Return from interrupt
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;       Store User Input in user_sequence
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+store_user_input:
+    ; Store the value in W into user_sequence
+    BANKSEL user_sequence      ; Select the bank for user_sequence
+    MOVWF   user_sequence + index ; Store W in user_sequence[index]
+    INCF    index, F           ; Increment index for the next value
+    RETURN
 
 
 
@@ -160,14 +198,14 @@ start
     MOVLW    B'10001000'    ; enable GIE (bit 7), RBIE (bit 3)
     MOVWF    INTCON        ; PortB pins
 
-;**************** TIMER2 CONFIG ****************
+	;**************** TIMER2 CONFIG ****************
 	MOVLW   0x00            ; Clear the Timer 2 control register
     MOVWF   T2CON           ; Initialize Timer 2 control register
     MOVLW   0x01            ; Load prescaler value (prescaler 1:4)
     MOVWF   T2CON           ; Apply the prescaler value
     BSF     T2CON, TMR2ON   ; Enable Timer 2
 
-;**************** TIMER1 CONFIG ****************
+	;**************** TIMER1 CONFIG ****************
 	BANKSEL OVERFLOW_CNT
     CLRF    OVERFLOW_CNT        ; Clear overflow counter
     MOVLW   B'00110001'          ; Prescaler 1:8, Internal clock, Timer1 ON
@@ -184,7 +222,7 @@ start
    	BSF     PIE1, 0   ; Enable Timer1 overflow interrupt
    	BANKSEL INTCON
 
-;**************** TIMER0 CONFIG ****************
+	;**************** TIMER0 CONFIG ****************
 	CLRF    COUNTER        ; Clear overflow counter
     MOVLW   B'10000111'           ; Set prescaler to 1:256
     BANKSEL OPTION_REG
@@ -203,7 +241,8 @@ start
 
     CALL    inid    			; Initialize the display
 	
-	
+
+
 	CALL 	print_press_any_button
 	CALL    one_second_delay
 	CALL 	clear_display
@@ -338,7 +377,10 @@ end_loop:
     ; Enable interrupts
     BANKSEL INTCON          ; Select the bank containing INTCON
     BSF     INTCON, GIE     ; Set the Global Interrupt Enable (GIE) bit to enable interrupts
-
+	
+	BANKSEL index     ; Select bank for current_level
+    MOVLW 0                   ; Load value 0
+    MOVWF index       ; Set current_level = 0
 
 loop 
 	GOTO    loop       ; Stay in infinite loop
