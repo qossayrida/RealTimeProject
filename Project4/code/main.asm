@@ -21,6 +21,14 @@
 
 COUNTER    EQU    30
 OVERFLOW_CNT    EQU    31
+game_state    EQU 32            ; Reserve one byte for game state
+current_level 	EQU 33            ; Reserve one byte for current level
+
+random_reg  EQU 34            ; Reserve space for the random value
+temp    EQU 35            ; Temporary variable to store the value
+tens    EQU 36            ; Reserve one byte for tens digit
+ones    EQU 37            ; Reserve one byte for ones digit
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;             Program begins
@@ -47,11 +55,13 @@ OVERFLOW_CNT    EQU    31
 	BTFSS INTCON, 0	; Check if the source of interrupt is change on RB4...7.
 	goto other_int
 
-;	BANKSEL game_state        ; Select the bank for game_state
-;    MOVLW 1                   ; Load value 1 into W
-;    XORWF game_state, W 	  ; Compare W with game_state
-;    BTFSS STATUS, Z           ; If game_state != 1
-;    GOTO set_game_state       ; Set game_state to 1 and exit
+	BANKSEL game_state        ; Select the bank for game_state
+    MOVLW 1                   ; Load value 1 into W
+    XORWF game_state,0 	  ; Compare W with game_state
+    BTFSS STATUS, Z           ; If game_state != 1
+    GOTO set_game_state       ; Set game_state to 1 and exit
+	BANKSEL  PORTB 
+      
 
 	BTFSC PORTB, 4	; Check if PortB.4 (column 4)
 	goto check_col_2
@@ -93,12 +103,12 @@ check_col_4
 	goto other_int
 
 
-;set_game_state
-;    BANKSEL game_state        ; Select bank for game_state
-;    MOVLW 1                   ; Load value 1
-;    MOVWF game_state          ; Set game_state = 1
-;    BCF INTCON, 0             ; Reset the interrupt flag
-;    GOTO start_after_press
+set_game_state
+    BANKSEL game_state        ; Select bank for game_state
+    MOVLW 1                   ; Load value 1
+    MOVWF game_state          ; Set game_state = 1
+    BCF INTCON, 0             ; Reset the interrupt flag
+    GOTO start_after_press
 
 other_int
 	movf PORTB,1 	; Read PortB (to itself) to end mismatch condition
@@ -157,16 +167,17 @@ start
     MOVWF   TMR0           ; Load Timer0 with preload value
 
 	
-;	 BANKSEL game_state        ; Select bank for game_state
-;    MOVLW 0                   ; Load value 0
-;    MOVWF game_state          ; Set game_state = 0
+	 BANKSEL game_state        ; Select bank for game_state
+    MOVLW 0                   ; Load value 0
+    MOVWF game_state          ; Set game_state = 0
 
     CALL    inid    			; Initialize the display
 
 
-;wait GOTO    wait 
+wait GOTO    wait
 
-;start_after_press
+ 
+start_after_press
 
 	CALL    random_value
     CALL    print_level
@@ -187,8 +198,15 @@ start
 	CALL    one_second_delay
 	CALL 	clear_display
 
+	RETFIE
+
 loop 
 	GOTO    loop       ; Stay in infinite loop
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;           Print Level Subroutine
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -505,14 +523,10 @@ Exit_ISR:
 ; 		Variables declaration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-game_state    RES 1            ; Reserve one byte for game state
-current_level 	RES 1            ; Reserve one byte for current level
+
 generated_sequence   RES     22      ; Allocate an array of 22 bytes
 user_sequence   RES     22      ; Allocate an array of 22 bytes
-random_reg  RES 1            ; Reserve space for the random value
-temp    RES 1            ; Temporary variable to store the value
-tens    RES 1            ; Reserve one byte for tens digit
-ones    RES 1            ; Reserve one byte for ones digit
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
