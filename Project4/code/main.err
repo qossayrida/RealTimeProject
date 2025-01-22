@@ -1,21 +1,20 @@
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 114 : Register in operand not in bank 0.  Ensure that bank bits are correct.
 Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 116 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 117 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 146 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 197 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 214 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 215 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 219 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 222 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 226 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 227 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 118 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 119 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 148 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 155 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 199 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 216 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 217 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 221 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 224 : Register in operand not in bank 0.  Ensure that bank bits are correct.
 Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 228 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 231 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 236 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Warning[203] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 307 : Found opcode in column 1. (RETURN)
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 437 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 440 : Register in operand not in bank 0.  Ensure that bank bits are correct.
-Warning[202] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 459 : Argument out of range.  Least significant bits used.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 229 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 230 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 233 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 238 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 445 : Register in operand not in bank 0.  Ensure that bank bits are correct.
+Message[302] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\MAIN.ASM 448 : Register in operand not in bank 0.  Ensure that bank bits are correct.
 Message[305] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\LCDIS.INC 27 : Using default destination of 1 (file).
 Message[305] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\LCDIS.INC 37 : Using default destination of 1 (file).
 Message[305] D:\UNIVERSITY\YEAR 4 SEMESTER 1\ENCS4330\REALTIMEPROJECT\PROJECT4\CODE\LCDIS.INC 62 : Using default destination of 1 (file).

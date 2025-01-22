@@ -38,9 +38,11 @@ OVERFLOW_CNT    EQU    31
 	ORG	004
 	
 	BANKSEL  PIR1
-    BTFSC PIR1,0
-    goto TIMER1_ISR
+    BTFSC 	PIR1,0
+    goto 	TIMER1_ISR
     BANKSEL INTCON
+	BTFSC   INTCON, 2  
+	goto 	TIMER0_ISR
 
 	BTFSS INTCON, 0	; Check if the source of interrupt is change on RB4...7.
 	goto other_int
@@ -119,7 +121,7 @@ start
     BANKSEL PORTC       ; Select bank 0
     CLRF    PORTC       ; Clear LED outputs
     CLRF    PORTD       ; Clear display outputs
-    MOVLW    B'11001000'    ; enable GIE (bit 7), RBIE (bit 3)
+    MOVLW    B'11101000'    ; enable GIE (bit 7), RBIE (bit 3)
     MOVWF    INTCON        ; PortB pins
 
 ;**************** TIMER2 CONFIG ****************
@@ -147,15 +149,15 @@ start
    	BANKSEL INTCON
 
 ;**************** TIMER0 CONFIG ****************
-;	CLRF    COUNTER        ; Clear overflow counter
-;    MOVLW   B'10000111'           ; Set prescaler to 1:256
-;    BANKSEL OPTION_REG
-;    MOVWF   OPTION_REG     ; Configure prescaler for Timer0
-;    MOVLW   0x85          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
-;    MOVWF   TMR0           ; Load Timer0 with preload value
+	CLRF    COUNTER        ; Clear overflow counter
+    MOVLW   B'10000111'           ; Set prescaler to 1:256
+    BANKSEL OPTION_REG
+    MOVWF   OPTION_REG     ; Configure prescaler for Timer0
+    MOVLW   0x85          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
+    MOVWF   TMR0           ; Load Timer0 with preload value
 
 	
-;	BANKSEL game_state        ; Select bank for game_state
+;	 BANKSEL game_state        ; Select bank for game_state
 ;    MOVLW 0                   ; Load value 0
 ;    MOVWF game_state          ; Set game_state = 0
 
@@ -304,7 +306,7 @@ print_press_any_button
     MOVLW   't'
     CALL    display_char
 
-RETURN
+	RETURN
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;         Print "Congratulations"
@@ -393,6 +395,12 @@ one_second_delay
 
     MOVLW    D'250'
     CALL    xms
+	MOVLW    D'250'
+    CALL    xms
+	MOVLW    D'250'
+    CALL    xms
+	MOVLW    D'250'
+    CALL    xms
 
     RETURN    
 
@@ -456,7 +464,7 @@ TIMER1_ISR:
     BCF     PIR1, 0   ; Clear Timer1 interrupt flag
     INCF    OVERFLOW_CNT, F ; Increment overflow counter
 
-    MOVLW   117          ; Check if 2 overflows occurred
+    MOVLW   0x75          ; Check if 2 overflows occurred
 
     SUBWF  OVERFLOW_CNT,0            ; Subtract 10 from W
     BTFSS   STATUS, Z
@@ -478,14 +486,18 @@ EXIT_ISR:
 
 TIMER0_ISR:
     
-    BCF     INTCON, 2   ; Clear Timer0 interrupt flag
+    BCF     INTCON, 2      ; Clear Timer0 interrupt flag
     INCF    COUNTER, F     ; Increment the overflow counter
-    MOVLW   45           ; Compare counter with 31 overflows (2 seconds)
-    SUBWF   COUNTER,0            ; Subtract 10 from W
+    MOVLW   45             ; Compare counter with 31 overflows (2 seconds)
+    SUBWF   COUNTER,0      ; Subtract 10 from W
     BTFSS   STATUS, Z     
     GOTO    Exit_ISR       ; If not, exit ISR
     CLRF    COUNTER        ; Reset counter after 31 overflows (2 seconds)
+	BSF PORTC,5      ; Clear LED outputs
     
+	BANKSEL PORTC       ; Select bank 0
+    BSF PORTC,5      ; Clear LED outputs
+
 Exit_ISR:
    RETFIE
 
