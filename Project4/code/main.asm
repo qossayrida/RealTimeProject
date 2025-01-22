@@ -36,8 +36,20 @@ OVERFLOW_CNT    EQU    31
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	ORG	004
+	
+	BANKSEL  PIR1
+    BTFSC PIR1,0
+    goto TIMER1_ISR
+    BANKSEL INTCON
+
 	BTFSS INTCON, 0	; Check if the source of interrupt is change on RB4...7.
 	goto other_int
+
+;	BANKSEL game_state        ; Select the bank for game_state
+;    MOVLW 1                   ; Load value 1 into W
+;    XORWF game_state, W 	  ; Compare W with game_state
+;    BTFSS STATUS, Z           ; If game_state != 1
+;    GOTO set_game_state       ; Set game_state to 1 and exit
 
 	BTFSC PORTB, 4	; Check if PortB.4 (column 4)
 	goto check_col_2
@@ -78,6 +90,14 @@ check_col_4
 	BCF INTCON, 0	; Reset the interrupt flag
 	goto other_int
 
+
+;set_game_state
+;    BANKSEL game_state        ; Select bank for game_state
+;    MOVLW 1                   ; Load value 1
+;    MOVWF game_state          ; Set game_state = 1
+;    BCF INTCON, 0             ; Reset the interrupt flag
+;    GOTO start_after_press
+
 other_int
 	movf PORTB,1 	; Read PortB (to itself) to end mismatch condition
 	RETFIE			; Return from interrupt
@@ -110,20 +130,21 @@ start
     BSF     T2CON, TMR2ON   ; Enable Timer 2
 
 ;**************** TIMER1 CONFIG ****************
-;	BANKSEL OVERFLOW_CNT
-;    CLRF    OVERFLOW_CNT        ; Clear overflow counter
-;    MOVLW   B'00110001'          ; Prescaler 1:8, Internal clock, Timer1 ON
-;    BANKSEL T1CON
-;    MOVWF   T1CON          ; Load into T1CON register
+	BANKSEL OVERFLOW_CNT
+    CLRF    OVERFLOW_CNT        ; Clear overflow counter
+    MOVLW   B'00110001'          ; Prescaler 1:8, Internal clock, Timer1 ON
+    BANKSEL T1CON
+    MOVWF   T1CON          ; Load into T1CON register
 
     ; Load TIMER1 initial value (TMR1H:TMR1L = 0x17B8 for 59,464 ticks)
-;    MOVLW   0x17           ; High byte of initial value
-;    MOVWF   TMR1H          ; Load TMR1H
-;    MOVLW   0xB8           ; Low byte of initial value
-;    MOVWF   TMR1L          ; Load TMR1L
+    MOVLW   0x17           ; High byte of initial value
+    MOVWF   TMR1H          ; Load TMR1H
+    MOVLW   0xB8           ; Low byte of initial value
+    MOVWF   TMR1L          ; Load TMR1L
 
-;    BANKSEL  PIE1
-;    BSF     PIE1, 0   ; Enable Timer1 overflow interrupt
+	BANKSEL  PIE1
+   	BSF     PIE1, 0   ; Enable Timer1 overflow interrupt
+   	BANKSEL INTCON
 
 ;**************** TIMER0 CONFIG ****************
 ;	CLRF    COUNTER        ; Clear overflow counter
@@ -133,10 +154,17 @@ start
 ;    MOVLW   0x85          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
 ;    MOVWF   TMR0           ; Load Timer0 with preload value
 
+	
+;	BANKSEL game_state        ; Select bank for game_state
+;    MOVLW 0                   ; Load value 0
+;    MOVWF game_state          ; Set game_state = 0
+
+    CALL    inid    			; Initialize the display
 
 
-    CALL    inid    ; Initialize the display
+;wait GOTO    wait 
 
+;start_after_press
 
 	CALL    random_value
     CALL    print_level
@@ -154,6 +182,8 @@ start
 	CALL    print_congratulations
 	CALL    one_second_delay
 	CALL 	print_press_any_button
+	CALL    one_second_delay
+	CALL 	clear_display
 
 loop 
 	GOTO    loop       ; Stay in infinite loop
@@ -364,7 +394,22 @@ one_second_delay
     MOVLW    D'250'
     CALL    xms
 
-    RETURN               
+    RETURN    
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;           Clear the LCD display
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+clear_display
+
+	BCF     Select, RS      ; Ensure command mode (RS = 0)
+    MOVLW   0x01        ; Command to clear the display
+    CALL    send        ; Send the command to the LCD
+    MOVLW   D'2'        ; Wait for 2ms for the display to process
+    CALL    xms         ; Delay for 2ms
+    RETURN              ; Done
+           
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;              Subroutine for LCD
@@ -448,7 +493,8 @@ Exit_ISR:
 ; 		Variables declaration
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-
+game_state    RES 1            ; Reserve one byte for game state
+current_level 	RES 1            ; Reserve one byte for current level
 generated_sequence   RES     22      ; Allocate an array of 22 bytes
 user_sequence   RES     22      ; Allocate an array of 22 bytes
 random_reg  RES 1            ; Reserve space for the random value
