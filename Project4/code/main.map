@@ -1,12 +1,12 @@
 MPLINK 4.41, Linker
-Linker Map File - Created Wed Jan 22 20:16:37 2025
+Linker Map File - Created Wed Jan 22 20:37:32 2025
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
                 ---------  ---------  ---------  ---------  ---------
                    .org_0       code   0x000000    program   0x000000
                    .org_1       code   0x000000    program   0x000004
-                   .org_2       code   0x000004    program   0x0003ac
+                   .org_2       code   0x000004    program   0x0003d2
       .config_2007_MAIN.O       code   0x002007    program   0x000002
 
 
@@ -15,47 +15,47 @@ Linker Map File - Created Wed Jan 22 20:16:37 2025
                                Start         End      
                            ---------   ---------      
                             0x000000    0x000001      
-                            0x000004    0x0001d9      
+                            0x000004    0x0001ec      
                             0x002007    0x002007      
-            473 out of 8454 program addresses used, program memory utilization is 5%
+            492 out of 8454 program addresses used, program memory utilization is 5%
 
 
 
                               Symbols - Sorted by Name
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
-                 EXIT_ISR   0x00014e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                 Exit_ISR   0x00015a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-               TIMER0_ISR   0x00014f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-               TIMER1_ISR   0x000141    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                 EXIT_ISR   0x000161    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                 Exit_ISR   0x00016d    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+               TIMER0_ISR   0x000162    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+               TIMER1_ISR   0x000154    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
               check_col_2   0x000016    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-              check_col_3   0x000020    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-              check_col_4   0x00002a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-            clear_display   0x00012e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-         continue_program   0x00008e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-             display_char   0x000134    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-       generated_sequence   0x00015b    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                     inid   0x0001bf    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                     loop   0x000096    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                    loop1   0x0001a1    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                    loopX   0x0001a6    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-         one_second_delay   0x000125    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                    onems   0x00019f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                ones_calc   0x0000ac    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                other_int   0x00003a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-    print_congratulations   0x0000ed    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-              print_level   0x000097    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-   print_press_any_button   0x0000b6    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-          print_try_again   0x00010f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                   pulseE   0x0001aa    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-             random_value   0x000137    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                     send   0x0001af    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-           set_game_state   0x000034    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                    start   0x000044    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                tens_loop   0x0000a6    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-            user_sequence   0x00017d    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-         wait_until_press   0x000087    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                      xms   0x0001a5    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+              check_col_3   0x000026    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+              check_col_4   0x000036    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+            clear_display   0x000141    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+         continue_program   0x0000a1    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+             display_char   0x000147    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+       generated_sequence   0x00016e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                     inid   0x0001d2    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                     loop   0x0000a9    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                    loop1   0x0001b4    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                    loopX   0x0001b9    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+         one_second_delay   0x000138    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                    onems   0x0001b2    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                ones_calc   0x0000bf    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                other_int   0x00004c    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+    print_congratulations   0x000100    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+              print_level   0x0000aa    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+   print_press_any_button   0x0000c9    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+          print_try_again   0x000122    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                   pulseE   0x0001bd    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+             random_value   0x00014a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                     send   0x0001c2    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+           set_game_state   0x000046    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                    start   0x000057    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                tens_loop   0x0000b9    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+            user_sequence   0x000190    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+         wait_until_press   0x00009a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                      xms   0x0001b8    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
 
 
 
@@ -63,36 +63,36 @@ Linker Map File - Created Wed Jan 22 20:16:37 2025
                      Name    Address   Location    Storage File                     
                 ---------  ---------  ---------  --------- ---------                
               check_col_2   0x000016    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-              check_col_3   0x000020    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-              check_col_4   0x00002a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-           set_game_state   0x000034    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                other_int   0x00003a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                    start   0x000044    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-         wait_until_press   0x000087    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-         continue_program   0x00008e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                     loop   0x000096    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-              print_level   0x000097    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                tens_loop   0x0000a6    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                ones_calc   0x0000ac    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-   print_press_any_button   0x0000b6    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-    print_congratulations   0x0000ed    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-          print_try_again   0x00010f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-         one_second_delay   0x000125    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-            clear_display   0x00012e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-             display_char   0x000134    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-             random_value   0x000137    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-               TIMER1_ISR   0x000141    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                 EXIT_ISR   0x00014e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-               TIMER0_ISR   0x00014f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                 Exit_ISR   0x00015a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-       generated_sequence   0x00015b    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-            user_sequence   0x00017d    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                    onems   0x00019f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                    loop1   0x0001a1    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                      xms   0x0001a5    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                    loopX   0x0001a6    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                   pulseE   0x0001aa    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                     send   0x0001af    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                     inid   0x0001bf    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+              check_col_3   0x000026    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+              check_col_4   0x000036    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+           set_game_state   0x000046    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                other_int   0x00004c    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                    start   0x000057    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+         wait_until_press   0x00009a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+         continue_program   0x0000a1    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                     loop   0x0000a9    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+              print_level   0x0000aa    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                tens_loop   0x0000b9    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                ones_calc   0x0000bf    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+   print_press_any_button   0x0000c9    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+    print_congratulations   0x000100    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+          print_try_again   0x000122    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+         one_second_delay   0x000138    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+            clear_display   0x000141    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+             display_char   0x000147    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+             random_value   0x00014a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+               TIMER1_ISR   0x000154    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                 EXIT_ISR   0x000161    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+               TIMER0_ISR   0x000162    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                 Exit_ISR   0x00016d    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+       generated_sequence   0x00016e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+            user_sequence   0x000190    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                    onems   0x0001b2    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                    loop1   0x0001b4    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                      xms   0x0001b8    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                    loopX   0x0001b9    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                   pulseE   0x0001bd    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                     send   0x0001c2    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                     inid   0x0001d2    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
 
 

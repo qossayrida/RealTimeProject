@@ -49,15 +49,14 @@ ones    EQU 37            ; Reserve one byte for ones digit
 	goto other_int
 
 
+	BTFSC PORTB, 4	; Check if PortB.4 (column 4)
+	goto check_col_2
+
 	BANKSEL game_state        ; Select the bank for game_state
     MOVLW 1                   ; Load value 1 into W
     XORWF game_state,0 	  	  ; Compare W with game_state
     BTFSS STATUS, Z           ; If game_state == 0
     GOTO set_game_state       ; Set game_state to 1 and exit
-      
-
-	BTFSC PORTB, 4	; Check if PortB.4 (column 4)
-	goto check_col_2
 
     BANKSEL BUTTONS         ; Select bank for BUTTONS
     MOVF    BUTTONS, W      ; Read PORTB states
@@ -70,6 +69,12 @@ check_col_2
 	BTFSC PORTB, 5	; Check if PortB.5 (column 5)
 	goto check_col_3
 
+	BANKSEL game_state        ; Select the bank for game_state
+    MOVLW 1                   ; Load value 1 into W
+    XORWF game_state,0 	  	  ; Compare W with game_state
+    BTFSS STATUS, Z           ; If game_state == 0
+    GOTO set_game_state       ; Set game_state to 1 and exit
+
 	BANKSEL BUTTONS         ; Select bank for BUTTONS
     MOVF    BUTTONS, W      ; Read PORTB states
     BANKSEL LEDS            ; Select bank for LEDS
@@ -81,6 +86,12 @@ check_col_3
 	BTFSC PORTB, 6	; Check if PortB.6 (column 6)
 	goto check_col_4
 
+	BANKSEL game_state        ; Select the bank for game_state
+    MOVLW 1                   ; Load value 1 into W
+    XORWF game_state,0 	  	  ; Compare W with game_state
+    BTFSS STATUS, Z           ; If game_state == 0
+    GOTO set_game_state       ; Set game_state to 1 and exit
+
 	BANKSEL BUTTONS         ; Select bank for BUTTONS
     MOVF    BUTTONS, W      ; Read PORTB states
     BANKSEL LEDS            ; Select bank for LEDS
@@ -91,6 +102,12 @@ check_col_3
 check_col_4
 	BTFSC PORTB, 7	; Check if PortB.7 (column 7)
 	RETFIE
+
+	BANKSEL game_state        ; Select the bank for game_state
+    MOVLW 1                   ; Load value 1 into W
+    XORWF game_state,0 	  	  ; Compare W with game_state
+    BTFSS STATUS, Z           ; If game_state == 0
+    GOTO set_game_state       ; Set game_state to 1 and exit
 
     BANKSEL BUTTONS         ; Select bank for BUTTONS
     MOVF    BUTTONS, W      ; Read PORTB states
@@ -119,6 +136,7 @@ other_int
     goto 	TIMER1_ISR
 
 
+	movf PORTB,1 	; Read PortB (to itself) to end mismatch condition
 	RETFIE			; Return from interrupt
 
 
