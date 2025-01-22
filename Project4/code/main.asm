@@ -108,7 +108,7 @@ set_game_state
     MOVLW 1                   ; Load value 1
     MOVWF game_state          ; Set game_state = 1
     BCF INTCON, 0             ; Reset the interrupt flag
-    GOTO start_after_press
+    GOTO start_after_press_ISR
 
 other_int
 	movf PORTB,1 	; Read PortB (to itself) to end mismatch condition
@@ -167,17 +167,42 @@ start
     MOVWF   TMR0           ; Load Timer0 with preload value
 
 	
-	 BANKSEL game_state        ; Select bank for game_state
+	BANKSEL game_state        ; Select bank for game_state
     MOVLW 0                   ; Load value 0
     MOVWF game_state          ; Set game_state = 0
 
     CALL    inid    			; Initialize the display
 
+	CALL 	print_press_any_button
+	CALL    one_second_delay
+	CALL 	clear_display
 
-wait GOTO    wait
+	CALL 	print_press_any_button
+	CALL    one_second_delay
+	CALL 	clear_display
 
- 
-start_after_press
+	CALL 	print_press_any_button
+	CALL    one_second_delay
+	CALL 	clear_display
+
+	
+	CALL 	print_press_any_button
+	CALL    one_second_delay
+
+
+loop 
+	CALL 	print_try_again
+	GOTO    loop       ; Stay in infinite loop
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;           Start New Level
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+start_after_press_ISR
+
+	CALL 	clear_display
 
 	CALL    random_value
     CALL    print_level
@@ -189,24 +214,7 @@ start_after_press
 	CALL    random_value
     CALL    print_level
 
-	CALL    one_second_delay
-	CALL    print_try_again
-	CALL    one_second_delay
-	CALL    print_congratulations
-	CALL    one_second_delay
-	CALL 	print_press_any_button
-	CALL    one_second_delay
-	CALL 	clear_display
-
-	RETFIE
-
-loop 
-	GOTO    loop       ; Stay in infinite loop
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;           Print Level Subroutine
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	goto other_int
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -432,7 +440,7 @@ clear_display
 	BCF     Select, RS      ; Ensure command mode (RS = 0)
     MOVLW   0x01        ; Command to clear the display
     CALL    send        ; Send the command to the LCD
-    MOVLW   D'2'        ; Wait for 2ms for the display to process
+    MOVLW   D'5'        ; Wait for 2ms for the display to process
     CALL    xms         ; Delay for 2ms
     RETURN              ; Done
            
