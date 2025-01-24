@@ -28,8 +28,9 @@ ones            EQU    37            ; Reserve one byte for ones digit
 loop_size       EQU    38            ; Reserve one byte for loop_size
 
 index           	 EQU 0xA0  ; Reserve one byte for loop_size
-generated_sequence   EQU 0xA1  ; Starting address of generated_sequence
-user_sequence        EQU 0xB7  ; Starting address of user_sequence (A0H + 22 bytes)
+save_random			 EQU 0xA1
+generated_sequence   EQU 0xA2  ; Starting address of generated_sequence
+user_sequence        EQU 0xB8  ; Starting address of user_sequence (A0H + 22 bytes)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -233,7 +234,7 @@ start
 
 	
 	BANKSEL game_state        ; Select bank for game_state
-    MOVLW 1                   ; Load value 0
+    MOVLW 0                   ; Load value 0
     MOVWF game_state          ; Set game_state = 0
 
 	BANKSEL current_level     ; Select bank for current_level
@@ -282,111 +283,115 @@ wait_until_press:
 
 
 continue_program:
-
-	; Disable interrupts
+    ; Disable interrupts
     BANKSEL INTCON          ; Select the bank containing INTCON
     BCF     INTCON, GIE     ; Clear the Global Interrupt Enable (GIE) bit to disable interrupts
 	
-	CALL 	clear_display
+    CALL    clear_display
 
-	; Increment current_level and print it
-	BANKSEL current_level
+    ; Increment current_level and print it
+    BANKSEL current_level
     INCF    current_level, F ; current_level = current_level + 1
-	MOVF 	current_level, W
-	CALL    print_level
+    MOVF    current_level, W
+    CALL    print_level
 
-	 ; Declare loop_size and set it to current_level + 2
+    ; Declare loop_size and set it to current_level + 2
     BANKSEL current_level
     MOVF    current_level, W ; Load current_level into W
     ADDLW   D'2'             ; Add 2 to W (current_level + 2)
     BANKSEL loop_size        ; Select the bank for loop_size
     MOVWF   loop_size        ; Store the result in loop_size
 
-   ; Initialize index for generated_sequence
+    ; Initialize index for generated_sequence
     BANKSEL generated_sequence
     CLRF    index            ; Clear index (start from 0)
 
 main_loop:
     ; Generate a random value (1-4)
     CALL    random_value     ; random_value returns a value (1-4) in W
+	BANKSEL save_random
+	MOVWF	save_random	 		
 
-    ; Save the random value in generated_sequence
-    BANKSEL generated_sequence
-    MOVWF   generated_sequence + index ; Store W in generated_sequence[index]
-    INCF    index, F         ; Increment index for the next value
+    ; Save the random value in generated_sequence[index]
+    MOVLW   generated_sequence   ; Load the base address of generated_sequence
+    ADDWF   index, W             ; Add the index to the base address
+    MOVWF   FSR                  ; Store the result in FSR
+	MOVF    save_random,W
+    MOVWF   INDF                 ; Store W at the address pointed to by FSR
+
+    ; Increment index for the next value
+    INCF    index, F             ; Increment index for the next value
 
     ; Check the random value and turn on the corresponding RC pin
-    BANKSEL PORTC            ; Select the bank for PORTC
-    MOVWF   temp             ; Store the random value in temp
+    BANKSEL PORTC                ; Select the bank for PORTC
+    MOVWF   temp                 ; Store the random value in temp
 
     ; Check if random value is 1
     MOVLW   D'1'
-    SUBWF   temp, W          ; Subtract 1 from the random value
-    BTFSS   STATUS, Z        ; Skip if random value == 1
-    GOTO    check_2          ; If not 1, check for 2
+    SUBWF   temp, W              ; Subtract 1 from the random value
+    BTFSS   STATUS, Z            ; Skip if random value == 1
+    GOTO    check_2              ; If not 1, check for 2
 
     ; Turn on RC4 for one second
-    BSF     PORTC, 4       ; Set RC4 high
-    CALL    one_second_delay ; Delay for one second
-    BCF     PORTC, 4       ; Set RC4 low
-    GOTO    end_loop         ; Skip to the end of the loop
+    BSF     PORTC, 4             ; Set RC4 high
+    CALL    one_second_delay     ; Delay for one second
+    BCF     PORTC, 4             ; Set RC4 low
+    GOTO    end_loop             ; Skip to the end of the loop
 
 check_2:
     ; Check if random value is 2
     MOVLW   D'2'
-    SUBWF   temp, W          ; Subtract 2 from the random value
-    BTFSS   STATUS, Z        ; Skip if random value == 2
-    GOTO    check_3          ; If not 2, check for 3
+    SUBWF   temp, W              ; Subtract 2 from the random value
+    BTFSS   STATUS, Z            ; Skip if random value == 2
+    GOTO    check_3              ; If not 2, check for 3
 
     ; Turn on RC5 for one second
-    BSF     PORTC, 5       ; Set RC5 high
-    CALL    one_second_delay ; Delay for one second
-    BCF     PORTC, 5       ; Set RC5 low
-    GOTO    end_loop         ; Skip to the end of the loop
+    BSF     PORTC, 5             ; Set RC5 high
+    CALL    one_second_delay     ; Delay for one second
+    BCF     PORTC, 5             ; Set RC5 low
+    GOTO    end_loop             ; Skip to the end of the loop
 
 check_3:
     ; Check if random value is 3
     MOVLW   D'3'
-    SUBWF   temp, W          ; Subtract 3 from the random value
-    BTFSS   STATUS, Z        ; Skip if random value == 3
-    GOTO    check_4          ; If not 3, check for 4
+    SUBWF   temp, W              ; Subtract 3 from the random value
+    BTFSS   STATUS, Z            ; Skip if random value == 3
+    GOTO    check_4              ; If not 3, check for 4
 
     ; Turn on RC6 for one second
-    BSF     PORTC, 6       ; Set RC6 high
-    CALL    one_second_delay ; Delay for one second
-    BCF     PORTC, 6       ; Set RC6 low
-    GOTO    end_loop         ; Skip to the end of the loop
+    BSF     PORTC, 6             ; Set RC6 high
+    CALL    one_second_delay     ; Delay for one second
+    BCF     PORTC, 6             ; Set RC6 low
+    GOTO    end_loop             ; Skip to the end of the loop
 
 check_4:
     ; Check if random value is 4
     MOVLW   D'4'
-    SUBWF   temp, W          ; Subtract 4 from the random value
-    BTFSS   STATUS, Z        ; Skip if random value == 4
-    GOTO    end_loop         ; If not 4, skip to the end of the loop
+    SUBWF   temp, W              ; Subtract 4 from the random value
+    BTFSS   STATUS, Z            ; Skip if random value == 4
+    GOTO    end_loop             ; If not 4, skip to the end of the loop
 
     ; Turn on RC7 for one second
-    BSF     PORTC, 7       ; Set RC7 high
-    CALL    one_second_delay ; Delay for one second
-    BCF     PORTC, 7       ; Set RC7 low
+    BSF     PORTC, 7             ; Set RC7 high
+    CALL    one_second_delay     ; Delay for one second
+    BCF     PORTC, 7             ; Set RC7 low
 
 end_loop:
     ; Decrement loop_size and check if it is zero
     BANKSEL loop_size
-    DECFSZ  loop_size, F     ; Decrement loop_size and skip if zero
-    GOTO    main_loop        ; If loop_size is not zero, repeat the loop
+    DECFSZ  loop_size, F         ; Decrement loop_size and skip if zero
+    GOTO    main_loop            ; If loop_size is not zero, repeat the loop
 
     ; Enable interrupts
     BANKSEL INTCON          ; Select the bank containing INTCON
     BSF     INTCON, GIE     ; Set the Global Interrupt Enable (GIE) bit to enable interrupts
 	
-	BANKSEL index     ; Select bank for current_level
-    MOVLW 0                   ; Load value 0
-    MOVWF index       ; Set current_level = 0
+    BANKSEL index           ; Select bank for index
+    MOVLW   0               ; Load value 0
+    MOVWF   index           ; Reset index to 0
 
-loop 
-	GOTO    loop       ; Stay in infinite loop
-
-
+loop:
+    GOTO    loop            ; Stay in infinite loop
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;           Print Level Subroutine
