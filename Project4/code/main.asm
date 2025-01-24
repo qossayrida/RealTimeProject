@@ -174,10 +174,17 @@ other_int:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 store_user_input:
-    ; Store the value in W into user_sequence
-    BANKSEL user_sequence      ; Select the bank for user_sequence
-    MOVWF   user_sequence + index ; Store W in user_sequence[index]
-    INCF    index, F           ; Increment index for the next value
+	BANKSEL save_random
+	MOVWF	save_random
+
+	MOVLW   user_sequence   	 ; Load the base address of generated_sequence
+    ADDWF   index, W             ; Add the index to the base address
+    MOVWF   FSR                  ; Store the result in FSR
+	MOVF    save_random,W
+    MOVWF   INDF                 ; Store W at the address pointed to by FSR
+
+    ; Increment index for the next value
+    INCF    index, F             ; Increment index for the next value
     RETURN
 
 
@@ -386,9 +393,7 @@ end_loop:
     BANKSEL INTCON          ; Select the bank containing INTCON
     BSF     INTCON, GIE     ; Set the Global Interrupt Enable (GIE) bit to enable interrupts
 	
-    BANKSEL index           ; Select bank for index
-    MOVLW   0               ; Load value 0
-    MOVWF   index           ; Reset index to 0
+	CLRF    index            ; Clear index (start from 0)
 
 loop:
     GOTO    loop            ; Stay in infinite loop
