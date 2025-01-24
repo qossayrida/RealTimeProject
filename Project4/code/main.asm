@@ -16,26 +16,27 @@
 ;                Data Section
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-#define BUTTONS PORTB
-#define LEDS    PORTC
-
-COUNTER    EQU    30
+COUNTER         EQU    30
 OVERFLOW_CNT    EQU    31
-game_state    EQU 32            ; Reserve one byte for game state
-current_level 	EQU 33            ; Reserve one byte for current level
+game_state      EQU    32            ; Reserve one byte for game state
+current_level   EQU    33            ; Reserve one byte for current level
 
-random_reg  EQU 34            ; Reserve space for the random value
-temp    EQU 35            ; Temporary variable to store the value
-tens    EQU 36            ; Reserve one byte for tens digit
-ones    EQU 37            ; Reserve one byte for ones digit
-loop_size     EQU 38      ; Reserve one byte for loop_size
-index    	EQU 39      ; Reserve one byte for loop_size
+random_reg      EQU    34            ; Reserve space for the random value
+temp            EQU    35            ; Temporary variable to store the value
+tens            EQU    36            ; Reserve one byte for tens digit
+ones            EQU    37            ; Reserve one byte for ones digit
+loop_size       EQU    38            ; Reserve one byte for loop_size
+
+index           	 EQU 0xA0  ; Reserve one byte for loop_size
+generated_sequence   EQU 0xA1  ; Starting address of generated_sequence
+user_sequence        EQU 0xB7  ; Starting address of user_sequence (A0H + 22 bytes)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;             Program begins
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ORG 0       ; Default start address 
+    ORG 0x00       ; Default start address 
     NOP         ; Required for ICD mode
     GOTO    start       ; Jump to main program
 
@@ -44,7 +45,7 @@ index    	EQU 39      ; Reserve one byte for loop_size
 ;        Interrupt Service Routine
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ORG     004
+    ORG     0x04
 
 ISR:
     ; Check if the interrupt is from Port B change
@@ -232,7 +233,7 @@ start
 
 	
 	BANKSEL game_state        ; Select bank for game_state
-    MOVLW 0                   ; Load value 0
+    MOVLW 1                   ; Load value 0
     MOVWF game_state          ; Set game_state = 0
 
 	BANKSEL current_level     ; Select bank for current_level
@@ -669,8 +670,8 @@ TIMER1_ISR:
     
 
 	MOVLW   0x20
-    BANKSEL LEDS            ; Select bank for LEDS
-	XORWF   LEDS, F
+    BANKSEL PORTC            ; Select bank for LEDS
+	XORWF   PORTC, F
 
 
 EXIT_ISR:
@@ -685,7 +686,7 @@ TIMER0_ISR:
     
     BCF     INTCON, 2      ; Clear Timer0 interrupt flag
     INCF    COUNTER, F     ; Increment the overflow counter
-    MOVLW   45             ; Compare counter with 45 overflows (2 seconds)
+    MOVLW   99             ; Compare counter with 45 overflows (2 seconds)
     SUBWF   COUNTER,0      ; Subtract 10 from W
     BTFSS   STATUS, Z     
     GOTO    Exit_ISR       ; If not, exit ISR
@@ -693,20 +694,11 @@ TIMER0_ISR:
     
 	
     MOVLW   0x40
-    BANKSEL LEDS            ; Select bank for LEDS
-	XORWF   LEDS, F
+    BANKSEL PORTC            ; Select bank for LEDS
+	XORWF   PORTC, F
 
 Exit_ISR:
    RETFIE
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; 		Variables declaration
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-
-generated_sequence   RES     22      ; Allocate an array of 22 bytes
-user_sequence   RES     22      ; Allocate an array of 22 bytes
-
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
