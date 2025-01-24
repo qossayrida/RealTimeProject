@@ -402,13 +402,24 @@ end_loop:
     BSF     INTCON, GIE     ; Set the Global Interrupt Enable (GIE) bit to enable interrupts
 	BSF     INTCON,T0IE
 
-	CALL print_seq
+wait_until_enter_sequence:	
 
-	wait_until_enter_sequence:		
+	; check game_state == 2  (from timer 1 not play for 1 minute)
+
+	; check if have 3 time of try again 
+
+	; else update the current_level if not reach max (GOTO game_end) 
+		
     GOTO    wait_until_enter_sequence
 
-loop:
-    GOTO    loop            ; Stay in infinite loop
+game_end:
+	
+	CALL clear_display
+	CALL print_you_win
+
+loop 
+	GOTO loop
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;           Print Level Subroutine
@@ -606,6 +617,35 @@ print_try_again
 
     RETURN
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;         Print "You Win"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+print_you_win:
+
+    ; Move cursor to the beginning of the first row
+    BCF     Select, RS      ; Ensure command mode (RS = 0)
+    MOVLW   0x80            ; Command to set cursor to the first row, first column
+    CALL    send            ; Send the command
+
+    ; Print "You Win"
+    MOVLW   'Y'
+    CALL    display_char
+    MOVLW   'o'
+    CALL    display_char
+    MOVLW   'u'
+    CALL    display_char
+    MOVLW   ' '
+    CALL    display_char
+    MOVLW   'W'
+    CALL    display_char
+    MOVLW   'i'
+    CALL    display_char
+    MOVLW   'n'
+    CALL    display_char
+
+    RETURN
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;         	Print seq
