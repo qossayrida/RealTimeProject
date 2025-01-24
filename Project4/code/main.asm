@@ -57,6 +57,9 @@ ISR:
     ; Check which button was pressed and flash the corresponding LED
     BANKSEL PORTB              ; Select the bank for PORTB
 
+	MOVLW   0x85          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
+	MOVWF   TMR0           ; Load Timer0 with preload value
+
     ; Check if RB4 was pressed
     BTFSS   PORTB, 4           ; Check if RB4 is low (button pressed)
     GOTO    check_RB5          ; If not, check RB5
@@ -186,15 +189,6 @@ store_user_input:
     ; Increment index for the next value
     INCF    index, F             ; Increment index for the next value
 
-	
-
-	MOVF    index, W           ; Load index into W
-    SUBLW   D'3'               ; Subtract 3 from W (index - 3)
-    BTFSS   STATUS, Z          ; Skip if index == 3 (result is zero)
-    RETURN                     ; If index != 3, return and do nothing
-
-    ; If index == 3, call compare_sequences
-    CALL    compare_sequences  ; Compare the sequences
     RETURN
 
 
@@ -324,6 +318,7 @@ continue_program:
     CLRF    index            ; Clear index (start from 0)
 
 main_loop:
+	CALL two_hundred_millisecond_delay
     ; Generate a random value (1-4)
     CALL    random_value     ; random_value returns a value (1-4) in W
 	BANKSEL save_random
@@ -405,8 +400,12 @@ end_loop:
     ; Enable interrupts
     BANKSEL INTCON          ; Select the bank containing INTCON
     BSF     INTCON, GIE     ; Set the Global Interrupt Enable (GIE) bit to enable interrupts
-	
+	BSF     INTCON,T0IE
+
 	CALL print_seq
+
+	wait_until_enter_sequence:		
+    GOTO    wait_until_enter_sequence
 
 loop:
     GOTO    loop            ; Stay in infinite loop
@@ -667,7 +666,7 @@ print_seq
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 one_second_delay
-
+	BANKSEL TimerX
     MOVLW    D'250'
     CALL    xms
 	MOVLW    D'250'
@@ -675,6 +674,17 @@ one_second_delay
 	MOVLW    D'250'
     CALL    xms
 	MOVLW    D'250'
+    CALL    xms
+
+    RETURN    
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;           200 millisecond delay
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+two_hundred_millisecond_delay:
+	BANKSEL TimerX
+    MOVLW    D'200'
     CALL    xms
 
     RETURN    
@@ -765,16 +775,13 @@ TIMER0_ISR:
     
     BCF     INTCON, 2      ; Clear Timer0 interrupt flag
     INCF    COUNTER, F     ; Increment the overflow counter
-    MOVLW   99             ; Compare counter with 45 overflows (2 seconds)
+    MOVLW   99             ; Compare counter with 60 overflows (2 seconds)
     SUBWF   COUNTER,0      ; Subtract 10 from W
     BTFSS   STATUS, Z     
     GOTO    Exit_ISR       ; If not, exit ISR
     CLRF    COUNTER        ; Reset counter after 45 overflows (2 seconds)
     
-	
-    MOVLW   0x40
-    BANKSEL PORTC            ; Select bank for LEDS
-	XORWF   PORTC, F
+	CALL    compare_sequences  ; Compare the sequences
 
 Exit_ISR:
    RETFIE
