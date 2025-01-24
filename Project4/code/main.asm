@@ -27,11 +27,16 @@ tens            EQU    36            ; Reserve one byte for tens digit
 ones            EQU    37            ; Reserve one byte for ones digit
 loop_size       EQU    38            ; Reserve one byte for loop_size
 
-index           	 EQU 0xA0  ; Reserve one byte for loop_size
-save_random			 EQU 0xA1
-generated_sequence   EQU 0xA2  ; Starting address of generated_sequence
-user_sequence        EQU 0xB8  ; Starting address of user_sequence (A0H + 22 bytes)
-
+index                EQU 0xA0  ; Reserve one byte for loop_size
+save_random             EQU 0xA1
+user_sequence_index         EQU 0xA2
+generated_sequence_index         EQU 0xA3
+loop_counter         EQU 0xA4
+generated_sequence_result         EQU 0xA5
+user_sequence_result         EQU 0xA6
+comparison_result EQU 0XA7
+generated_sequence   EQU 0xA8  ; Starting address of generated_sequence
+user_sequence        EQU 0xBE  ; Starting address of user_sequence (A0H + 22 bytes)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;             Program begins
@@ -206,7 +211,7 @@ start
     BANKSEL PORTC       ; Select bank 0
     CLRF    PORTC       ; Clear LED outputs
     CLRF    PORTD       ; Clear display outputs
-    MOVLW    B'10001000'    ; enable GIE (bit 7), RBIE (bit 3)
+    MOVLW    B'10101000'    ; enable GIE (bit 7), RBIE (bit 3)
     MOVWF    INTCON        ; PortB pins
 
 	;**************** TIMER2 CONFIG ****************
@@ -768,8 +773,85 @@ TIMER0_ISR:
     BANKSEL PORTC            ; Select bank for LEDS
 	XORWF   PORTC, F
 
+	CALL COMPARE_SEQUENCES
+	MOVF comparison_result,W
+	CALL display_char
+
 Exit_ISR:
    RETFIE
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 		  COMPARE_SEQUENCES
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+COMPARE_SEQUENCES:
+    ; Initialize the pointer to the start of the arrays
+
+	BANKSEL	generated_sequence
+
+	 CLRF generated_sequence_index
+	CLRF user_sequence_index 
+	CLRF generated_sequence_result
+	CLRF user_sequence_result
+	CLRF loop_counter
+	
+	
+    MOVLW   generated_sequence     ; Load the address of generated_sequence into FSR
+    MOVF generated_sequence_index
+	BANKSEL user_sequence
+    MOVLW   user_sequence          ; Load the address of user_sequence into a temporary register
+    MOVWF  user_sequence_index                   ; Use 0x41 as a temporary register to hold the address
+
+    ; Initialize the loop counter
+    MOVLW   3                     ; Load the length of the arrays (22 bytes) into the loop counter
+    MOVWF   loop_counter                  ; Use 0x42 as a loop counter
+
+COMPARE_LOOP:
+    
+   
+
+    ; Load a byte from user_sequence
+	MOVF    generated_sequence_index, W                ; Load the address of user_sequence into W
+    MOVWF   FSR  
+	MOVF    INDF, W                ; Load the byte pointed to by FSR into W
+    INCF    FSR, F                 ; Increment FSR to point to the next byte
+	MOVF generated_sequence_result
+	MOVF FSR,W
+	MOVF generated_sequence_index
+    
+
+
+	MOVF    user_sequence_index, W                ; Load the address of user_sequence into W
+    MOVWF   FSR                    ; Point FSR to user_sequence
+    MOVF    INDF, W                ; Load the byte pointed to by FSR into W
+	INCF    FSR, F                 ; Increment FSR to point to the next byte
+	MOVF user_sequence_result
+	MOVF FSR,W
+	MOVF  user_sequence_index
+	
+	MOVF generated_sequence_result,W
+	
+    ; Compare the two bytes
+    XORWF   user_sequence_result, W                ; XOR the two bytes, result in W
+    BTFSS   STATUS, Z              ; Check if the result is zero (bytes are equal)
+    GOTO    SEQUENCES_NOT_EQUAL    ; If not equal, jump to SEQUENCES_NOT_EQUAL
+
+    
+
+    ; Decrement the loop counter and check if we are done
+    DECFSZ  loop_counter, F                ; Decrement the loop counter and skip if zero
+    GOTO    COMPARE_LOOP           ; If not zero, continue the loop
+
+    ; If we reach here, the sequences are equal
+    MOVLW   0x01                   ; Load 0 into W (sequences are equal)
+    MOVWF   comparison_result      ; Store the result in comparison_result
+    RETURN                         ; Return from the function
+
+SEQUENCES_NOT_EQUAL:
+    ; If we reach here, the sequences are not equal
+    MOVLW   0x00                   ; Load 1 into W (sequences are not equal)
+    MOVWF   comparison_result      ; Store the result in comparison_result
+    RETURN
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
