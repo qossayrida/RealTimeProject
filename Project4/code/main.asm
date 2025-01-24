@@ -182,9 +182,11 @@ store_user_input:
     MOVWF   FSR                  ; Store the result in FSR
 	MOVF    save_random,W
     MOVWF   INDF                 ; Store W at the address pointed to by FSR
-
+	
     ; Increment index for the next value
     INCF    index, F             ; Increment index for the next value
+
+	CALL print_seq
     RETURN
 
 
@@ -241,7 +243,7 @@ start
 
 	
 	BANKSEL game_state        ; Select bank for game_state
-    MOVLW 0                   ; Load value 0
+    MOVLW 0                  ; Load value 0
     MOVWF game_state          ; Set game_state = 0
 
 	BANKSEL current_level     ; Select bank for current_level
@@ -389,11 +391,14 @@ end_loop:
     DECFSZ  loop_size, F         ; Decrement loop_size and skip if zero
     GOTO    main_loop            ; If loop_size is not zero, repeat the loop
 
+	BANKSEL index
+	CLRF    index            ; Clear index (start from 0)
+
     ; Enable interrupts
     BANKSEL INTCON          ; Select the bank containing INTCON
     BSF     INTCON, GIE     ; Set the Global Interrupt Enable (GIE) bit to enable interrupts
 	
-	CLRF    index            ; Clear index (start from 0)
+	CALL print_seq
 
 loop:
     GOTO    loop            ; Stay in infinite loop
@@ -594,6 +599,61 @@ print_try_again
 
     RETURN
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;         	Print seq
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+print_seq
+
+	CALL clear_display
+
+    ; Move cursor to the beginning of the first row
+    BCF     Select, RS      ; Ensure command mode (RS = 0)
+    MOVLW   0x80            ; Command to set cursor to the first row, first column
+    CALL    send            ; Send the command
+
+    BANKSEL generated_sequence
+    MOVF    0xA2,W
+	ADDLW   '0'
+    CALL    display_char
+	BANKSEL generated_sequence
+    MOVF    0xA3,W
+	ADDLW   '0'
+    CALL    display_char
+	BANKSEL generated_sequence
+    MOVF    0xA4,W
+	ADDLW   '0'
+    CALL    display_char
+	BANKSEL generated_sequence
+    MOVF    0xA5,W
+	ADDLW   '0'
+    CALL    display_char
+	
+	; Move cursor to the beginning of the first row
+    BCF     Select, RS      ; Ensure command mode (RS = 0)
+    MOVLW   0xC0            ; Command to set cursor to the first row, first column
+    CALL    send            ; Send the command
+
+	BANKSEL generated_sequence
+    MOVF    0xB8,W
+	ADDLW   '0'
+    CALL    display_char
+	BANKSEL generated_sequence
+    MOVF    0xB9,W
+	ADDLW   '0'
+    CALL    display_char
+	BANKSEL generated_sequence
+    MOVF    0xBA,W
+	ADDLW   '0'
+    CALL    display_char
+	BANKSEL generated_sequence
+    MOVF    0xBB,W
+	ADDLW   '0'
+    CALL    display_char
+
+    RETURN
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;           one second delay
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -617,7 +677,7 @@ one_second_delay
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 clear_display
-
+	BANKSEL Select  
 	BCF     Select, RS      ; Ensure command mode (RS = 0)
     MOVLW   0x01        ; Command to clear the display
     CALL    send        ; Send the command to the LCD
@@ -630,7 +690,8 @@ clear_display
 ;              Subroutine for LCD
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-display_char    
+display_char
+	BANKSEL Select    
     BSF  Select,  RS    ; Select data mode
     CALL    send        ; Send the character to LCD
     RETURN
