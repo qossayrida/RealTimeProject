@@ -26,6 +26,7 @@ This project is an interactive memory-based game implemented using a 16F877A PIC
 
 ## Hardware Setup
 
+
 - **LEDs** and **push buttons** connected to 16F877A pins.
 - LCD operates in 4-bit mode. A 4.7KΩ resistor pulls up the RS pin.
 - Push buttons use 10KΩ pull-up resistors or the internal weak pull-up resistors of PortB.
