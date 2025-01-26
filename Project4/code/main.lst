@@ -1,4 +1,4 @@
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE  1
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00048 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00049 
 0004                  00050     ORG     0x04
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE  2
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -85,10 +85,10 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 000E   284F           00070     GOTO    set_game_state ; If not first time, handle button press
                       00071 
                       00072     ; Flash RC4 for one second
-000F   224E           00073         CALL    reset_timer
+000F   2254           00073         CALL    reset_timer
 0010   1283 1303      00074     BANKSEL PORTC              ; Select the bank for PORTC
 0012   1607           00075     BSF     PORTC, 4           ; Set RC4 high
-0013   220C           00076     CALL    one_second_delay   ; Delay for one second
+0013   2212           00076     CALL    one_second_delay   ; Delay for one second
 0014   1207           00077     BCF     PORTC, 4           ; Set RC4 low
                       00078 
                       00079     ; Store 1 in user_sequence
@@ -109,14 +109,14 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0020   284F           00094     GOTO    set_game_state ; If not first time, handle button press
                       00095 
                       00096     ; Flash RC5 for one second
-0021   224E           00097         CALL    reset_timer
+0021   2254           00097         CALL    reset_timer
 0022   1283 1303      00098     BANKSEL PORTC              ; Select the bank for PORTC
 0024   1687           00099     BSF     PORTC, 5           ; Set RC5 high
-0025   220C           00100     CALL    one_second_delay   ; Delay for one second
+0025   2212           00100     CALL    one_second_delay   ; Delay for one second
 0026   1287           00101     BCF     PORTC, 5           ; Set RC5 low
                       00102 
                       00103     ; Store 2 in user_sequence
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE  3
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -139,10 +139,10 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0032   284F           00118     GOTO    set_game_state ; If not first time, handle button press
                       00119 
                       00120     ; Flash RC6 for one second
-0033   224E           00121         CALL    reset_timer
+0033   2254           00121         CALL    reset_timer
 0034   1283 1303      00122     BANKSEL PORTC              ; Select the bank for PORTC
 0036   1707           00123     BSF     PORTC, 6           ; Set RC6 high
-0037   220C           00124     CALL    one_second_delay   ; Delay for one second
+0037   2212           00124     CALL    one_second_delay   ; Delay for one second
 0038   1307           00125     BCF     PORTC, 6           ; Set RC6 low
                       00126 
                       00127     ; Store 3 in user_sequence
@@ -163,10 +163,10 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0044   284F           00142     GOTO    set_game_state ; If not first time, handle button press
                       00143 
                       00144     ; Flash RC7 for one second
-0045   224E           00145         CALL    reset_timer
+0045   2254           00145         CALL    reset_timer
 0046   1283 1303      00146     BANKSEL PORTC              ; Select the bank for PORTC
 0048   1787           00147     BSF     PORTC, 7           ; Set RC7 high
-0049   220C           00148     CALL    one_second_delay   ; Delay for one second
+0049   2212           00148     CALL    one_second_delay   ; Delay for one second
 004A   1387           00149     BCF     PORTC, 7           ; Set RC7 low
                       00150 
                       00151     ; Store 4 in user_sequence
@@ -175,7 +175,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 004E   205C           00154     CALL    store_user_input   ; Store the value in user_sequence
                       00155 
 004F                  00156 set_game_state:
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE  4
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -194,11 +194,11 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00167     ; Handle other interrupts (Timer 0, Timer 1, etc.)
 0053   1283 1303      00168     BANKSEL INTCON
 0055   190B           00169         BTFSC   INTCON, T0IF   
-0056   2A45           00170         goto    TIMER0_ISR
+0056   2A4B           00170         goto    TIMER0_ISR
                       00171 
 0057   1283 1303      00172         BANKSEL  PIR1
 0059   180C           00173     BTFSC       PIR1,TMR1IF 
-005A   2A37           00174     goto        TIMER1_ISR
+005A   2A3D           00174     goto        TIMER1_ISR
                       00175 
 005B   0009           00176     RETFIE                     ; Return from interrupt
                       00177 
@@ -234,7 +234,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0066                  00203 start:   
                       00204 
 0066   1683 1303      00205         BANKSEL TRISC       ; Select bank 1
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE  5
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -287,13 +287,13 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 008D   3000           00246     MOVLW 0                   ; Load value 0
 008E   00B3           00247     MOVWF current_level       ; Set current_level = 0
                       00248 
-008F   22C5           00249     CALL    inid                        ; Initialize the display
+008F   22CB           00249     CALL    inid                        ; Initialize the display
                       00250         
-0090   2143           00251         CALL    print_press_any_button
-0091   220C           00252         CALL    one_second_delay
-0092   221C           00253         CALL    clear_display
+0090   2149           00251         CALL    print_press_any_button
+0091   2212           00252         CALL    one_second_delay
+0092   2222           00253         CALL    clear_display
                       00254         
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE  6
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  6
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -303,23 +303,23 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0094   0632           00256     XORWF   game_state, 0     ; Compare W with game_state
 0095   1D03           00257     BTFSS   STATUS, Z         ; If game_state != 1, skip to set_game_state
 0096   28A6           00258         GOTO    wait_until_press
-0097   2143           00259         CALL    print_press_any_button
-0098   220C           00260         CALL    one_second_delay
-0099   221C           00261         CALL    clear_display
+0097   2149           00259         CALL    print_press_any_button
+0098   2212           00260         CALL    one_second_delay
+0099   2222           00261         CALL    clear_display
                       00262 
 009A   3000           00263     MOVLW   0         
 009B   0632           00264     XORWF   game_state, 0     ; Compare W with game_state
 009C   1D03           00265     BTFSS   STATUS, Z         ; If game_state != 1, skip to set_game_state
 009D   28A6           00266         GOTO    wait_until_press
-009E   2143           00267         CALL    print_press_any_button
-009F   220C           00268         CALL    one_second_delay
-00A0   221C           00269         CALL    clear_display
+009E   2149           00267         CALL    print_press_any_button
+009F   2212           00268         CALL    one_second_delay
+00A0   2222           00269         CALL    clear_display
                       00270 
 00A1   3000           00271         MOVLW   0
 00A2   0632           00272     XORWF   game_state, 0     ; Compare W with game_state
 00A3   1D03           00273     BTFSS   STATUS, Z         ; If game_state != 1, skip to set_game_state
 00A4   28A6           00274         GOTO    wait_until_press
-00A5   2143           00275         CALL    print_press_any_button
+00A5   2149           00275         CALL    print_press_any_button
                       00276 
                       00277 
 00A6                  00278 wait_until_press:
@@ -337,7 +337,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 00AD   1283 1303      00290     BANKSEL INTCON          ; Select the bank containing INTCON
 00AF   138B           00291     BCF     INTCON, GIE     ; Clear the Global Interrupt Enable (GIE) bit to disable interrupts
                       00292         
-00B0   221C           00293     CALL    clear_display
+00B0   2222           00293     CALL    clear_display
                       00294         
 00B1   1283 1303      00295         BANKSEL trials 
 00B3   01B9           00296         CLRF    trials 
@@ -346,13 +346,13 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 00B4   1283 1303      00299     BANKSEL current_level
 00B6   0AB3           00300     INCF    current_level, F ; current_level = current_level + 1
 00B7   0833           00301     MOVF    current_level, W
-00B8   2124           00302     CALL    print_level
+00B8   212A           00302     CALL    print_level
                       00303 
                       00304     ; Declare loop_size and set it to current_level + 2
 00B9   1283 1303      00305     BANKSEL current_level
 00BB   0833           00306     MOVF    current_level, W ; Load current_level into W
 00BC   3E02           00307     ADDLW   D'2'             ; Add 2 to W (current_level + 2)
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE  7
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  7
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -367,9 +367,9 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 00C2   01A0           00313     CLRF    index            ; Clear index (start from 0)
                       00314 
 00C3                  00315 main_loop:
-00C3   2217           00316         CALL two_hundred_millisecond_delay
+00C3   221D           00316         CALL two_hundred_millisecond_delay
                       00317     ; Generate a random value (1-4)
-00C4   2229           00318     CALL    random_value     ; random_value returns a value (1-4) in W
+00C4   222F           00318     CALL    random_value     ; random_value returns a value (1-4) in W
 00C5   1683 1303      00319         BANKSEL save_random
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
 00C7   00A1           00320         MOVWF   save_random                     
@@ -399,7 +399,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00341 
                       00342     ; Turn on RC4 for one second
 00D5   1607           00343     BSF     PORTC, 4             ; Set RC4 high
-00D6   220C           00344     CALL    one_second_delay     ; Delay for one second
+00D6   2212           00344     CALL    one_second_delay     ; Delay for one second
 00D7   1207           00345     BCF     PORTC, 4             ; Set RC4 low
 00D8   28F0           00346     GOTO    end_loop             ; Skip to the end of the loop
                       00347 
@@ -411,14 +411,14 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 00DC   28E1           00353     GOTO    check_3              ; If not 2, check for 3
                       00354 
                       00355     ; Turn on RC5 for one second
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE  8
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  8
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
 00DD   1687           00356     BSF     PORTC, 5             ; Set RC5 high
-00DE   220C           00357     CALL    one_second_delay     ; Delay for one second
+00DE   2212           00357     CALL    one_second_delay     ; Delay for one second
 00DF   1287           00358     BCF     PORTC, 5             ; Set RC5 low
 00E0   28F0           00359     GOTO    end_loop             ; Skip to the end of the loop
                       00360 
@@ -431,7 +431,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00367 
                       00368     ; Turn on RC6 for one second
 00E5   1707           00369     BSF     PORTC, 6             ; Set RC6 high
-00E6   220C           00370     CALL    one_second_delay     ; Delay for one second
+00E6   2212           00370     CALL    one_second_delay     ; Delay for one second
 00E7   1307           00371     BCF     PORTC, 6             ; Set RC6 low
 00E8   28F0           00372     GOTO    end_loop             ; Skip to the end of the loop
                       00373 
@@ -444,7 +444,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00380 
                       00381     ; Turn on RC7 for one second
 00ED   1787           00382     BSF     PORTC, 7             ; Set RC7 high
-00EE   220C           00383     CALL    one_second_delay     ; Delay for one second
+00EE   2212           00383     CALL    one_second_delay     ; Delay for one second
 00EF   1387           00384     BCF     PORTC, 7             ; Set RC7 low
                       00385 
 00F0                  00386 end_loop:
@@ -470,7 +470,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0102   008E           00404     MOVWF   TMR1L          ; Load TMR1L
                       00405 
                       00406 
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE  9
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  9
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -486,718 +486,722 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0106   1283 1303      00414         BANKSEL game_state         ; Select the bank for game_state
 0108   0832           00415     MOVF    game_state, W      ; Load game_state into W
 0109   1903           00416     BTFSC   STATUS, Z          ; Check if game_state == 0 
-010A   2918           00417     GOTO    game_reset             ; reset game
+010A   291E           00417     GOTO    game_reset             ; reset game
                       00418 
                       00419     ; Check if the user has used all 3 trials
 010B   1283 1303      00420     BANKSEL trials            ; Select the bank for trials
 010D   3003           00421     MOVLW   3                 ; Load value 3 into W
 010E   0239           00422     SUBWF   trials, W         ; Subtract trials from W (W = 3 - trials)
-010F   1D03           00423     BTFSS   STATUS, Z         ; Skip if trials == 3 (result is zero)
-0110   2906           00424     GOTO    wait_until_enter_sequence  ; If trials < 3, stay in the loop
+010F   1903           00423     BTFSC   STATUS, Z         ; trials == 3 
+0110   291E           00424     GOTO    game_reset            ; game reset
                       00425 
-                      00426     ; If trials == 3, check if current_level == 20
-0111   1283 1303      00427     BANKSEL current_level     ; Select the bank for current_level
-0113   3020           00428     MOVLW   20                ; Load value 20 into W
-0114   0233           00429     SUBWF   current_level, W  ; Subtract current_level from W (W = 20 - current_level)
-0115   1D03           00430     BTFSS   STATUS, Z         ; Skip if current_level == 20 (result is zero)
-0116   28AD           00431     GOTO    continue_program  ; If current_level < 20, continue the program
+                      00426         ; check if win this level
+0111   1283 1303      00427         BANKSEL trials                                  ; Select the bank for trials
+0113   3004           00428     MOVLW   4                                   ; Load value 4 into W
+0114   0239           00429     SUBWF   trials, W                           ; Subtract trials from W (W = 4 - trials)
+0115   1D03           00430     BTFSS   STATUS, Z                           ; Skip if trials == 4 (result is zero)
+0116   2906           00431     GOTO    wait_until_enter_sequence   ; If trials < 4, stay in the loop
                       00432 
-                      00433     ; If current_level == 20, end the game
-0117   2921           00434     GOTO    game_end          ; If current_level == 20, go to game_end
-                      00435 
-0118                  00436 game_reset:
-                      00437 
-0118   1683 1303      00438         BANKSEL  PIE1  
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-011A   100C           00439         BCF     PIE1, 0
-011B   1283 1303      00440         BANKSEL  INTCON 
-011D   128B           00441         BCF     INTCON,T0IE
+                      00433     ; If trials == 3, check if current_level == 20
+0117   1283 1303      00434     BANKSEL current_level     ; Select the bank for current_level
+0119   3020           00435     MOVLW   20                ; Load value 20 into W
+011A   0233           00436     SUBWF   current_level, W  ; Subtract current_level from W (W = 20 - current_level)
+011B   1D03           00437     BTFSS   STATUS, Z         ; Skip if current_level == 20 (result is zero)
+011C   28AD           00438     GOTO    continue_program  ; If current_level < 20, continue the program
+                      00439 
+                      00440     ; If current_level == 20, end the game
+011D   2927           00441     GOTO    game_end          ; If current_level == 20, go to game_end
                       00442 
-011E   21C4           00443         CALL    print_reset_game
-011F   220C           00444         CALL    one_second_delay     ; Delay for one second
-0120   2866           00445         GOTO    start   
-                      00446 
-0121                  00447 game_end:
-                      00448         
-0121   221C           00449         CALL clear_display
-0122   21B2           00450         CALL print_you_win
-                      00451 
-0123                  00452 loop 
-0123   2923           00453         GOTO loop
-                      00454 
-                      00455 
-                      00456 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00457 ;           Print Level Subroutine
-                      00458 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 10
+011E                  00443 game_reset:
+                      00444 
+011E   1683 1303      00445         BANKSEL  PIE1  
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+0120   100C           00446         BCF     PIE1, 0
+0121   1283 1303      00447         BANKSEL  INTCON 
+0123   128B           00448         BCF     INTCON,T0IE
+                      00449 
+0124   21CA           00450         CALL    print_reset_game
+0125   2212           00451         CALL    one_second_delay     ; Delay for one second
+0126   2866           00452         GOTO    start   
+                      00453 
+0127                  00454 game_end:
+                      00455         
+0127   2222           00456         CALL clear_display
+0128   21B8           00457         CALL print_you_win
+                      00458 
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 10
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00459 
-0124                  00460 print_level
-0124   00B5           00461     MOVWF   temp          ; Store W into temp
+0129                  00459 loop 
+0129   2929           00460         GOTO loop
+                      00461 
                       00462 
-                      00463     ; Display "LEVEL "
-0125   304C           00464     MOVLW   'L'
-0126   2224           00465     CALL    display_char
-0127   3045           00466     MOVLW   'E'
-0128   2224           00467     CALL    display_char
-0129   3056           00468     MOVLW   'V'
-012A   2224           00469     CALL    display_char
-012B   3045           00470     MOVLW   'E'
-012C   2224           00471     CALL    display_char
-012D   304C           00472     MOVLW   'L'
-012E   2224           00473     CALL    display_char
-012F   3020           00474     MOVLW   ' '          ; Space after "LEVEL"
-0130   2224           00475     CALL    display_char
-                      00476 
-                      00477     ; Initialize tens and ones to zero
-0131   01B6           00478     CLRF    tens          ; Clear tens register
-0132   01B7           00479     CLRF    ones          ; Clear ones register
-                      00480 
-0133                  00481 tens_loop
-0133   3010           00482     MOVLW   10            ; Update temp with the new value
-0134   02B5           00483     SUBWF   temp,1        ; Subtract 10 from W
-0135   1C03           00484     BTFSS   STATUS, C     ; If result is negative (W < 10), stop loop
-0136   2939           00485     GOTO    ones_calc     ; Go to calculate ones digit
-0137   0AB6           00486     INCF    tens, F       ; Increment tens counter
-0138   2933           00487     GOTO    tens_loop     ; Repeat the loop
-                      00488 
-0139                  00489 ones_calc
-0139   07B5           00490     ADDWF   temp,1
-013A   0835           00491     MOVF    temp, W       ; Remaining value in temp is the ones digit
-013B   00B7           00492     MOVWF   ones          ; Store it in ones register
-                      00493 
-                      00494     ; Convert tens digit to ASCII and display
-013C   0836           00495     MOVF    tens, W       ; Load tens value into W
-013D   3E30           00496     ADDLW   '0'           ; Convert to ASCII
-013E   2224           00497     CALL    display_char  ; Display tens digit
-                      00498 
-                      00499     ; Convert ones digit to ASCII and display
-013F   0837           00500     MOVF    ones, W       ; Load ones value into W
-0140   3E30           00501     ADDLW   '0'           ; Convert to ASCII
-0141   2224           00502     CALL    display_char  ; Display ones digit
-                      00503 
-0142   0008           00504     RETURN
+                      00463 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00464 ;           Print Level Subroutine
+                      00465 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00466 
+012A                  00467 print_level
+012A   00B5           00468     MOVWF   temp          ; Store W into temp
+                      00469 
+                      00470     ; Display "LEVEL "
+012B   304C           00471     MOVLW   'L'
+012C   222A           00472     CALL    display_char
+012D   3045           00473     MOVLW   'E'
+012E   222A           00474     CALL    display_char
+012F   3056           00475     MOVLW   'V'
+0130   222A           00476     CALL    display_char
+0131   3045           00477     MOVLW   'E'
+0132   222A           00478     CALL    display_char
+0133   304C           00479     MOVLW   'L'
+0134   222A           00480     CALL    display_char
+0135   3020           00481     MOVLW   ' '          ; Space after "LEVEL"
+0136   222A           00482     CALL    display_char
+                      00483 
+                      00484     ; Initialize tens and ones to zero
+0137   01B6           00485     CLRF    tens          ; Clear tens register
+0138   01B7           00486     CLRF    ones          ; Clear ones register
+                      00487 
+0139                  00488 tens_loop
+0139   3010           00489     MOVLW   10            ; Update temp with the new value
+013A   02B5           00490     SUBWF   temp,1        ; Subtract 10 from W
+013B   1C03           00491     BTFSS   STATUS, C     ; If result is negative (W < 10), stop loop
+013C   293F           00492     GOTO    ones_calc     ; Go to calculate ones digit
+013D   0AB6           00493     INCF    tens, F       ; Increment tens counter
+013E   2939           00494     GOTO    tens_loop     ; Repeat the loop
+                      00495 
+013F                  00496 ones_calc
+013F   07B5           00497     ADDWF   temp,1
+0140   0835           00498     MOVF    temp, W       ; Remaining value in temp is the ones digit
+0141   00B7           00499     MOVWF   ones          ; Store it in ones register
+                      00500 
+                      00501     ; Convert tens digit to ASCII and display
+0142   0836           00502     MOVF    tens, W       ; Load tens value into W
+0143   3E30           00503     ADDLW   '0'           ; Convert to ASCII
+0144   222A           00504     CALL    display_char  ; Display tens digit
                       00505 
-                      00506 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00507 ;           Print "Press any button"
-                      00508 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00509 
-0143                  00510 print_press_any_button
-                      00511 
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 11
+                      00506     ; Convert ones digit to ASCII and display
+0145   0837           00507     MOVF    ones, W       ; Load ones value into W
+0146   3E30           00508     ADDLW   '0'           ; Convert to ASCII
+0147   222A           00509     CALL    display_char  ; Display ones digit
+                      00510 
+0148   0008           00511     RETURN
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 11
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00512         ; Move cursor to the beginning of the first row
-0143   10F4           00513         BCF     Select, RS      ; Ensure command mode (RS = 0)
-0144   3080           00514         MOVLW 0x80      ; Command to set cursor to the first row, first column
-0145   22B5           00515         CALL send       ; Send the command
+                      00512 
+                      00513 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00514 ;           Print "Press any button"
+                      00515 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00516 
-0146   3050           00517     MOVLW   'P'
-0147   2224           00518     CALL    display_char
-0148   3072           00519     MOVLW   'r'
-0149   2224           00520     CALL    display_char
-014A   3065           00521     MOVLW   'e'
-014B   2224           00522     CALL    display_char
-014C   3073           00523     MOVLW   's'
-014D   2224           00524     CALL    display_char
-014E   3073           00525     MOVLW   's'
-014F   2224           00526     CALL    display_char
-0150   3020           00527     MOVLW   ' '
-0151   2224           00528         CALL    display_char
-0152   3061           00529         MOVLW   'a'
-0153   2224           00530     CALL    display_char
-0154   306E           00531     MOVLW   'n'
-0155   2224           00532     CALL    display_char
-0156   3079           00533     MOVLW   'y'
-0157   2224           00534     CALL    display_char          
-0158   3020           00535         MOVLW   ' '          
-0159   2224           00536     CALL    display_char
-015A   3062           00537         MOVLW   'b'
-015B   2224           00538     CALL    display_char
-015C   3075           00539     MOVLW   'u'
-015D   2224           00540     CALL    display_char
-015E   3074           00541     MOVLW   't'
-015F   2224           00542     CALL    display_char
-0160   3074           00543     MOVLW   't'
-0161   2224           00544     CALL    display_char
-0162   306F           00545     MOVLW   'o'
-0163   2224           00546     CALL    display_char
-0164   306E           00547     MOVLW   'n'          
-0165   2224           00548     CALL    display_char
-                      00549 
-0166   10F4           00550         BCF     Select, RS      ; Ensure command mode (RS = 0)
-0167   30C0           00551     MOVLW   0xC0            ; Load the command for setting the cursor to the second row
-0168   22B5           00552     CALL    send            ; Send the command using the send subroutine
-                      00553 
-0169   3074           00554         MOVLW   't'
-016A   2224           00555     CALL    display_char
-016B   306F           00556     MOVLW   'o'
-016C   2224           00557     CALL    display_char
-016D   3020           00558     MOVLW   ' '
-016E   2224           00559     CALL    display_char
-016F   3073           00560     MOVLW   's'
-0170   2224           00561     CALL    display_char
-0171   3074           00562     MOVLW   't'
-0172   2224           00563     CALL    display_char
-0173   3061           00564     MOVLW   'a'          
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 12
+0149                  00517 print_press_any_button
+                      00518 
+                      00519         ; Move cursor to the beginning of the first row
+0149   10F4           00520         BCF     Select, RS      ; Ensure command mode (RS = 0)
+014A   3080           00521         MOVLW 0x80      ; Command to set cursor to the first row, first column
+014B   22BB           00522         CALL send       ; Send the command
+                      00523 
+014C   3050           00524     MOVLW   'P'
+014D   222A           00525     CALL    display_char
+014E   3072           00526     MOVLW   'r'
+014F   222A           00527     CALL    display_char
+0150   3065           00528     MOVLW   'e'
+0151   222A           00529     CALL    display_char
+0152   3073           00530     MOVLW   's'
+0153   222A           00531     CALL    display_char
+0154   3073           00532     MOVLW   's'
+0155   222A           00533     CALL    display_char
+0156   3020           00534     MOVLW   ' '
+0157   222A           00535         CALL    display_char
+0158   3061           00536         MOVLW   'a'
+0159   222A           00537     CALL    display_char
+015A   306E           00538     MOVLW   'n'
+015B   222A           00539     CALL    display_char
+015C   3079           00540     MOVLW   'y'
+015D   222A           00541     CALL    display_char          
+015E   3020           00542         MOVLW   ' '          
+015F   222A           00543     CALL    display_char
+0160   3062           00544         MOVLW   'b'
+0161   222A           00545     CALL    display_char
+0162   3075           00546     MOVLW   'u'
+0163   222A           00547     CALL    display_char
+0164   3074           00548     MOVLW   't'
+0165   222A           00549     CALL    display_char
+0166   3074           00550     MOVLW   't'
+0167   222A           00551     CALL    display_char
+0168   306F           00552     MOVLW   'o'
+0169   222A           00553     CALL    display_char
+016A   306E           00554     MOVLW   'n'          
+016B   222A           00555     CALL    display_char
+                      00556 
+016C   10F4           00557         BCF     Select, RS      ; Ensure command mode (RS = 0)
+016D   30C0           00558     MOVLW   0xC0            ; Load the command for setting the cursor to the second row
+016E   22BB           00559     CALL    send            ; Send the command using the send subroutine
+                      00560 
+016F   3074           00561         MOVLW   't'
+0170   222A           00562     CALL    display_char
+0171   306F           00563     MOVLW   'o'
+0172   222A           00564     CALL    display_char
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 12
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0174   2224           00565     CALL    display_char
-0175   3072           00566         MOVLW   'r'
-0176   2224           00567     CALL    display_char
-0177   3074           00568     MOVLW   't'
-0178   2224           00569     CALL    display_char
-                      00570 
-0179   0008           00571         RETURN
-                      00572 
-                      00573 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00574 ;         Print "Congratulations"
-                      00575 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00576 
+0173   3020           00565     MOVLW   ' '
+0174   222A           00566     CALL    display_char
+0175   3073           00567     MOVLW   's'
+0176   222A           00568     CALL    display_char
+0177   3074           00569     MOVLW   't'
+0178   222A           00570     CALL    display_char
+0179   3061           00571     MOVLW   'a'          
+017A   222A           00572     CALL    display_char
+017B   3072           00573         MOVLW   'r'
+017C   222A           00574     CALL    display_char
+017D   3074           00575     MOVLW   't'
+017E   222A           00576     CALL    display_char
                       00577 
-017A                  00578 print_congratulations
+017F   0008           00578         RETURN
                       00579 
-                      00580     ; Move cursor to the beginning of the first row
-017A   10F4           00581     BCF     Select, RS      ; Ensure command mode (RS = 0)
-017B   3080           00582     MOVLW   0x80            ; Command to set cursor to the first row, first column
-017C   22B5           00583     CALL    send            ; Send the command
+                      00580 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00581 ;         Print "Congratulations"
+                      00582 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00583 
                       00584 
-                      00585     ; Print "Congratulations"
-017D   3043           00586     MOVLW   'C'
-017E   2224           00587     CALL    display_char
-017F   306F           00588     MOVLW   'o'
-0180   2224           00589     CALL    display_char
-0181   306E           00590     MOVLW   'n'
-0182   2224           00591     CALL    display_char
-0183   3067           00592     MOVLW   'g'
-0184   2224           00593     CALL    display_char
-0185   3072           00594     MOVLW   'r'
-0186   2224           00595     CALL    display_char
-0187   3061           00596     MOVLW   'a'
-0188   2224           00597     CALL    display_char
-0189   3074           00598     MOVLW   't'
-018A   2224           00599     CALL    display_char
-018B   3075           00600     MOVLW   'u'
-018C   2224           00601     CALL    display_char
-018D   306C           00602     MOVLW   'l'
-018E   2224           00603     CALL    display_char
-018F   3061           00604     MOVLW   'a'
-0190   2224           00605     CALL    display_char
-0191   3074           00606     MOVLW   't'
-0192   2224           00607     CALL    display_char
-0193   3069           00608     MOVLW   'i'
-0194   2224           00609     CALL    display_char
-0195   306F           00610     MOVLW   'o'
-0196   2224           00611     CALL    display_char
-0197   306E           00612     MOVLW   'n'
-0198   2224           00613     CALL    display_char
-0199   3073           00614     MOVLW   's'
-019A   2224           00615     CALL    display_char
-                      00616 
-019B   0008           00617     RETURN
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 13
+0180                  00585 print_congratulations
+                      00586 
+                      00587     ; Move cursor to the beginning of the first row
+0180   10F4           00588     BCF     Select, RS      ; Ensure command mode (RS = 0)
+0181   3080           00589     MOVLW   0x80            ; Command to set cursor to the first row, first column
+0182   22BB           00590     CALL    send            ; Send the command
+                      00591 
+                      00592     ; Print "Congratulations"
+0183   3043           00593     MOVLW   'C'
+0184   222A           00594     CALL    display_char
+0185   306F           00595     MOVLW   'o'
+0186   222A           00596     CALL    display_char
+0187   306E           00597     MOVLW   'n'
+0188   222A           00598     CALL    display_char
+0189   3067           00599     MOVLW   'g'
+018A   222A           00600     CALL    display_char
+018B   3072           00601     MOVLW   'r'
+018C   222A           00602     CALL    display_char
+018D   3061           00603     MOVLW   'a'
+018E   222A           00604     CALL    display_char
+018F   3074           00605     MOVLW   't'
+0190   222A           00606     CALL    display_char
+0191   3075           00607     MOVLW   'u'
+0192   222A           00608     CALL    display_char
+0193   306C           00609     MOVLW   'l'
+0194   222A           00610     CALL    display_char
+0195   3061           00611     MOVLW   'a'
+0196   222A           00612     CALL    display_char
+0197   3074           00613     MOVLW   't'
+0198   222A           00614     CALL    display_char
+0199   3069           00615     MOVLW   'i'
+019A   222A           00616     CALL    display_char
+019B   306F           00617     MOVLW   'o'
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 13
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00618 
-                      00619 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00620 ;         Print "Try again"
-                      00621 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00622 
-019C                  00623 print_try_again
-                      00624 
-                      00625     ; Move cursor to the beginning of the first row
-019C   10F4           00626     BCF     Select, RS      ; Ensure command mode (RS = 0)
-019D   3080           00627     MOVLW   0x80            ; Command to set cursor to the first row, first column
-019E   22B5           00628     CALL    send            ; Send the command
+019C   222A           00618     CALL    display_char
+019D   306E           00619     MOVLW   'n'
+019E   222A           00620     CALL    display_char
+019F   3073           00621     MOVLW   's'
+01A0   222A           00622     CALL    display_char
+                      00623 
+01A1   0008           00624     RETURN
+                      00625 
+                      00626 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00627 ;         Print "Try again"
+                      00628 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00629 
-                      00630     ; Print "Try again"
-019F   3054           00631     MOVLW   'T'
-01A0   2224           00632     CALL    display_char
-01A1   3072           00633     MOVLW   'r'
-01A2   2224           00634     CALL    display_char
-01A3   3079           00635     MOVLW   'y'
-01A4   2224           00636     CALL    display_char
-01A5   3020           00637     MOVLW   ' '
-01A6   2224           00638     CALL    display_char
-01A7   3061           00639     MOVLW   'a'
-01A8   2224           00640     CALL    display_char
-01A9   3067           00641     MOVLW   'g'
-01AA   2224           00642     CALL    display_char
-01AB   3061           00643     MOVLW   'a'
-01AC   2224           00644     CALL    display_char
-01AD   3069           00645     MOVLW   'i'
-01AE   2224           00646     CALL    display_char
-01AF   306E           00647     MOVLW   'n'
-01B0   2224           00648     CALL    display_char
-                      00649 
-01B1   0008           00650     RETURN
-                      00651 
-                      00652 
-                      00653 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00654 ;         Print "You Win"
-                      00655 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+01A2                  00630 print_try_again
+                      00631 
+                      00632     ; Move cursor to the beginning of the first row
+01A2   10F4           00633     BCF     Select, RS      ; Ensure command mode (RS = 0)
+01A3   3080           00634     MOVLW   0x80            ; Command to set cursor to the first row, first column
+01A4   22BB           00635     CALL    send            ; Send the command
+                      00636 
+                      00637     ; Print "Try again"
+01A5   3054           00638     MOVLW   'T'
+01A6   222A           00639     CALL    display_char
+01A7   3072           00640     MOVLW   'r'
+01A8   222A           00641     CALL    display_char
+01A9   3079           00642     MOVLW   'y'
+01AA   222A           00643     CALL    display_char
+01AB   3020           00644     MOVLW   ' '
+01AC   222A           00645     CALL    display_char
+01AD   3061           00646     MOVLW   'a'
+01AE   222A           00647     CALL    display_char
+01AF   3067           00648     MOVLW   'g'
+01B0   222A           00649     CALL    display_char
+01B1   3061           00650     MOVLW   'a'
+01B2   222A           00651     CALL    display_char
+01B3   3069           00652     MOVLW   'i'
+01B4   222A           00653     CALL    display_char
+01B5   306E           00654     MOVLW   'n'
+01B6   222A           00655     CALL    display_char
                       00656 
-01B2                  00657 print_you_win:
+01B7   0008           00657     RETURN
                       00658 
-                      00659     ; Move cursor to the beginning of the first row
-01B2   10F4           00660     BCF     Select, RS      ; Ensure command mode (RS = 0)
-01B3   3080           00661     MOVLW   0x80            ; Command to set cursor to the first row, first column
-01B4   22B5           00662     CALL    send            ; Send the command
+                      00659 
+                      00660 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00661 ;         Print "You Win"
+                      00662 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00663 
-                      00664     ; Print "You Win"
-01B5   3059           00665     MOVLW   'Y'
-01B6   2224           00666     CALL    display_char
-01B7   306F           00667     MOVLW   'o'
-01B8   2224           00668     CALL    display_char
-01B9   3075           00669     MOVLW   'u'
-01BA   2224           00670     CALL    display_char
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 14
+01B8                  00664 print_you_win:
+                      00665 
+                      00666     ; Move cursor to the beginning of the first row
+01B8   10F4           00667     BCF     Select, RS      ; Ensure command mode (RS = 0)
+01B9   3080           00668     MOVLW   0x80            ; Command to set cursor to the first row, first column
+01BA   22BB           00669     CALL    send            ; Send the command
+                      00670 
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 14
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-01BB   3020           00671     MOVLW   ' '
-01BC   2224           00672     CALL    display_char
-01BD   3057           00673     MOVLW   'W'
-01BE   2224           00674     CALL    display_char
-01BF   3069           00675     MOVLW   'i'
-01C0   2224           00676     CALL    display_char
-01C1   306E           00677     MOVLW   'n'
-01C2   2224           00678     CALL    display_char
-                      00679 
-01C3   0008           00680     RETURN
-                      00681 
-                      00682 
-                      00683 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00684 ;         Print "reset game"
-                      00685 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00671     ; Print "You Win"
+01BB   3059           00672     MOVLW   'Y'
+01BC   222A           00673     CALL    display_char
+01BD   306F           00674     MOVLW   'o'
+01BE   222A           00675     CALL    display_char
+01BF   3075           00676     MOVLW   'u'
+01C0   222A           00677     CALL    display_char
+01C1   3020           00678     MOVLW   ' '
+01C2   222A           00679     CALL    display_char
+01C3   3057           00680     MOVLW   'W'
+01C4   222A           00681     CALL    display_char
+01C5   3069           00682     MOVLW   'i'
+01C6   222A           00683     CALL    display_char
+01C7   306E           00684     MOVLW   'n'
+01C8   222A           00685     CALL    display_char
                       00686 
-01C4                  00687 print_reset_game:
+01C9   0008           00687     RETURN
                       00688 
-                      00689     ; Move cursor to the beginning of the first row
-01C4   10F4           00690     BCF     Select, RS      ; Ensure command mode (RS = 0)
-01C5   3080           00691     MOVLW   0x80            ; Command to set cursor to the first row, first column
-01C6   22B5           00692     CALL    send            ; Send the command
+                      00689 
+                      00690 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00691 ;         Print "reset game"
+                      00692 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00693 
-                      00694     ; Print "You Win"
-01C7   3072           00695     MOVLW   'r'
-01C8   2224           00696     CALL    display_char
-01C9   3065           00697     MOVLW   'e'
-01CA   2224           00698     CALL    display_char
-01CB   3073           00699     MOVLW   's'
-01CC   2224           00700     CALL    display_char
-01CD   3065           00701     MOVLW   'e'
-01CE   2224           00702     CALL    display_char
-01CF   3074           00703     MOVLW   't'
-01D0   2224           00704     CALL    display_char
-01D1   3020           00705     MOVLW   ' '
-01D2   2224           00706     CALL    display_char
-01D3   3067           00707     MOVLW   'g'
-01D4   2224           00708     CALL    display_char
-01D5   3061           00709         MOVLW   'a'
-01D6   2224           00710     CALL    display_char
-01D7   306D           00711         MOVLW   'm'
-01D8   2224           00712     CALL    display_char
-01D9   3065           00713         MOVLW   'e'
-01DA   2224           00714     CALL    display_char
-                      00715 
-01DB   0008           00716     RETURN
-                      00717 
-                      00718 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00719 ;               Print seq
-                      00720 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00721 
-01DC                  00722 print_seq
-                      00723 
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 15
+01CA                  00694 print_reset_game:
+                      00695 
+                      00696     ; Move cursor to the beginning of the first row
+01CA   10F4           00697     BCF     Select, RS      ; Ensure command mode (RS = 0)
+01CB   3080           00698     MOVLW   0x80            ; Command to set cursor to the first row, first column
+01CC   22BB           00699     CALL    send            ; Send the command
+                      00700 
+                      00701     ; Print "You Win"
+01CD   3072           00702     MOVLW   'r'
+01CE   222A           00703     CALL    display_char
+01CF   3065           00704     MOVLW   'e'
+01D0   222A           00705     CALL    display_char
+01D1   3073           00706     MOVLW   's'
+01D2   222A           00707     CALL    display_char
+01D3   3065           00708     MOVLW   'e'
+01D4   222A           00709     CALL    display_char
+01D5   3074           00710     MOVLW   't'
+01D6   222A           00711     CALL    display_char
+01D7   3020           00712     MOVLW   ' '
+01D8   222A           00713     CALL    display_char
+01D9   3067           00714     MOVLW   'g'
+01DA   222A           00715     CALL    display_char
+01DB   3061           00716         MOVLW   'a'
+01DC   222A           00717     CALL    display_char
+01DD   306D           00718         MOVLW   'm'
+01DE   222A           00719     CALL    display_char
+01DF   3065           00720         MOVLW   'e'
+01E0   222A           00721     CALL    display_char
+                      00722 
+01E1   0008           00723     RETURN
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 15
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-01DC   221C           00724         CALL clear_display
-                      00725 
-                      00726     ; Move cursor to the beginning of the first row
-01DD   10F4           00727     BCF     Select, RS      ; Ensure command mode (RS = 0)
-01DE   3080           00728     MOVLW   0x80            ; Command to set cursor to the first row, first column
-01DF   22B5           00729     CALL    send            ; Send the command
+                      00724 
+                      00725 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00726 ;               Print seq
+                      00727 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00728 
+01E2                  00729 print_seq
                       00730 
-01E0   1683 1303      00731     BANKSEL generated_sequence
+01E2   2222           00731         CALL clear_display
+                      00732 
+                      00733     ; Move cursor to the beginning of the first row
+01E3   10F4           00734     BCF     Select, RS      ; Ensure command mode (RS = 0)
+01E4   3080           00735     MOVLW   0x80            ; Command to set cursor to the first row, first column
+01E5   22BB           00736     CALL    send            ; Send the command
+                      00737 
+01E6   1683 1303      00738     BANKSEL generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01E2   0822           00732     MOVF    0xA2,W
-01E3   3E30           00733         ADDLW   '0'
-01E4   2224           00734     CALL    display_char
-01E5   1683 1303      00735         BANKSEL generated_sequence
+01E8   0822           00739     MOVF    0xA2,W
+01E9   3E30           00740         ADDLW   '0'
+01EA   222A           00741     CALL    display_char
+01EB   1683 1303      00742         BANKSEL generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01E7   0823           00736     MOVF    0xA3,W
-01E8   3E30           00737         ADDLW   '0'
-01E9   2224           00738     CALL    display_char
-01EA   1683 1303      00739         BANKSEL generated_sequence
+01ED   0823           00743     MOVF    0xA3,W
+01EE   3E30           00744         ADDLW   '0'
+01EF   222A           00745     CALL    display_char
+01F0   1683 1303      00746         BANKSEL generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01EC   0824           00740     MOVF    0xA4,W
-01ED   3E30           00741         ADDLW   '0'
-01EE   2224           00742     CALL    display_char
-01EF   1683 1303      00743         BANKSEL generated_sequence
+01F2   0824           00747     MOVF    0xA4,W
+01F3   3E30           00748         ADDLW   '0'
+01F4   222A           00749     CALL    display_char
+01F5   1683 1303      00750         BANKSEL generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01F1   0825           00744     MOVF    0xA5,W
-01F2   3E30           00745         ADDLW   '0'
-01F3   2224           00746     CALL    display_char
-                      00747         
-                      00748         ; Move cursor to the beginning of the first row
-01F4   10F4           00749     BCF     Select, RS      ; Ensure command mode (RS = 0)
-01F5   30C0           00750     MOVLW   0xC0            ; Command to set cursor to the first row, first column
-01F6   22B5           00751     CALL    send            ; Send the command
-                      00752 
-01F7   1683 1303      00753         BANKSEL generated_sequence
+01F7   0825           00751     MOVF    0xA5,W
+01F8   3E30           00752         ADDLW   '0'
+01F9   222A           00753     CALL    display_char
+                      00754         
+                      00755         ; Move cursor to the beginning of the first row
+01FA   10F4           00756     BCF     Select, RS      ; Ensure command mode (RS = 0)
+01FB   30C0           00757     MOVLW   0xC0            ; Command to set cursor to the first row, first column
+01FC   22BB           00758     CALL    send            ; Send the command
+                      00759 
+01FD   1683 1303      00760         BANKSEL generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01F9   0838           00754     MOVF    0xB8,W
-01FA   3E30           00755         ADDLW   '0'
-01FB   2224           00756     CALL    display_char
-01FC   1683 1303      00757         BANKSEL generated_sequence
+01FF   0838           00761     MOVF    0xB8,W
+0200   3E30           00762         ADDLW   '0'
+0201   222A           00763     CALL    display_char
+0202   1683 1303      00764         BANKSEL generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-01FE   0839           00758     MOVF    0xB9,W
-01FF   3E30           00759         ADDLW   '0'
-0200   2224           00760     CALL    display_char
-0201   1683 1303      00761         BANKSEL generated_sequence
+0204   0839           00765     MOVF    0xB9,W
+0205   3E30           00766         ADDLW   '0'
+0206   222A           00767     CALL    display_char
+0207   1683 1303      00768         BANKSEL generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0203   083A           00762     MOVF    0xBA,W
-0204   3E30           00763         ADDLW   '0'
-0205   2224           00764     CALL    display_char
-0206   1683 1303      00765         BANKSEL generated_sequence
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0208   083B           00766     MOVF    0xBB,W
-0209   3E30           00767         ADDLW   '0'
-020A   2224           00768     CALL    display_char
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 16
+0209   083A           00769     MOVF    0xBA,W
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 16
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00769 
-020B   0008           00770     RETURN
-                      00771 
-                      00772 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00773 ;           one second delay
-                      00774 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00775 
-020C                  00776 one_second_delay:
-                      00777 
-020C   1283 1303      00778         BANKSEL TimerX
-020E   30FA           00779     MOVLW    D'250'
-020F   22AB           00780     CALL    xms
-0210   30FA           00781         MOVLW    D'250'
-0211   22AB           00782     CALL    xms
-0212   30FA           00783         MOVLW    D'250'
-0213   22AB           00784     CALL    xms
-0214   30FA           00785         MOVLW    D'250'
-0215   22AB           00786     CALL    xms
-                      00787 
-0216   0008           00788     RETURN    
-                      00789 
-                      00790 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00791 ;           200 millisecond delay
-                      00792 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00793 
-0217                  00794 two_hundred_millisecond_delay:
-0217   1283 1303      00795         BANKSEL TimerX
-0219   30C8           00796     MOVLW    D'200'
-021A   22AB           00797     CALL    xms
-                      00798 
-021B   0008           00799     RETURN    
+020A   3E30           00770         ADDLW   '0'
+020B   222A           00771     CALL    display_char
+020C   1683 1303      00772         BANKSEL generated_sequence
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+020E   083B           00773     MOVF    0xBB,W
+020F   3E30           00774         ADDLW   '0'
+0210   222A           00775     CALL    display_char
+                      00776 
+0211   0008           00777     RETURN
+                      00778 
+                      00779 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00780 ;           one second delay
+                      00781 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00782 
+0212                  00783 one_second_delay:
+                      00784 
+0212   1283 1303      00785         BANKSEL TimerX
+0214   30FA           00786     MOVLW    D'250'
+0215   22B1           00787     CALL    xms
+0216   30FA           00788         MOVLW    D'250'
+0217   22B1           00789     CALL    xms
+0218   30FA           00790         MOVLW    D'250'
+0219   22B1           00791     CALL    xms
+021A   30FA           00792         MOVLW    D'250'
+021B   22B1           00793     CALL    xms
+                      00794 
+021C   0008           00795     RETURN    
+                      00796 
+                      00797 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00798 ;           200 millisecond delay
+                      00799 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00800 
-                      00801 
-                      00802 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00803 ;           Clear the LCD display
-                      00804 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+021D                  00801 two_hundred_millisecond_delay:
+021D   1283 1303      00802         BANKSEL TimerX
+021F   30C8           00803     MOVLW    D'200'
+0220   22B1           00804     CALL    xms
                       00805 
-021C                  00806 clear_display
-021C   1283 1303      00807         BANKSEL Select  
-021E   10F4           00808         BCF     Select, RS      ; Ensure command mode (RS = 0)
-021F   3001           00809     MOVLW   0x01        ; Command to clear the display
-0220   22B5           00810     CALL    send        ; Send the command to the LCD
-0221   3005           00811     MOVLW   D'5'        ; Wait for 2ms for the display to process
-0222   22AB           00812     CALL    xms         ; Delay for 2ms
-0223   0008           00813     RETURN              ; Done
-                      00814            
-                      00815 
-                      00816 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00817 ;              Subroutine for LCD
-                      00818 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00819 
-0224                  00820 display_char
-0224   1283 1303      00821         BANKSEL Select    
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 17
+0221   0008           00806     RETURN    
+                      00807 
+                      00808 
+                      00809 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00810 ;           Clear the LCD display
+                      00811 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00812 
+0222                  00813 clear_display
+0222   1283 1303      00814         BANKSEL Select  
+0224   10F4           00815         BCF     Select, RS      ; Ensure command mode (RS = 0)
+0225   3001           00816     MOVLW   0x01        ; Command to clear the display
+0226   22BB           00817     CALL    send        ; Send the command to the LCD
+0227   3005           00818     MOVLW   D'5'        ; Wait for 2ms for the display to process
+0228   22B1           00819     CALL    xms         ; Delay for 2ms
+0229   0008           00820     RETURN              ; Done
+                      00821            
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 17
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-0226   14F4           00822     BSF  Select,  RS    ; Select data mode
-0227   22B5           00823     CALL    send        ; Send the character to LCD
-0228   0008           00824     RETURN
-                      00825 
+                      00822 
+                      00823 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00824 ;              Subroutine for LCD
+                      00825 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00826 
-                      00827 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00828 ;                Generate a random value
-                      00829 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00830 
-                      00831 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00832 ;                Generate a random value using LFSR
-                      00833 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+022A                  00827 display_char
+022A   1283 1303      00828         BANKSEL Select    
+022C   14F4           00829     BSF  Select,  RS    ; Select data mode
+022D   22BB           00830     CALL    send        ; Send the character to LCD
+022E   0008           00831     RETURN
+                      00832 
+                      00833 
                       00834 
-0229                  00835 random_value
-                      00836     ; Initialize LFSR if not already initialized
-0229   1283 1303      00837     BANKSEL random_reg
-022B   0834           00838     MOVF    random_reg, W      ; Load the current random value
-022C   1903           00839     BTFSC   STATUS, Z          ; Check if random_reg is zero (initial state)
-022D   3001           00840     MOVLW   0x01               ; If zero, seed the LFSR with a non-zero value
-022E   00B4           00841     MOVWF   random_reg         ; Store the seed or current value
-                      00842 
-                      00843     ; Perform LFSR operation (16-bit LFSR example)
-022F   0D34           00844     RLF     random_reg, W      ; Rotate left through carry
-0230   0634           00845     XORWF   random_reg, W      ; XOR with the current value
-0231   3901           00846     ANDLW   0x01               ; Mask to get the feedback bit
-0232   0DB4           00847     RLF     random_reg, F      ; Rotate left and incorporate feedback bit
-                      00848 
-                      00849     ; Mask the result to get a value between 0 and 3 (mod 4)
-0233   0834           00850     MOVF    random_reg, W      ; Get the value from random_reg
-0234   3903           00851     ANDLW   0x03               ; Mask the lower 2 bits (values from 0 to 3)
+                      00835 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00836 ;       Generate a random value using LFSR
+                      00837 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00838 
+022F                  00839 random_value
+                      00840     ; Initialize LFSR if not already initialized
+022F   1283 1303      00841     BANKSEL random_reg
+0231   0834           00842     MOVF    random_reg, W      ; Load the current random value
+0232   1903           00843     BTFSC   STATUS, Z          ; Check if random_reg is zero (initial state)
+0233   3001           00844     MOVLW   0x01               ; If zero, seed the LFSR with a non-zero value
+0234   00B4           00845     MOVWF   random_reg         ; Store the seed or current value
+                      00846 
+                      00847     ; Perform LFSR operation (16-bit LFSR example)
+0235   0D34           00848     RLF     random_reg, W      ; Rotate left through carry
+0236   0634           00849     XORWF   random_reg, W      ; XOR with the current value
+0237   3901           00850     ANDLW   0x01               ; Mask to get the feedback bit
+0238   0DB4           00851     RLF     random_reg, F      ; Rotate left and incorporate feedback bit
                       00852 
-                      00853     ; Add 1 to make the range from 1 to 4
-0235   3E01           00854     ADDLW   0x01               ; Add 1 to the result (range now 1 to 4)
-                      00855 
-                      00856     ; Return with WREG containing a random value between 1 and 4
-0236   0008           00857     RETURN
-                      00858 
-                      00859 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00860 ;                       Timer one minute
-                      00861 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00853     ; Mask the result to get a value between 0 and 3 (mod 4)
+0239   0834           00854     MOVF    random_reg, W      ; Get the value from random_reg
+023A   3903           00855     ANDLW   0x03               ; Mask the lower 2 bits (values from 0 to 3)
+                      00856 
+                      00857     ; Add 1 to make the range from 1 to 4
+023B   3E01           00858     ADDLW   0x01               ; Add 1 to the result (range now 1 to 4)
+                      00859 
+                      00860     ; Return with WREG containing a random value between 1 and 4
+023C   0008           00861     RETURN
                       00862 
-0237                  00863 TIMER1_ISR:
-                      00864         ; TIMER 1 just count 0.524 second the we use OVERFLOW_CNT
-                      00865 
-0237   1283 1303      00866     BANKSEL  PIR1
-                      00867 
-0239   100C           00868     BCF     PIR1, 0   ; Clear Timer1 interrupt flag
-023A   0AB1           00869     INCF    OVERFLOW_CNT, F ; Increment overflow counter
-                      00870 
-023B   3010           00871     MOVLW   0x10                ; Check if 2 overflows occurred
-                      00872 
-023C   0231           00873     SUBWF  OVERFLOW_CNT,0            ; Subtract 10 from W
-023D   1D03           00874     BTFSS   STATUS, Z
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 18
+                      00863 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00864 ;                       Timer one minute
+                      00865 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00866 
+023D                  00867 TIMER1_ISR:
+                      00868         ; TIMER 1 just count 0.524 second the we use OVERFLOW_CNT
+                      00869 
+023D   1283 1303      00870     BANKSEL  PIR1
+                      00871 
+023F   100C           00872     BCF     PIR1, 0   ; Clear Timer1 interrupt flag
+0240   0AB1           00873     INCF    OVERFLOW_CNT, F ; Increment overflow counter
+                      00874 
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 18
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-023E   2A44           00875     GOTO    EXIT_ISR       ; If not 2, exit ISR
-023F   01B1           00876     CLRF    OVERFLOW_CNT   ; Reset overflow counter
-                      00877     
-                      00878         
-0240   1283 1303      00879         BANKSEL game_state        ; Select bank for game_state
-0242   3000           00880     MOVLW 0                 ; Load value 0
-0243   00B2           00881     MOVWF game_state          ; Set game_state = 0      
-                      00882 
-0244                  00883 EXIT_ISR:
-0244   0009           00884     RETFIE
-                      00885 
-                      00886 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00887 ;                       Timer two second
-                      00888 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0241   3010           00875     MOVLW   0x10                ; Check if 2 overflows occurred
+                      00876 
+0242   0231           00877     SUBWF  OVERFLOW_CNT,0            ; Subtract 10 from W
+0243   1D03           00878     BTFSS   STATUS, Z
+0244   2A4A           00879     GOTO    EXIT_ISR       ; If not 2, exit ISR
+0245   01B1           00880     CLRF    OVERFLOW_CNT   ; Reset overflow counter
+                      00881     
+                      00882         
+0246   1283 1303      00883         BANKSEL game_state        ; Select bank for game_state
+0248   3000           00884     MOVLW 0                 ; Load value 0
+0249   00B2           00885     MOVWF game_state          ; Set game_state = 0      
+                      00886 
+024A                  00887 EXIT_ISR:
+024A   0009           00888     RETFIE
                       00889 
-                      00890 
-0245                  00891 TIMER0_ISR:
-                      00892         ; TIMER 0 just count 0.065 second the we use COUNTER
-                      00893     
-0245   110B           00894     BCF     INTCON, 2      ; Clear Timer0 interrupt flag
-0246   0AB0           00895     INCF    COUNTER, F     ; Increment the overflow counter
-0247   3080           00896     MOVLW   80             ; Compare counter with 99 overflows (2 seconds)
-0248   0230           00897     SUBWF   COUNTER,0      ; Subtract 10 from W
-0249   1D03           00898     BTFSS   STATUS, Z     
-024A   2A4D           00899     GOTO    Exit_ISR       ; If not, exit ISR
-024B   01B0           00900     CLRF    COUNTER        ; Reset counter after 99 overflows (2 seconds)
-                      00901     
-024C   2258           00902         CALL    compare_sequences  ; Compare the sequences
-                      00903 
-024D                  00904 Exit_ISR:
-024D   0009           00905    RETFIE
-                      00906 
+                      00890 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00891 ;                       Timer two second
+                      00892 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00893 
+                      00894 
+024B                  00895 TIMER0_ISR:
+                      00896         ; TIMER 0 just count 0.065 second the we use COUNTER
+                      00897     
+024B   110B           00898     BCF     INTCON, 2      ; Clear Timer0 interrupt flag
+024C   0AB0           00899     INCF    COUNTER, F     ; Increment the overflow counter
+024D   3080           00900     MOVLW   80             ; Compare counter with 99 overflows (2 seconds)
+024E   0230           00901     SUBWF   COUNTER,0      ; Subtract 10 from W
+024F   1D03           00902     BTFSS   STATUS, Z     
+0250   2A53           00903     GOTO    Exit_ISR       ; If not, exit ISR
+0251   01B0           00904     CLRF    COUNTER        ; Reset counter after 99 overflows (2 seconds)
+                      00905     
+0252   225E           00906         CALL    compare_sequences  ; Compare the sequences
                       00907 
-                      00908 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00909 ;                           Reset timer
-                      00910 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+0253                  00908 Exit_ISR:
+0253   0009           00909    RETFIE
+                      00910 
                       00911 
-024E                  00912 reset_timer:
-                      00913         
-                      00914         ; stop timer 1 
-024E   1683 1303      00915         BANKSEL  PIE1  
+                      00912 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00913 ;                           Reset timer
+                      00914 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00915 
+0254                  00916 reset_timer:
+                      00917         
+                      00918         ; stop timer 1 
+0254   1683 1303      00919         BANKSEL  PIE1  
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0250   100C           00916         BCF     PIE1, 0                 ; Enable Timer1 overflow interrupt
-                      00917 
-                      00918         ; reset timer 0 
-0251   1283 1303      00919         BANKSEL COUNTER 
-0253   168B           00920         BSF     INTCON,T0IE
-0254   3001           00921         MOVLW   0x01          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
-0255   0081           00922         MOVWF   TMR0           ; Load Timer0 with preload value
-0256   01B0           00923         CLRF    COUNTER                         ; Clear overflow counter
-                      00924         
-0257   0008           00925         RETURN
-                      00926 
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 19
+0256   100C           00920         BCF     PIE1, 0                 ; Enable Timer1 overflow interrupt
+                      00921 
+                      00922         ; reset timer 0 
+0257   1283 1303      00923         BANKSEL COUNTER 
+0259   168B           00924         BSF     INTCON,T0IE
+025A   3001           00925         MOVLW   0x01          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
+025B   0081           00926         MOVWF   TMR0           ; Load Timer0 with preload value
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 19
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-                      00927 
-                      00928 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00929 ;  Compare Generated and User Sequences
-                      00930 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+025C   01B0           00927         CLRF    COUNTER                         ; Clear overflow counter
+                      00928         
+025D   0008           00929         RETURN
+                      00930 
                       00931 
-0258                  00932 compare_sequences:
-0258   1683 1303      00933     BANKSEL index
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-025A   01A0           00934     CLRF    index            ; Clear index (start from 0)
+                      00932 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00933 ;  Compare Generated and User Sequences
+                      00934 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00935 
-025B                  00936 compare_loop:
-                      00937     ; Load generated_sequence[index] into W
-025B   1683 1303      00938         BANKSEL generated_sequence
-025D   30A2           00939     MOVLW   generated_sequence   ; Load the base address of generated_sequence
+025E                  00936 compare_sequences:
+025E   1683 1303      00937     BANKSEL index
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-025E   0720           00940     ADDWF   index, W             ; Add the index to the base address
-025F   0084           00941     MOVWF   FSR                  ; Store the result in FSR
-0260   0800           00942     MOVF    INDF, W              ; Load the value at the address pointed to by FSR into W
-0261   1283 1303      00943         BANKSEL temp
-0263   00B5           00944     MOVWF   temp                 ; Store the value in temp
-                      00945 
-                      00946     ; Load user_sequence[index] into W
-0264   1683 1303      00947         BANKSEL user_sequence 
-0266   30B8           00948     MOVLW   user_sequence        ; Load the base address of user_sequence
+0260   01A0           00938     CLRF    index            ; Clear index (start from 0)
+                      00939 
+0261                  00940 compare_loop:
+                      00941     ; Load generated_sequence[index] into W
+0261   1683 1303      00942         BANKSEL generated_sequence
+0263   30A2           00943     MOVLW   generated_sequence   ; Load the base address of generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0267   0720           00949     ADDWF   index, W             ; Add the index to the base address
-0268   0084           00950     MOVWF   FSR                  ; Store the result in FSR
-0269   0800           00951     MOVF    INDF, W              ; Load the value at the address pointed to by FSR into W
-                      00952 
-                      00953     ; Compare the two values
-026A   1283 1303      00954         BANKSEL temp
-026C   0235           00955     SUBWF   temp, W              ; Subtract user_sequence[index] from generated_sequence[index]
-026D   1D03           00956     BTFSS   STATUS, Z            ; Skip if they are equal (result is zero)
-026E   2A86           00957     GOTO    sequences_not_equal  ; If not equal, jump to sequences_not_equal
-                      00958 
-                      00959     ; Increment index for the next value
-026F   1683 1303      00960         BANKSEL index
+0264   0720           00944     ADDWF   index, W             ; Add the index to the base address
+0265   0084           00945     MOVWF   FSR                  ; Store the result in FSR
+0266   0800           00946     MOVF    INDF, W              ; Load the value at the address pointed to by FSR into W
+0267   1283 1303      00947         BANKSEL temp
+0269   00B5           00948     MOVWF   temp                 ; Store the value in temp
+                      00949 
+                      00950     ; Load user_sequence[index] into W
+026A   1683 1303      00951         BANKSEL user_sequence 
+026C   30B8           00952     MOVLW   user_sequence        ; Load the base address of user_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0271   0AA0           00961     INCF    index, F             ; Increment index for the next value
+026D   0720           00953     ADDWF   index, W             ; Add the index to the base address
+026E   0084           00954     MOVWF   FSR                  ; Store the result in FSR
+026F   0800           00955     MOVF    INDF, W              ; Load the value at the address pointed to by FSR into W
+                      00956 
+                      00957     ; Compare the two values
+0270   1283 1303      00958         BANKSEL temp
+0272   0235           00959     SUBWF   temp, W              ; Subtract user_sequence[index] from generated_sequence[index]
+0273   1D03           00960     BTFSS   STATUS, Z            ; Skip if they are equal (result is zero)
+0274   2A8C           00961     GOTO    sequences_not_equal  ; If not equal, jump to sequences_not_equal
                       00962 
-                      00963     ; Check if we have compared all elements
-                      00964         
-0272   1283 1303      00965         BANKSEL current_level
-0274   0833           00966     MOVF    current_level, W     ; Load current_level into W
-0275   3E02           00967     ADDLW   D'2'                 ; Add 2 to W (current_level + 2)
-0276   1683 1303      00968     BANKSEL index
+                      00963     ; Increment index for the next value
+0275   1683 1303      00964         BANKSEL index
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-0278   0220           00969     SUBWF   index, W             ; Subtract (current_level + 2) from index
-0279   1D03           00970     BTFSS   STATUS, Z            ; Skip if index == current_level + 2 (all elements compared)
-027A   2A5B           00971     GOTO    compare_loop         ; If not, repeat the loop
-                      00972 
-                      00973     ; If all elements are equal, print congratulations
-027B   221C           00974         CALL    clear_display
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 20
+0277   0AA0           00965     INCF    index, F             ; Increment index for the next value
+                      00966 
+                      00967     ; Check if we have compared all elements
+                      00968         
+0278   1283 1303      00969         BANKSEL current_level
+027A   0833           00970     MOVF    current_level, W     ; Load current_level into W
+027B   3E02           00971     ADDLW   D'2'                 ; Add 2 to W (current_level + 2)
+027C   1683 1303      00972     BANKSEL index
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+027E   0220           00973     SUBWF   index, W             ; Subtract (current_level + 2) from index
+027F   1D03           00974     BTFSS   STATUS, Z            ; Skip if index == current_level + 2 (all elements compared)
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 20
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-027C   217A           00975     CALL    print_congratulations
-027D   220C           00976         CALL one_second_delay
-                      00977 
-                      00978         ; go to final trial
-027E   1283 1303      00979         BANKSEL trials          ; Select bank for trials
-0280   3003           00980     MOVLW 3                 ; Load value 3
-0281   00B9           00981     MOVWF trials                ; Set trials = 3
-                      00982 
-                      00983         ; disable timer 0
-0282   1283 1303      00984         BANKSEL INTCON
-0284   128B           00985         BCF     INTCON,T0IE
+0280   2A61           00975     GOTO    compare_loop         ; If not, repeat the loop
+                      00976 
+                      00977     ; If all elements are equal, print congratulations
+0281   2222           00978         CALL    clear_display
+0282   2180           00979     CALL    print_congratulations
+0283   2212           00980         CALL one_second_delay
+                      00981 
+                      00982         ; go to final trial
+0284   1283 1303      00983         BANKSEL trials          ; Select bank for trials
+0286   3004           00984     MOVLW 4                 ; Load value 4
+0287   00B9           00985     MOVWF trials                ; Set trials = 4
                       00986 
-0285   0008           00987     RETURN
-                      00988 
-0286                  00989 sequences_not_equal:
-                      00990     ; If any element is not equal, print try again
-0286   221C           00991         CALL    clear_display
-0287   219C           00992     CALL    print_try_again
-0288   228A           00993         CALL    handel_another_trial
-0289   0008           00994     RETURN
-                      00995 
-                      00996 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      00997 ;               handel another trial
-                      00998 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      00987         ; disable timer 0
+0288   1283 1303      00988         BANKSEL INTCON
+028A   128B           00989         BCF     INTCON,T0IE
+                      00990 
+028B   0008           00991     RETURN
+                      00992 
+028C                  00993 sequences_not_equal:
+                      00994     ; If any element is not equal, print try again
+028C   2222           00995         CALL    clear_display
+028D   21A2           00996     CALL    print_try_again
+028E   2290           00997         CALL    handel_another_trial
+028F   0008           00998     RETURN
                       00999 
-028A                  01000 handel_another_trial:
-                      01001         
-                      01002         ; clear index 
-028A   1683 1303      01003         BANKSEL index
-Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-028C   01A0           01004     CLRF    index            ; Clear index (start from 0)
+                      01000 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      01001 ;               handel another trial
+                      01002 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      01003 
+0290                  01004 handel_another_trial:
                       01005         
-                      01006         ; increment number of trials 
-028D   3001           01007         movlw 1
-028E   07B9           01008     addwf trials,1
-                      01009 
-                      01010         ; disable timer 0
-028F   1283 1303      01011         BANKSEL INTCON
-0291   128B           01012         BCF     INTCON,T0IE
-                      01013 
-0292   220C           01014         CALL one_second_delay
-                      01015 
-                      01016         ; print level
-0293   221C           01017         CALL clear_display
-0294   1283 1303      01018         BANKSEL current_level
-0296   0833           01019     MOVF    current_level, W
-0297   2124           01020     CALL    print_level
-                      01021 
-                      01022         ; Load TIMER1 initial value (TMR1H:TMR1L = 0x17B8 for 59,464 ticks)
-0298   1283 1303      01023         BANKSEL OVERFLOW_CNT
-029A   01B1           01024         CLRF    OVERFLOW_CNT
-029B   1683 1303      01025         BANKSEL  PIE1  
+                      01006         ; clear index 
+0290   1683 1303      01007         BANKSEL index
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 21
+0292   01A0           01008     CLRF    index            ; Clear index (start from 0)
+                      01009         
+                      01010         ; increment number of trials 
+0293   3001           01011         movlw 1
+0294   07B9           01012     addwf trials,1
+                      01013 
+                      01014         ; disable timer 0
+0295   1283 1303      01015         BANKSEL INTCON
+0297   128B           01016         BCF     INTCON,T0IE
+                      01017 
+0298   2212           01018         CALL one_second_delay
+                      01019 
+                      01020         ; print level
+0299   2222           01021         CALL clear_display
+029A   1283 1303      01022         BANKSEL current_level
+029C   0833           01023     MOVF    current_level, W
+029D   212A           01024     CALL    print_level
+                      01025 
+                      01026         ; Load TIMER1 initial value (TMR1H:TMR1L = 0x17B8 for 59,464 ticks)
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 21
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-029D   140C           01026         BSF     PIE1, 0                 ; Enable Timer1 overflow interrupt
-029E   1283 1303      01027         BANKSEL  TMR1H  
-02A0   3017           01028     MOVLW   0x17           ; High byte of initial value
-02A1   008F           01029     MOVWF   TMR1H          ; Load TMR1H
-02A2   30B8           01030     MOVLW   0xB8           ; Low byte of initial value
-02A3   008E           01031     MOVWF   TMR1L          ; Load TMR1L
-                      01032 
-02A4   0008           01033         RETURN
-                      01034 
-                      01035 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-                      01036 ;       Include LCD driver routine
-                      01037 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+029E   1283 1303      01027         BANKSEL OVERFLOW_CNT
+02A0   01B1           01028         CLRF    OVERFLOW_CNT
+02A1   1683 1303      01029         BANKSEL  PIE1  
+Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
+02A3   140C           01030         BSF     PIE1, 0                 ; Enable Timer1 overflow interrupt
+02A4   1283 1303      01031         BANKSEL  TMR1H  
+02A6   3017           01032     MOVLW   0x17           ; High byte of initial value
+02A7   008F           01033     MOVWF   TMR1H          ; Load TMR1H
+02A8   30B8           01034     MOVLW   0xB8           ; Low byte of initial value
+02A9   008E           01035     MOVWF   TMR1L          ; Load TMR1L
+                      01036 
+02AA   0008           01037         RETURN
                       01038 
-                      01039     INCLUDE "LCDIS.INC"
+                      01039 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      01040 ;       Include LCD driver routine
+                      01041 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+                      01042 
+                      01043     INCLUDE "LCDIS.INC"
                       00001 ;--------------------------------------------------------------
                       00002 ;       LCDIS.INC               MPB     19-12-05
                       00003 ;
@@ -1221,108 +1225,108 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00021 ;--------------------------------------------------------------
                       00022 ;       1ms delay with 1us cycle time (1000 cycles)
                       00023 ;--------------------------------------------------------------
-02A5   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
-02A6   00F0           00025                 MOVWF   Timer1          ; Load count    2 + (1 + 1 + 2) * 248 + 1 + 2 + 2
-02A7   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
+02AB   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
+02AC   00F0           00025                 MOVWF   Timer1          ; Load count    2 + (1 + 1 + 2) * 248 + 1 + 2 + 2
+02AD   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
 Message[305]: Using default destination of 1 (file).
-02A8   0BF0           00027                 DECFSZ  Timer1          ; Count
-02A9   2AA7           00028                 GOTO    loop1           ; until Z
-02AA   0008           00029                 RETURN                  ; and finish
+02AE   0BF0           00027                 DECFSZ  Timer1          ; Count
+02AF   2AAD           00028                 GOTO    loop1           ; until Z
+02B0   0008           00029                 RETURN                  ; and finish
                       00030 
                       00031 ;--------------------------------------------------------------
                       00032 ;       Delay Xms
                       00033 ;       Receives count in W, uses Onems
                       00034 ;--------------------------------------------------------------
-02AB   00F1           00035 xms             MOVWF   TimerX          ; Count for X ms
-02AC   22A5           00036 loopX   CALL    onems           ; Delay 1ms
-Message[305]: Using default destination of 1 (file).
-02AD   0BF1           00037                 DECFSZ  TimerX          ; Repeat X times 
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 22
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 22
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-02AE   2AAC           00038                 GOTO    loopX           ; until Z
-02AF   0008           00039                 RETURN                  ; and finish
+02B1   00F1           00035 xms             MOVWF   TimerX          ; Count for X ms
+02B2   22AB           00036 loopX   CALL    onems           ; Delay 1ms
+Message[305]: Using default destination of 1 (file).
+02B3   0BF1           00037                 DECFSZ  TimerX          ; Repeat X times 
+02B4   2AB2           00038                 GOTO    loopX           ; until Z
+02B5   0008           00039                 RETURN                  ; and finish
                       00040 
                       00041 ;--------------------------------------------------------------
                       00042 ;       Generate data/command clock siganl E
                       00043 ;--------------------------------------------------------------
-02B0   1508           00044 pulseE  BSF     PORTD,E         ; Set E high
-02B1   22A5           00045         CALL    onems           ; Delay 1ms
-02B2   1108           00046         BCF     PORTD,E         ; Reset E low
-02B3   22A5           00047         CALL    onems           ; Delay 1ms
-02B4   0008           00048         RETURN                  ; done
+02B6   1508           00044 pulseE  BSF     PORTD,E         ; Set E high
+02B7   22AB           00045         CALL    onems           ; Delay 1ms
+02B8   1108           00046         BCF     PORTD,E         ; Reset E low
+02B9   22AB           00047         CALL    onems           ; Delay 1ms
+02BA   0008           00048         RETURN                  ; done
                       00049 
                       00050 ;--------------------------------------------------------------
                       00051 ;       Send a command byte in two nibbles from RB4 - RB7
                       00052 ;       Receives command in W, uses PulseE and Onems
                       00053 ;--------------------------------------------------------------
-02B5   00F5           00054 send    MOVWF   OutCod          ; Store output code
-02B6   39F0           00055         ANDLW   0F0             ; Clear low nybble
-02B7   0088           00056         MOVWF   PORTD           ; Output high nybble
-02B8   18F4           00057         BTFSC   Select,RS       ; Test RS bit
-02B9   1488           00058         BSF     PORTD,RS        ; and set for data
-02BA   22B0           00059         CALL    pulseE          ; and clock display register
-02BB   22A5           00060         CALL    onems           ; wait 1ms for display
+02BB   00F5           00054 send    MOVWF   OutCod          ; Store output code
+02BC   39F0           00055         ANDLW   0F0             ; Clear low nybble
+02BD   0088           00056         MOVWF   PORTD           ; Output high nybble
+02BE   18F4           00057         BTFSC   Select,RS       ; Test RS bit
+02BF   1488           00058         BSF     PORTD,RS        ; and set for data
+02C0   22B6           00059         CALL    pulseE          ; and clock display register
+02C1   22AB           00060         CALL    onems           ; wait 1ms for display
                       00061 
 Message[305]: Using default destination of 1 (file).
-02BC   0EF5           00062         SWAPF   OutCod          ; Swap low and high nybbles 
-02BD   0875           00063         MOVF    OutCod,W        ; Retrieve output code
-02BE   39F0           00064         ANDLW   0F0             ; Clear low nybble
-02BF   0088           00065         MOVWF   PORTD           ; Output low nybble
-02C0   18F4           00066         BTFSC   Select,RS       ; Test RS bit
-02C1   1488           00067         BSF     PORTD,RS        ; and set for data
-02C2   22B0           00068         CALL    pulseE          ; and clock display register
-02C3   22A5           00069         CALL    onems           ; wait 1ms for display
-02C4   0008           00070         RETURN                  ; done
+02C2   0EF5           00062         SWAPF   OutCod          ; Swap low and high nybbles 
+02C3   0875           00063         MOVF    OutCod,W        ; Retrieve output code
+02C4   39F0           00064         ANDLW   0F0             ; Clear low nybble
+02C5   0088           00065         MOVWF   PORTD           ; Output low nybble
+02C6   18F4           00066         BTFSC   Select,RS       ; Test RS bit
+02C7   1488           00067         BSF     PORTD,RS        ; and set for data
+02C8   22B6           00068         CALL    pulseE          ; and clock display register
+02C9   22AB           00069         CALL    onems           ; wait 1ms for display
+02CA   0008           00070         RETURN                  ; done
                       00071 
                       00072 ;--------------------------------------------------------------
                       00073 ;       Initialise the display
                       00074 ;       Uses Send
                       00075 ;--------------------------------------------------------------
-02C5   3064           00076 inid    MOVLW   D'100'          ; Load count for 100ms delay
-02C6   22AB           00077         CALL    xms             ; and wait for display start
-02C7   30F0           00078         MOVLW   0F0             ; Mask for select code
-02C8   00F4           00079         MOVWF   Select          ; High nybble not masked
+02CB   3064           00076 inid    MOVLW   D'100'          ; Load count for 100ms delay
+02CC   22B1           00077         CALL    xms             ; and wait for display start
+02CD   30F0           00078         MOVLW   0F0             ; Mask for select code
+02CE   00F4           00079         MOVWF   Select          ; High nybble not masked
                       00080 
-02C9   3030           00081         MOVLW   0x30            ; Load initial nibble
-02CA   0088           00082         MOVWF   PORTD           ; and output it to display
-02CB   22B0           00083         CALL    pulseE          ; Latch initial code
-02CC   3005           00084         MOVLW   D'5'            ; Set delay 5ms
-02CD   22AB           00085         CALL    xms             ; and wait
-02CE   22B0           00086         CALL    pulseE          ; Latch initial code again
-02CF   22A5           00087         CALL    onems           ; Wait 1ms
-02D0   22B0           00088         CALL    pulseE          ; Latch initial code again
-02D1   1208           00089         BCF     PORTD,4         ; Set 4-bit mode
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 23
+02CF   3030           00081         MOVLW   0x30            ; Load initial nibble
+02D0   0088           00082         MOVWF   PORTD           ; and output it to display
+02D1   22B6           00083         CALL    pulseE          ; Latch initial code
+02D2   3005           00084         MOVLW   D'5'            ; Set delay 5ms
+02D3   22B1           00085         CALL    xms             ; and wait
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 23
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-02D2   22B0           00090         CALL    pulseE          ; Latch it
+02D4   22B6           00086         CALL    pulseE          ; Latch initial code again
+02D5   22AB           00087         CALL    onems           ; Wait 1ms
+02D6   22B6           00088         CALL    pulseE          ; Latch initial code again
+02D7   1208           00089         BCF     PORTD,4         ; Set 4-bit mode
+02D8   22B6           00090         CALL    pulseE          ; Latch it
                       00091         
-02D3   3028           00092         MOVLW   0x28            ; Set 4-bit mode, 2 lines
-02D4   22B5           00093         CALL    send            ; and send code
-02D5   3008           00094         MOVLW   0x08            ; Switch off display
-02D6   22B5           00095         CALL    send            ; and send code
-02D7   3001           00096         MOVLW   0x01            ; Code to clear display
-02D8   22B5           00097         CALL    send            ; and send code
-02D9   3006           00098         MOVLW   0x06            ; Enable cursor auto inc  
-02DA   22B5           00099         CALL    send            ; and send code
-02DB   3080           00100         MOVLW   0x80            ; Zero display address
-02DC   22B5           00101         CALL    send            ; and send code
-02DD   300C           00102         MOVLW   0x0C            ; Turn on display  
-02DE   22B5           00103         CALL    send            ; and send code
+02D9   3028           00092         MOVLW   0x28            ; Set 4-bit mode, 2 lines
+02DA   22BB           00093         CALL    send            ; and send code
+02DB   3008           00094         MOVLW   0x08            ; Switch off display
+02DC   22BB           00095         CALL    send            ; and send code
+02DD   3001           00096         MOVLW   0x01            ; Code to clear display
+02DE   22BB           00097         CALL    send            ; and send code
+02DF   3006           00098         MOVLW   0x06            ; Enable cursor auto inc  
+02E0   22BB           00099         CALL    send            ; and send code
+02E1   3080           00100         MOVLW   0x80            ; Zero display address
+02E2   22BB           00101         CALL    send            ; and send code
+02E3   300C           00102         MOVLW   0x0C            ; Turn on display  
+02E4   22BB           00103         CALL    send            ; and send code
                       00104 
-02DF   0008           00105         RETURN                  ; Done
+02E5   0008           00105         RETURN                  ; Done
                       00106 
                       00107 ;--------------------------------------------------------------
-                      01040 
-                      01041     END
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 24
+                      01044 
+                      01045     END
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 24
 
 
 SYMBOL TABLE
@@ -1381,7 +1385,7 @@ CKE                               00000006
 CKP                               00000004
 CM0                               00000000
 CM1                               00000001
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 25
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 25
 
 
 SYMBOL TABLE
@@ -1416,8 +1420,8 @@ EEDATH                            0000010E
 EEIE                              00000004
 EEIF                              00000004
 EEPGD                             00000007
-EXIT_ISR                          00000244
-Exit_ISR                          0000024D
+EXIT_ISR                          0000024A
+Exit_ISR                          00000253
 F                                 00000001
 FERR                              00000002
 FSR                               00000004
@@ -1440,7 +1444,7 @@ IRP                               00000007
 ISR                               00000004
 NOT_A                             00000005
 NOT_ADDRESS                       00000005
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 26
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 26
 
 
 SYMBOL TABLE
@@ -1499,7 +1503,7 @@ RC9                               00000006
 RCD8                              00000000
 RCEN                              00000003
 RCIE                              00000005
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 27
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 27
 
 
 SYMBOL TABLE
@@ -1552,13 +1556,13 @@ T1SYNC                            00000002
 T2CKPS0                           00000000
 T2CKPS1                           00000001
 T2CON                             00000012
-TIMER0_ISR                        00000245
-TIMER1_ISR                        00000237
+TIMER0_ISR                        0000024B
+TIMER1_ISR                        0000023D
 TMR0                              00000001
 TMR0IE                            00000005
 TMR0IF                            00000002
 TMR1CS                            00000001
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 28
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 28
 
 
 SYMBOL TABLE
@@ -1617,7 +1621,7 @@ _HS_OSC                           00003FFE
 _LP_OSC                           00003FFC
 _LVP_OFF                          00003F7F
 _LVP_ON                           00003FFF
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 29
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 29
 
 
 SYMBOL TABLE
@@ -1642,63 +1646,63 @@ check_RB4                         00000008
 check_RB5                         0000001A
 check_RB6                         0000002C
 check_RB7                         0000003E
-clear_display                     0000021C
-compare_loop                      0000025B
-compare_sequences                 00000258
+clear_display                     00000222
+compare_loop                      00000261
+compare_sequences                 0000025E
 continue_program                  000000AD
 current_level                     00000033
-display_char                      00000224
+display_char                      0000022A
 end_isr                           00000051
 end_loop                          000000F0
-game_end                          00000121
-game_reset                        00000118
+game_end                          00000127
+game_reset                        0000011E
 game_state                        00000032
 generated_sequence                000000A2
-handel_another_trial              0000028A
+handel_another_trial              00000290
 index                             000000A0
-inid                              000002C5
-loop                              00000123
-loop1                             000002A7
-loopX                             000002AC
+inid                              000002CB
+loop                              00000129
+loop1                             000002AD
+loopX                             000002B2
 loop_size                         00000038
 main_loop                         000000C3
-one_second_delay                  0000020C
-onems                             000002A5
+one_second_delay                  00000212
+onems                             000002AB
 ones                              00000037
-ones_calc                         00000139
+ones_calc                         0000013F
 other_int                         00000053
-print_congratulations             0000017A
-print_level                       00000124
-print_press_any_button            00000143
-print_reset_game                  000001C4
-print_seq                         000001DC
-print_try_again                   0000019C
-print_you_win                     000001B2
-pulseE                            000002B0
+print_congratulations             00000180
+print_level                       0000012A
+print_press_any_button            00000149
+print_reset_game                  000001CA
+print_seq                         000001E2
+print_try_again                   000001A2
+print_you_win                     000001B8
+pulseE                            000002B6
 random_reg                        00000034
-MPASM  5.43                          MAIN.ASM   1-26-2025  16:54:25         PAGE 30
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 30
 
 
 SYMBOL TABLE
   LABEL                             VALUE 
 
-random_value                      00000229
-reset_timer                       0000024E
+random_value                      0000022F
+reset_timer                       00000254
 save_random                       000000A1
-send                              000002B5
-sequences_not_equal               00000286
+send                              000002BB
+sequences_not_equal               0000028C
 set_game_state                    0000004F
 start                             00000066
 store_user_input                  0000005C
 temp                              00000035
 tens                              00000036
-tens_loop                         00000133
+tens_loop                         00000139
 trials                            00000039
-two_hundred_millisecond_delay     00000217
+two_hundred_millisecond_delay     0000021D
 user_sequence                     000000B8
 wait_until_enter_sequence         00000106
 wait_until_press                  000000A6
-xms                               000002AB
+xms                               000002B1
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
@@ -1714,13 +1718,13 @@ MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 0200 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0240 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0280 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
-02C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX ---------------- ----------------
+02C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXX---------- ----------------
 2000 : -------X-------- ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Words Used:   734
-Program Memory Words Free:  7458
+Program Memory Words Used:   740
+Program Memory Words Free:  7452
 
 
 Errors   :     0

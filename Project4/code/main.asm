@@ -420,8 +420,15 @@ wait_until_enter_sequence:
     BANKSEL trials            ; Select the bank for trials
     MOVLW   3                 ; Load value 3 into W
     SUBWF   trials, W         ; Subtract trials from W (W = 3 - trials)
-    BTFSS   STATUS, Z         ; Skip if trials == 3 (result is zero)
-    GOTO    wait_until_enter_sequence  ; If trials < 3, stay in the loop
+    BTFSC   STATUS, Z         ; trials == 3 
+    GOTO    game_reset  	  ; game reset
+
+	; check if win this level
+	BANKSEL trials            			; Select the bank for trials
+    MOVLW   4                 			; Load value 4 into W
+    SUBWF   trials, W         			; Subtract trials from W (W = 4 - trials)
+    BTFSS   STATUS, Z         			; Skip if trials == 4 (result is zero)
+    GOTO    wait_until_enter_sequence   ; If trials < 4, stay in the loop
 
     ; If trials == 3, check if current_level == 20
     BANKSEL current_level     ; Select the bank for current_level
@@ -824,12 +831,9 @@ display_char
     RETURN
 
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; 		 Generate a random value
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; 		 Generate a random value using LFSR
+; 	Generate a random value using LFSR
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 random_value
@@ -977,8 +981,8 @@ compare_loop:
 
 	; go to final trial
 	BANKSEL trials       	; Select bank for trials
-    MOVLW 3                 ; Load value 3
-    MOVWF trials          	; Set trials = 3
+    MOVLW 4                 ; Load value 4
+    MOVWF trials          	; Set trials = 4
 
 	; disable timer 0
 	BANKSEL INTCON
