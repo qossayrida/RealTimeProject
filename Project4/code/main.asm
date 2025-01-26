@@ -214,6 +214,13 @@ start:
     MOVLW    B'11001000'    ; enable GIE (bit 7), RBIE (bit 3)
     MOVWF    INTCON        ; PortB pins
 
+	;**************** TIMER2 CONFIG ****************
+    MOVLW   0x00            ; Clear the Timer 2 control register
+    MOVWF   T2CON           ; Initialize Timer 2 control register
+    MOVLW   B'00010110'     ; Load prescaler value (prescaler 1:16) and enable Timer 2
+    MOVWF   T2CON           ; Apply the prescaler value and enable Timer 2
+	BSF     T2CON, TMR2ON   ; Turn on Timer 2
+
 	;**************** TIMER1 CONFIG ****************
 	BANKSEL OVERFLOW_CNT
     CLRF    OVERFLOW_CNT        ; Clear overflow counter
@@ -770,30 +777,23 @@ display_char
     RETURN
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; 	Generate a random value using LFSR
+; 		 Generate a random value
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 random_value
-    ; Initialize LFSR if not already initialized
-    BANKSEL random_reg
-    MOVF    random_reg, W      ; Load the current random value
-    BTFSC   STATUS, Z          ; Check if random_reg is zero (initial state)
-    MOVLW   0x01               ; If zero, seed the LFSR with a non-zero value
-    MOVWF   random_reg         ; Store the seed or current value
 
-    ; Perform LFSR operation (16-bit LFSR example)
-    RLF     random_reg, W      ; Rotate left through carry
-    XORWF   random_reg, W      ; XOR with the current value
-    ANDLW   0x01               ; Mask to get the feedback bit
-    RLF     random_reg, F      ; Rotate left and incorporate feedback bit
-
+    ; Wait for Timer 2 to overflow (set Timer 2 to generate a pseudo-random value)
+    MOVF    TMR2, W          ; Move Timer 2 value into WREG
+    XORLW   0xA3            ; XOR WREG with some constant (e.g., 0xA3) to introduce randomness
+    MOVWF   random_reg      ; Store result in random_reg
+    
     ; Mask the result to get a value between 0 and 3 (mod 4)
-    MOVF    random_reg, W      ; Get the value from random_reg
-    ANDLW   0x03               ; Mask the lower 2 bits (values from 0 to 3)
-
+    MOVF    random_reg, W   ; Get the value from random_reg
+    ANDLW   0x03            ; Mask the lower 2 bits (values from 0 to 3)
+    
     ; Add 1 to make the range from 1 to 4
-    ADDLW   0x01               ; Add 1 to the result (range now 1 to 4)
-
+    ADDLW   0x01            ; Add 1 to the result (range now 1 to 4)
+    
     ; Return with WREG containing a random value between 1 and 4
     RETURN
 
