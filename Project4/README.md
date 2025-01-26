@@ -41,3 +41,4 @@ This project is an interactive memory-based game implemented using a 16F877A PIC
 - **Programming Language**: Assembly
 - **IDE**: MPLAB IDE
 - **Simulation**: Proteus
+  
