@@ -248,8 +248,6 @@ start:
 
     CALL    inid    			; Initialize the display
 	
-
-
 	CALL 	print_press_any_button
 	CALL    one_second_delay
 	CALL 	clear_display
@@ -416,8 +414,7 @@ wait_until_enter_sequence:
     GOTO    game_reset 	   	   ; reset game
 
 	; check if have 3 time of try again 
-
-	; else update the current_level if not reach max (GOTO game_end) 
+	; if current_level reach max (GOTO game_end) 
 		
     GOTO    wait_until_enter_sequence
 
@@ -874,7 +871,7 @@ TIMER0_ISR:
     
     BCF     INTCON, 2      ; Clear Timer0 interrupt flag
     INCF    COUNTER, F     ; Increment the overflow counter
-    MOVLW   99             ; Compare counter with 99 overflows (2 seconds)
+    MOVLW   80             ; Compare counter with 99 overflows (2 seconds)
     SUBWF   COUNTER,0      ; Subtract 10 from W
     BTFSS   STATUS, Z     
     GOTO    Exit_ISR       ; If not, exit ISR
@@ -884,6 +881,7 @@ TIMER0_ISR:
 
 Exit_ISR:
    RETFIE
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 		 	    Reset timer
