@@ -69,7 +69,7 @@ check_RB4
     GOTO    set_game_state ; If not first time, handle button press
 
     ; Flash RC4 for one second
-	CALL 	reset_timer_zero
+	CALL 	reset_timer
     BANKSEL PORTC              ; Select the bank for PORTC
     BSF     PORTC, 4           ; Set RC4 high
     CALL    one_second_delay   ; Delay for one second
@@ -93,7 +93,7 @@ check_RB5:
     GOTO    set_game_state ; If not first time, handle button press
 
     ; Flash RC5 for one second
-	CALL 	reset_timer_zero
+	CALL 	reset_timer
     BANKSEL PORTC              ; Select the bank for PORTC
     BSF     PORTC, 5           ; Set RC5 high
     CALL    one_second_delay   ; Delay for one second
@@ -117,7 +117,7 @@ check_RB6:
     GOTO    set_game_state ; If not first time, handle button press
 
     ; Flash RC6 for one second
-	CALL 	reset_timer_zero
+	CALL 	reset_timer
     BANKSEL PORTC              ; Select the bank for PORTC
     BSF     PORTC, 6           ; Set RC6 high
     CALL    one_second_delay   ; Delay for one second
@@ -141,7 +141,7 @@ check_RB7:
     GOTO    set_game_state ; If not first time, handle button press
 
     ; Flash RC7 for one second
-	CALL 	reset_timer_zero
+	CALL 	reset_timer
     BANKSEL PORTC              ; Select the bank for PORTC
     BSF     PORTC, 7           ; Set RC7 high
     CALL    one_second_delay   ; Delay for one second
@@ -210,7 +210,7 @@ start:
     BANKSEL PORTC       ; Select bank 0
     CLRF    PORTC       ; Clear LED outputs
     CLRF    PORTD       ; Clear display outputs
-    MOVLW    B'10001000'    ; enable GIE (bit 7), RBIE (bit 3)
+    MOVLW    B'11001000'    ; enable GIE (bit 7), RBIE (bit 3)
     MOVWF    INTCON        ; PortB pins
 
 	;**************** TIMER2 CONFIG ****************
@@ -238,7 +238,7 @@ start:
 
 	
 	BANKSEL game_state        ; Select bank for game_state
-    MOVLW 0                  ; Load value 0
+    MOVLW 0                 ; Load value 0
     MOVWF game_state          ; Set game_state = 0
 
 	BANKSEL current_level     ; Select bank for current_level
@@ -390,10 +390,12 @@ end_loop:
 	BANKSEL index
 	CLRF    index            ; Clear index (start from 0)
 
-	
 	; Load TIMER1 initial value (TMR1H:TMR1L = 0x17B8 for 59,464 ticks)
-	BANKSEL  PIE1
+	BANKSEL OVERFLOW_CNT
+	CLRF    OVERFLOW_CNT
+	BANKSEL  PIE1  
    	BSF     PIE1, 0   		; Enable Timer1 overflow interrupt
+	BANKSEL  TMR1H  
     MOVLW   0x17           ; High byte of initial value
     MOVWF   TMR1H          ; Load TMR1H
     MOVLW   0xB8           ; Low byte of initial value
@@ -406,13 +408,28 @@ end_loop:
 
 wait_until_enter_sequence:	
 
-	; check game_state == 2  (from timer 1 not play for 1 minute)
+	; check game_state == 0  (from timer 1 not play for 1 minute)
+	BANKSEL game_state         ; Select the bank for game_state
+    MOVF    game_state, W      ; Load game_state into W
+    BTFSC   STATUS, Z          ; Check if game_state == 0 
+    GOTO    game_reset 	   	   ; reset game
 
 	; check if have 3 time of try again 
 
 	; else update the current_level if not reach max (GOTO game_end) 
 		
     GOTO    wait_until_enter_sequence
+
+game_reset:
+
+	BANKSEL  PIE1  
+   	BCF     PIE1, 0
+	BANKSEL  INTCON 
+   	BCF     INTCON,T0IE
+
+	CALL 	print_reset_game
+	CALL    one_second_delay     ; Delay for one second
+	GOTO	start	
 
 game_end:
 	
@@ -830,16 +847,17 @@ TIMER1_ISR:
     BCF     PIR1, 0   ; Clear Timer1 interrupt flag
     INCF    OVERFLOW_CNT, F ; Increment overflow counter
 
-    MOVLW   0x75          ; Check if 2 overflows occurred
+    MOVLW   0x10         	; Check if 2 overflows occurred
 
     SUBWF  OVERFLOW_CNT,0            ; Subtract 10 from W
     BTFSS   STATUS, Z
     GOTO    EXIT_ISR       ; If not 2, exit ISR
     CLRF    OVERFLOW_CNT   ; Reset overflow counter
     
-
-	CALL 	print_reset_game
-
+	
+	BANKSEL game_state        ; Select bank for game_state
+    MOVLW 0                 ; Load value 0
+    MOVWF game_state          ; Set game_state = 0	
 
 EXIT_ISR:
     RETFIE
@@ -866,7 +884,13 @@ Exit_ISR:
    RETFIE
 
 
-reset_timer_zero:
+reset_timer:
+	
+	; stop timer 1 
+	BANKSEL  PIE1  
+   	BCF     PIE1, 0   		; Enable Timer1 overflow interrupt
+
+	; reset timer 0 
 	BANKSEL COUNTER 
 	BSF     INTCON,T0IE
 	MOVLW   0x01          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
