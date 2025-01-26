@@ -32,6 +32,10 @@ This project is an interactive memory-based game implemented using a 16F877A PIC
 - A 4MHz oscillator with two 15pF capacitors is used along with a 10KΩ pull-up resistor for the MCLR pin.
 - Optional: Enable interrupts on the push buttons for enhanced performance.
 
+## Circuit Design
+
+![Image](https://github.com/user-attachments/assets/cea2ee08-4a85-49f0-9dd4-0e981b69e60b)
+
 ## Software Development
 
 - **Programming Language**: Assembly
