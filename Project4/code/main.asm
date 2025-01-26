@@ -291,6 +291,9 @@ continue_program:
     BCF     INTCON, GIE     ; Clear the Global Interrupt Enable (GIE) bit to disable interrupts
 	
     CALL    clear_display
+	
+	BANKSEL trials 
+	CLRF  	trials 
 
     ; Increment current_level and print it
     BANKSEL current_level
@@ -413,10 +416,22 @@ wait_until_enter_sequence:
     BTFSC   STATUS, Z          ; Check if game_state == 0 
     GOTO    game_reset 	   	   ; reset game
 
-	; check if have 3 time of try again 
-	; if current_level reach max (GOTO game_end) 
-		
-    GOTO    wait_until_enter_sequence
+    ; Check if the user has used all 3 trials
+    BANKSEL trials            ; Select the bank for trials
+    MOVLW   3                 ; Load value 3 into W
+    SUBWF   trials, W         ; Subtract trials from W (W = 3 - trials)
+    BTFSS   STATUS, Z         ; Skip if trials == 3 (result is zero)
+    GOTO    wait_until_enter_sequence  ; If trials < 3, stay in the loop
+
+    ; If trials == 3, check if current_level == 20
+    BANKSEL current_level     ; Select the bank for current_level
+    MOVLW   20                ; Load value 20 into W
+    SUBWF   current_level, W  ; Subtract current_level from W (W = 20 - current_level)
+    BTFSS   STATUS, Z         ; Skip if current_level == 20 (result is zero)
+    GOTO    continue_program  ; If current_level < 20, continue the program
+
+    ; If current_level == 20, end the game
+    GOTO    game_end          ; If current_level == 20, go to game_end
 
 game_reset:
 
@@ -952,9 +967,16 @@ compare_loop:
 	CALL 	clear_display
     CALL    print_congratulations
 	CALL one_second_delay
+
+	; go to final trial
 	BANKSEL trials       	; Select bank for trials
     MOVLW 3                 ; Load value 3
     MOVWF trials          	; Set trials = 3
+
+	; disable timer 0
+	BANKSEL INTCON
+	BCF     INTCON,T0IE
+
     RETURN
 
 sequences_not_equal:
