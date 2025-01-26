@@ -5,11 +5,11 @@ This repository contains projects for the **Real-Time Applications & Embedded Sy
 
 ## Projects Overview
 
-### 1. **Project 1: [Project Name]**
-   - **Description**: [Brief description of Project 1]
-   - **Technologies**: [Technologies used, e.g., POSIX threads, OpenGL]
-   - **Directory**: [Link to Project 1 directory]
-   - **README**: [Link to Project 1 README]
+### 1. **Project 1: Bungee Jumping Game Simulation**
+   - **Description**: A multi-processing application that simulates a bungee jumping game involving three teams of players. The simulation uses signals and pipes for coordination between the referee and players. The goal is to manage the energy levels of players and compute scores based on their performance.
+   - **Technologies**: Multi-processing, signals, pipes, OpenGL.
+   - **Directory**: [Project 1 Directory](https://github.com/qossayrida/RealTimeProject/tree/master/Project1)
+   - **README**: [Project 1 README](https://github.com/qossayrida/RealTimeProject/tree/master/Project1/README.md)
 
 ### 2. **Project 2: File Management Simulation**
    - **Description**: A multi-processing application that simulates the creation, handling, and management of CSV files using IPC techniques. The simulation involves file generators, calculators, movers, and inspectors.
@@ -23,6 +23,11 @@ This repository contains projects for the **Real-Time Applications & Embedded Sy
    - **Directory**: [Project 3 Directory](https://github.com/qossayrida/RealTimeProject/tree/master/Project3)
    - **README**: [Project 3 README](https://github.com/qossayrida/RealTimeProject/tree/master/Project3/README.md)
 
+### 4. **Project 4: Simple 16F877A PICMicro-Based Game**
+   - **Description**: An interactive memory-based game using a 16F877A PICMicro microcontroller. The game involves 4 color LEDs, 4 push buttons, and a 16x2 character LCD. Players replicate LED light sequences using the push buttons, and the LCD provides instructions and feedback.
+   - **Technologies**: 16F877A PICMicro, MPLAB IDE, Assembly language, Proteus for schematic design.
+   - **Directory**: [Project 4 Directory](https://github.com/qossayrida/RealTimeProject/tree/master/Project4)
+   - **README**: [Project 4 README](https://github.com/qossayrida/RealTimeProject/tree/master/Project4/README.md)
 
 
 ## How to Use
