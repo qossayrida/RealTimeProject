@@ -214,13 +214,6 @@ start:
     MOVLW    B'11001000'    ; enable GIE (bit 7), RBIE (bit 3)
     MOVWF    INTCON        ; PortB pins
 
-	;**************** TIMER2 CONFIG ****************
-	MOVLW   0x00            ; Clear the Timer 2 control register
-    MOVWF   T2CON           ; Initialize Timer 2 control register
-    MOVLW   0x01            ; Load prescaler value (prescaler 1:4)
-    MOVWF   T2CON           ; Apply the prescaler value
-    BSF     T2CON, TMR2ON   ; Enable Timer 2
-
 	;**************** TIMER1 CONFIG ****************
 	BANKSEL OVERFLOW_CNT
     CLRF    OVERFLOW_CNT        ; Clear overflow counter
@@ -723,60 +716,6 @@ print_reset_game:
     RETURN
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;         	Print seq
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-print_seq
-
-	CALL clear_display
-
-    ; Move cursor to the beginning of the first row
-    BCF     Select, RS      ; Ensure command mode (RS = 0)
-    MOVLW   0x80            ; Command to set cursor to the first row, first column
-    CALL    send            ; Send the command
-
-    BANKSEL generated_sequence
-    MOVF    0xA2,W
-	ADDLW   '0'
-    CALL    display_char
-	BANKSEL generated_sequence
-    MOVF    0xA3,W
-	ADDLW   '0'
-    CALL    display_char
-	BANKSEL generated_sequence
-    MOVF    0xA4,W
-	ADDLW   '0'
-    CALL    display_char
-	BANKSEL generated_sequence
-    MOVF    0xA5,W
-	ADDLW   '0'
-    CALL    display_char
-	
-	; Move cursor to the beginning of the first row
-    BCF     Select, RS      ; Ensure command mode (RS = 0)
-    MOVLW   0xC0            ; Command to set cursor to the first row, first column
-    CALL    send            ; Send the command
-
-	BANKSEL generated_sequence
-    MOVF    0xB8,W
-	ADDLW   '0'
-    CALL    display_char
-	BANKSEL generated_sequence
-    MOVF    0xB9,W
-	ADDLW   '0'
-    CALL    display_char
-	BANKSEL generated_sequence
-    MOVF    0xBA,W
-	ADDLW   '0'
-    CALL    display_char
-	BANKSEL generated_sequence
-    MOVF    0xBB,W
-	ADDLW   '0'
-    CALL    display_char
-
-    RETURN
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;           one second delay
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -829,8 +768,6 @@ display_char
     BSF  Select,  RS    ; Select data mode
     CALL    send        ; Send the character to LCD
     RETURN
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; 	Generate a random value using LFSR
