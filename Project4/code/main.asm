@@ -26,6 +26,7 @@ temp            EQU    35            ; Temporary variable to store the value
 tens            EQU    36            ; Reserve one byte for tens digit
 ones            EQU    37            ; Reserve one byte for ones digit
 loop_size       EQU    38            ; Reserve one byte for loop_size
+trials       	EQU    39            ; Reserve one byte for loop_size
 
 index           	 EQU 0xA0  ; Reserve one byte for loop_size
 save_random			 EQU 0xA1
@@ -760,7 +761,8 @@ print_seq
 ;           one second delay
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-one_second_delay
+one_second_delay:
+
 	BANKSEL TimerX
     MOVLW    D'250'
     CALL    xms
@@ -883,6 +885,9 @@ TIMER0_ISR:
 Exit_ISR:
    RETFIE
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; 		 	    Reset timer
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 reset_timer:
 	
@@ -948,14 +953,32 @@ compare_loop:
     ; If all elements are equal, print congratulations
 	CALL 	clear_display
     CALL    print_congratulations
+	CALL one_second_delay
+	BANKSEL trials       	; Select bank for trials
+    MOVLW 3                 ; Load value 3
+    MOVWF trials          	; Set trials = 3
     RETURN
 
 sequences_not_equal:
     ; If any element is not equal, print try again
 	CALL 	clear_display
     CALL    print_try_again
+	CALL    handel_another_trial
     RETURN
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;  		handel another trial
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+handel_another_trial:
+	
+	CALL one_second_delay
+	
+	BANKSEL index
+    CLRF    index            ; Clear index (start from 0)
+	
+
+	RETURN
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;       Include LCD driver routine
