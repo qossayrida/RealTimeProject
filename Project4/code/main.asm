@@ -37,8 +37,8 @@ user_sequence        EQU 0xB8  ; Starting address of user_sequence (A0H + 22 byt
 ;             Program begins
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-    ORG 0x00       ; Default start address 
-    NOP         ; Required for ICD mode
+    ORG 0x00       		; Default start address 
+    NOP         		; Required for ICD mode
     GOTO    start       ; Jump to main program
 
 
@@ -57,9 +57,7 @@ ISR:
     ; Check which button was pressed and flash the corresponding LED
     BANKSEL PORTB              ; Select the bank for PORTB
 
-	MOVLW   0x85          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
-	MOVWF   TMR0           ; Load Timer0 with preload value
-
+check_RB4
     ; Check if RB4 was pressed
     BTFSS   PORTB, 4           ; Check if RB4 is low (button pressed)
     GOTO    check_RB5          ; If not, check RB5
@@ -71,6 +69,7 @@ ISR:
     GOTO    set_game_state ; If not first time, handle button press
 
     ; Flash RC4 for one second
+	CALL 	reset_timer_zero
     BANKSEL PORTC              ; Select the bank for PORTC
     BSF     PORTC, 4           ; Set RC4 high
     CALL    one_second_delay   ; Delay for one second
@@ -94,6 +93,7 @@ check_RB5:
     GOTO    set_game_state ; If not first time, handle button press
 
     ; Flash RC5 for one second
+	CALL 	reset_timer_zero
     BANKSEL PORTC              ; Select the bank for PORTC
     BSF     PORTC, 5           ; Set RC5 high
     CALL    one_second_delay   ; Delay for one second
@@ -117,6 +117,7 @@ check_RB6:
     GOTO    set_game_state ; If not first time, handle button press
 
     ; Flash RC6 for one second
+	CALL 	reset_timer_zero
     BANKSEL PORTC              ; Select the bank for PORTC
     BSF     PORTC, 6           ; Set RC6 high
     CALL    one_second_delay   ; Delay for one second
@@ -140,6 +141,7 @@ check_RB7:
     GOTO    set_game_state ; If not first time, handle button press
 
     ; Flash RC7 for one second
+	CALL 	reset_timer_zero
     BANKSEL PORTC              ; Select the bank for PORTC
     BSF     PORTC, 7           ; Set RC7 high
     CALL    one_second_delay   ; Delay for one second
@@ -236,7 +238,7 @@ start
    	BANKSEL INTCON
 
 	;**************** TIMER0 CONFIG ****************
-	CLRF    COUNTER        ; Clear overflow counter
+	CLRF    COUNTER        			; Clear overflow counter
     MOVLW   B'10000111'           ; Set prescaler to 1:256
     BANKSEL OPTION_REG
     MOVWF   OPTION_REG     ; Configure prescaler for Timer0
@@ -400,7 +402,6 @@ end_loop:
     ; Enable interrupts
     BANKSEL INTCON          ; Select the bank containing INTCON
     BSF     INTCON, GIE     ; Set the Global Interrupt Enable (GIE) bit to enable interrupts
-	BSF     INTCON,T0IE
 
 wait_until_enter_sequence:	
 
@@ -785,6 +786,8 @@ random_value
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 TIMER1_ISR:
+	; TIMER 1 just count 0.524 second the we use OVERFLOW_CNT
+
     BANKSEL  PIR1
 
     BCF     PIR1, 0   ; Clear Timer1 interrupt flag
@@ -812,19 +815,30 @@ EXIT_ISR:
 
 
 TIMER0_ISR:
+	; TIMER 0 just count 0.065 second the we use COUNTER
     
     BCF     INTCON, 2      ; Clear Timer0 interrupt flag
     INCF    COUNTER, F     ; Increment the overflow counter
-    MOVLW   99             ; Compare counter with 60 overflows (2 seconds)
+    MOVLW   99             ; Compare counter with 99 overflows (2 seconds)
     SUBWF   COUNTER,0      ; Subtract 10 from W
     BTFSS   STATUS, Z     
     GOTO    Exit_ISR       ; If not, exit ISR
-    CLRF    COUNTER        ; Reset counter after 45 overflows (2 seconds)
+    CLRF    COUNTER        ; Reset counter after 99 overflows (2 seconds)
     
 	CALL    compare_sequences  ; Compare the sequences
 
 Exit_ISR:
    RETFIE
+
+
+reset_timer_zero:
+	BANKSEL COUNTER 
+	BSF     INTCON,T0IE
+	MOVLW   0x01          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
+	MOVWF   TMR0           ; Load Timer0 with preload value
+	CLRF    COUNTER        			; Clear overflow counter
+	
+	RETURN
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
