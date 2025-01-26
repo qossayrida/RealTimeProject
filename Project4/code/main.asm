@@ -972,11 +972,36 @@ sequences_not_equal:
 
 handel_another_trial:
 	
-	CALL one_second_delay
-	
+	; clear index 
 	BANKSEL index
     CLRF    index            ; Clear index (start from 0)
 	
+	; increment number of trials 
+	movlw 1
+    addwf trials,1
+
+	; disable timer 0
+	BANKSEL INTCON
+	BCF     INTCON,T0IE
+
+	CALL one_second_delay
+
+	; print level
+	CALL clear_display
+	BANKSEL current_level
+    MOVF    current_level, W
+    CALL    print_level
+
+	; Load TIMER1 initial value (TMR1H:TMR1L = 0x17B8 for 59,464 ticks)
+	BANKSEL OVERFLOW_CNT
+	CLRF    OVERFLOW_CNT
+	BANKSEL  PIE1  
+   	BSF     PIE1, 0   		; Enable Timer1 overflow interrupt
+	BANKSEL  TMR1H  
+    MOVLW   0x17           ; High byte of initial value
+    MOVWF   TMR1H          ; Load TMR1H
+    MOVLW   0xB8           ; Low byte of initial value
+    MOVWF   TMR1L          ; Load TMR1L
 
 	RETURN
 

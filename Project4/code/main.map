@@ -1,12 +1,12 @@
 MPLINK 4.41, Linker
-Linker Map File - Created Sun Jan 26 15:31:15 2025
+Linker Map File - Created Sun Jan 26 15:55:23 2025
 
                                  Section Info
                   Section       Type    Address   Location Size(Bytes)
                 ---------  ---------  ---------  ---------  ---------
                    .org_0       code   0x000000    program   0x000000
                    .org_1       code   0x000000    program   0x000004
-                   .org_2       code   0x000004    program   0x00054a
+                   .org_2       code   0x000004    program   0x00058c
       .config_2007_MAIN.O       code   0x002007    program   0x000002
 
 
@@ -15,9 +15,9 @@ Linker Map File - Created Sun Jan 26 15:31:15 2025
                                Start         End      
                            ---------   ---------      
                             0x000000    0x000001      
-                            0x000004    0x0002a8      
+                            0x000004    0x0002c9      
                             0x002007    0x002007      
-            680 out of 8454 program addresses used, program memory utilization is 8%
+            713 out of 8454 program addresses used, program memory utilization is 8%
 
 
 
@@ -45,13 +45,14 @@ Linker Map File - Created Sun Jan 26 15:31:15 2025
                  end_loop   0x0000ed    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
                  game_end   0x000112    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
                game_reset   0x000109    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                     inid   0x00028e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+     handel_another_trial   0x000274    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                     inid   0x0002af    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
                      loop   0x000114    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                    loop1   0x000270    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                    loopX   0x000275    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                    loop1   0x000291    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                    loopX   0x000296    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
                 main_loop   0x0000c0    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
          one_second_delay   0x0001fd    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                    onems   0x00026e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                    onems   0x00028f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
                 ones_calc   0x00012a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
                 other_int   0x000053    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
     print_congratulations   0x00016b    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
@@ -61,11 +62,11 @@ Linker Map File - Created Sun Jan 26 15:31:15 2025
                 print_seq   0x0001cd    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
           print_try_again   0x00018d    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
             print_you_win   0x0001a3    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                   pulseE   0x000279    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                   pulseE   0x00029a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
              random_value   0x00021a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
               reset_timer   0x00023b    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                     send   0x00027e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-      sequences_not_equal   0x00026b    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                     send   0x00029f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+      sequences_not_equal   0x000270    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
            set_game_state   0x00004f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
                     start   0x000066    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
          store_user_input   0x00005c    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
@@ -73,7 +74,7 @@ Linker Map File - Created Sun Jan 26 15:31:15 2025
 two_hundred_millisecond_delay   0x000208    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
 wait_until_enter_sequence   0x000103    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
          wait_until_press   0x0000a6    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                      xms   0x000274    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                      xms   0x000295    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
 
 
 
@@ -122,13 +123,14 @@ two_hundred_millisecond_delay   0x000208    program     static D:\University\Yea
               reset_timer   0x00023b    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
         compare_sequences   0x000245    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
              compare_loop   0x000248    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-      sequences_not_equal   0x00026b    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
-                    onems   0x00026e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                    loop1   0x000270    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                      xms   0x000274    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                    loopX   0x000275    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                   pulseE   0x000279    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                     send   0x00027e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
-                     inid   0x00028e    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+      sequences_not_equal   0x000270    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+     handel_another_trial   0x000274    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\main.asm
+                    onems   0x00028f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                    loop1   0x000291    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                      xms   0x000295    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                    loopX   0x000296    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                   pulseE   0x00029a    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                     send   0x00029f    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
+                     inid   0x0002af    program     static D:\University\Year 4 semester 1\ENCS4330\RealTimeProject\Project4\code\LCDIS.INC
 
 
