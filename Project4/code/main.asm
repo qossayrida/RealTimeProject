@@ -199,7 +199,7 @@ store_user_input:
 ;               MAIN LOOP
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-start   
+start:   
 
 	BANKSEL TRISC       ; Select bank 1
     CLRF    TRISC       ; Set PORTC as output
@@ -227,17 +227,8 @@ start
     BANKSEL T1CON
     MOVWF   T1CON          ; Load into T1CON register
 
-    ; Load TIMER1 initial value (TMR1H:TMR1L = 0x17B8 for 59,464 ticks)
-    MOVLW   0x17           ; High byte of initial value
-    MOVWF   TMR1H          ; Load TMR1H
-    MOVLW   0xB8           ; Low byte of initial value
-    MOVWF   TMR1L          ; Load TMR1L
-
-	BANKSEL  PIE1
-   	BSF     PIE1, 0   ; Enable Timer1 overflow interrupt
-   	BANKSEL INTCON
-
 	;**************** TIMER0 CONFIG ****************
+	BANKSEL COUNTER  
 	CLRF    COUNTER        			; Clear overflow counter
     MOVLW   B'10000111'           ; Set prescaler to 1:256
     BANKSEL OPTION_REG
@@ -398,6 +389,16 @@ end_loop:
 
 	BANKSEL index
 	CLRF    index            ; Clear index (start from 0)
+
+	
+	; Load TIMER1 initial value (TMR1H:TMR1L = 0x17B8 for 59,464 ticks)
+	BANKSEL  PIE1
+   	BSF     PIE1, 0   		; Enable Timer1 overflow interrupt
+    MOVLW   0x17           ; High byte of initial value
+    MOVWF   TMR1H          ; Load TMR1H
+    MOVLW   0xB8           ; Low byte of initial value
+    MOVWF   TMR1L          ; Load TMR1L
+
 
     ; Enable interrupts
     BANKSEL INTCON          ; Select the bank containing INTCON
@@ -648,6 +649,42 @@ print_you_win:
 
     RETURN
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;         Print "reset game"
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+print_reset_game:
+
+    ; Move cursor to the beginning of the first row
+    BCF     Select, RS      ; Ensure command mode (RS = 0)
+    MOVLW   0x80            ; Command to set cursor to the first row, first column
+    CALL    send            ; Send the command
+
+    ; Print "You Win"
+    MOVLW   'r'
+    CALL    display_char
+    MOVLW   'e'
+    CALL    display_char
+    MOVLW   's'
+    CALL    display_char
+    MOVLW   'e'
+    CALL    display_char
+    MOVLW   't'
+    CALL    display_char
+    MOVLW   ' '
+    CALL    display_char
+    MOVLW   'g'
+    CALL    display_char
+	MOVLW   'a'
+    CALL    display_char
+	MOVLW   'm'
+    CALL    display_char
+	MOVLW   'e'
+    CALL    display_char
+
+    RETURN
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;         	Print seq
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -801,9 +838,7 @@ TIMER1_ISR:
     CLRF    OVERFLOW_CNT   ; Reset overflow counter
     
 
-	MOVLW   0x20
-    BANKSEL PORTC            ; Select bank for LEDS
-	XORWF   PORTC, F
+	CALL 	print_reset_game
 
 
 EXIT_ISR:
