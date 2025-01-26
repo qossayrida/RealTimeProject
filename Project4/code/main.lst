@@ -1,4 +1,4 @@
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  1
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE  1
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -57,7 +57,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00048 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       00049 
 0004                  00050     ORG     0x04
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  2
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE  2
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -116,7 +116,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0026   1287           00101     BCF     PORTC, 5           ; Set RC5 low
                       00102 
                       00103     ; Store 2 in user_sequence
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  3
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE  3
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -175,7 +175,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 004E   205C           00154     CALL    store_user_input   ; Store the value in user_sequence
                       00155 
 004F                  00156 set_game_state:
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  4
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE  4
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -234,7 +234,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0066                  00203 start:   
                       00204 
 0066   1683 1303      00205         BANKSEL TRISC       ; Select bank 1
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  5
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE  5
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -279,21 +279,21 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0086   0081           00238     MOVWF   TMR0           ; Load Timer0 with preload value
                       00239 
                       00240         
-0087   1283 1303      00241         BANKSEL game_state        ; Select bank for game_state
-0089   3000           00242     MOVLW 0                 ; Load value 0
-008A   00B2           00243     MOVWF game_state          ; Set game_state = 0
+0087   1283 1303      00241         BANKSEL game_state              ; Select bank for game_state
+0089   3000           00242     MOVLW       0                       ; Load value 0
+008A   00B2           00243     MOVWF       game_state          ; Set game_state = 0
                       00244 
-008B   1283 1303      00245         BANKSEL current_level     ; Select bank for current_level
-008D   3000           00246     MOVLW 0                   ; Load value 0
-008E   00B3           00247     MOVWF current_level       ; Set current_level = 0
+008B   1283 1303      00245         BANKSEL current_level           ; Select bank for current_level
+008D   3000           00246     MOVLW       0                   ; Load value 0
+008E   00B3           00247     MOVWF       current_level       ; Set current_level = 0
                       00248 
-008F   22CB           00249     CALL    inid                        ; Initialize the display
+008F   22CC           00249     CALL    inid                        ; Initialize the display
                       00250         
 0090   2149           00251         CALL    print_press_any_button
 0091   2212           00252         CALL    one_second_delay
 0092   2222           00253         CALL    clear_display
                       00254         
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  6
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE  6
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -352,7 +352,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 00B9   1283 1303      00305     BANKSEL current_level
 00BB   0833           00306     MOVF    current_level, W ; Load current_level into W
 00BC   3E02           00307     ADDLW   D'2'             ; Add 2 to W (current_level + 2)
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  7
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE  7
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -411,7 +411,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 00DC   28E1           00353     GOTO    check_3              ; If not 2, check for 3
                       00354 
                       00355     ; Turn on RC5 for one second
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  8
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE  8
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -470,7 +470,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0102   008E           00404     MOVWF   TMR1L          ; Load TMR1L
                       00405 
                       00406 
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE  9
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE  9
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -529,7 +529,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0127   2222           00456         CALL clear_display
 0128   21B8           00457         CALL print_you_win
                       00458 
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 10
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 10
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -588,7 +588,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0147   222A           00509     CALL    display_char  ; Display ones digit
                       00510 
 0148   0008           00511     RETURN
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 11
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 11
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -604,7 +604,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00519         ; Move cursor to the beginning of the first row
 0149   10F4           00520         BCF     Select, RS      ; Ensure command mode (RS = 0)
 014A   3080           00521         MOVLW 0x80      ; Command to set cursor to the first row, first column
-014B   22BB           00522         CALL send       ; Send the command
+014B   22BC           00522         CALL send       ; Send the command
                       00523 
 014C   3050           00524     MOVLW   'P'
 014D   222A           00525     CALL    display_char
@@ -641,13 +641,13 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00556 
 016C   10F4           00557         BCF     Select, RS      ; Ensure command mode (RS = 0)
 016D   30C0           00558     MOVLW   0xC0            ; Load the command for setting the cursor to the second row
-016E   22BB           00559     CALL    send            ; Send the command using the send subroutine
+016E   22BC           00559     CALL    send            ; Send the command using the send subroutine
                       00560 
 016F   3074           00561         MOVLW   't'
 0170   222A           00562     CALL    display_char
 0171   306F           00563     MOVLW   'o'
 0172   222A           00564     CALL    display_char
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 12
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 12
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -678,7 +678,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00587     ; Move cursor to the beginning of the first row
 0180   10F4           00588     BCF     Select, RS      ; Ensure command mode (RS = 0)
 0181   3080           00589     MOVLW   0x80            ; Command to set cursor to the first row, first column
-0182   22BB           00590     CALL    send            ; Send the command
+0182   22BC           00590     CALL    send            ; Send the command
                       00591 
                       00592     ; Print "Congratulations"
 0183   3043           00593     MOVLW   'C'
@@ -706,7 +706,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 0199   3069           00615     MOVLW   'i'
 019A   222A           00616     CALL    display_char
 019B   306F           00617     MOVLW   'o'
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 13
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 13
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -729,7 +729,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00632     ; Move cursor to the beginning of the first row
 01A2   10F4           00633     BCF     Select, RS      ; Ensure command mode (RS = 0)
 01A3   3080           00634     MOVLW   0x80            ; Command to set cursor to the first row, first column
-01A4   22BB           00635     CALL    send            ; Send the command
+01A4   22BC           00635     CALL    send            ; Send the command
                       00636 
                       00637     ; Print "Try again"
 01A5   3054           00638     MOVLW   'T'
@@ -763,9 +763,9 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00666     ; Move cursor to the beginning of the first row
 01B8   10F4           00667     BCF     Select, RS      ; Ensure command mode (RS = 0)
 01B9   3080           00668     MOVLW   0x80            ; Command to set cursor to the first row, first column
-01BA   22BB           00669     CALL    send            ; Send the command
+01BA   22BC           00669     CALL    send            ; Send the command
                       00670 
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 14
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 14
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -799,7 +799,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00696     ; Move cursor to the beginning of the first row
 01CA   10F4           00697     BCF     Select, RS      ; Ensure command mode (RS = 0)
 01CB   3080           00698     MOVLW   0x80            ; Command to set cursor to the first row, first column
-01CC   22BB           00699     CALL    send            ; Send the command
+01CC   22BC           00699     CALL    send            ; Send the command
                       00700 
                       00701     ; Print "You Win"
 01CD   3072           00702     MOVLW   'r'
@@ -824,7 +824,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 01E0   222A           00721     CALL    display_char
                       00722 
 01E1   0008           00723     RETURN
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 15
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 15
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -842,7 +842,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
                       00733     ; Move cursor to the beginning of the first row
 01E3   10F4           00734     BCF     Select, RS      ; Ensure command mode (RS = 0)
 01E4   3080           00735     MOVLW   0x80            ; Command to set cursor to the first row, first column
-01E5   22BB           00736     CALL    send            ; Send the command
+01E5   22BC           00736     CALL    send            ; Send the command
                       00737 
 01E6   1683 1303      00738     BANKSEL generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
@@ -868,7 +868,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00755         ; Move cursor to the beginning of the first row
 01FA   10F4           00756     BCF     Select, RS      ; Ensure command mode (RS = 0)
 01FB   30C0           00757     MOVLW   0xC0            ; Command to set cursor to the first row, first column
-01FC   22BB           00758     CALL    send            ; Send the command
+01FC   22BC           00758     CALL    send            ; Send the command
                       00759 
 01FD   1683 1303      00760         BANKSEL generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
@@ -883,7 +883,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0207   1683 1303      00768         BANKSEL generated_sequence
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
 0209   083A           00769     MOVF    0xBA,W
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 16
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 16
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -907,13 +907,13 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00784 
 0212   1283 1303      00785         BANKSEL TimerX
 0214   30FA           00786     MOVLW    D'250'
-0215   22B1           00787     CALL    xms
+0215   22B2           00787     CALL    xms
 0216   30FA           00788         MOVLW    D'250'
-0217   22B1           00789     CALL    xms
+0217   22B2           00789     CALL    xms
 0218   30FA           00790         MOVLW    D'250'
-0219   22B1           00791     CALL    xms
+0219   22B2           00791     CALL    xms
 021A   30FA           00792         MOVLW    D'250'
-021B   22B1           00793     CALL    xms
+021B   22B2           00793     CALL    xms
                       00794 
 021C   0008           00795     RETURN    
                       00796 
@@ -924,7 +924,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 021D                  00801 two_hundred_millisecond_delay:
 021D   1283 1303      00802         BANKSEL TimerX
 021F   30C8           00803     MOVLW    D'200'
-0220   22B1           00804     CALL    xms
+0220   22B2           00804     CALL    xms
                       00805 
 0221   0008           00806     RETURN    
                       00807 
@@ -937,12 +937,12 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0222   1283 1303      00814         BANKSEL Select  
 0224   10F4           00815         BCF     Select, RS      ; Ensure command mode (RS = 0)
 0225   3001           00816     MOVLW   0x01        ; Command to clear the display
-0226   22BB           00817     CALL    send        ; Send the command to the LCD
+0226   22BC           00817     CALL    send        ; Send the command to the LCD
 0227   3005           00818     MOVLW   D'5'        ; Wait for 2ms for the display to process
-0228   22B1           00819     CALL    xms         ; Delay for 2ms
+0228   22B2           00819     CALL    xms         ; Delay for 2ms
 0229   0008           00820     RETURN              ; Done
                       00821            
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 17
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 17
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -956,7 +956,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 022A                  00827 display_char
 022A   1283 1303      00828         BANKSEL Select    
 022C   14F4           00829     BSF  Select,  RS    ; Select data mode
-022D   22BB           00830     CALL    send        ; Send the character to LCD
+022D   22BC           00830     CALL    send        ; Send the character to LCD
 022E   0008           00831     RETURN
                       00832 
                       00833 
@@ -1001,7 +1001,7 @@ LOC  OBJECT CODE     LINE SOURCE TEXT
 023F   100C           00872     BCF     PIR1, 0   ; Clear Timer1 interrupt flag
 0240   0AB1           00873     INCF    OVERFLOW_CNT, F ; Increment overflow counter
                       00874 
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 18
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 18
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1060,7 +1060,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0259   168B           00924         BSF     INTCON,T0IE
 025A   3001           00925         MOVLW   0x01          ; Preload Timer0 with 133 (0x85 in hex, 133 in decimal)
 025B   0081           00926         MOVWF   TMR0           ; Load Timer0 with preload value
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 19
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 19
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1119,7 +1119,7 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
 027E   0220           00973     SUBWF   index, W             ; Subtract (current_level + 2) from index
 027F   1D03           00974     BTFSS   STATUS, Z            ; Skip if index == current_level + 2 (all elements compared)
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 20
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 20
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
@@ -1162,40 +1162,40 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
 0292   01A0           01008     CLRF    index            ; Clear index (start from 0)
                       01009         
                       01010         ; increment number of trials 
-0293   3001           01011         movlw 1
-0294   07B9           01012     addwf trials,1
+0293   1283 1303      01011         BANKSEL trials
+0295   0AB9           01012         INCF    trials, F ; Increment overflow counter
                       01013 
                       01014         ; disable timer 0
-0295   1283 1303      01015         BANKSEL INTCON
-0297   128B           01016         BCF     INTCON,T0IE
+0296   1283 1303      01015         BANKSEL INTCON
+0298   128B           01016         BCF     INTCON,T0IE
                       01017 
-0298   2212           01018         CALL one_second_delay
+0299   2212           01018         CALL one_second_delay
                       01019 
                       01020         ; print level
-0299   2222           01021         CALL clear_display
-029A   1283 1303      01022         BANKSEL current_level
-029C   0833           01023     MOVF    current_level, W
-029D   212A           01024     CALL    print_level
+029A   2222           01021         CALL clear_display
+029B   1283 1303      01022         BANKSEL current_level
+029D   0833           01023     MOVF    current_level, W
+029E   212A           01024     CALL    print_level
                       01025 
                       01026         ; Load TIMER1 initial value (TMR1H:TMR1L = 0x17B8 for 59,464 ticks)
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 21
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 21
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-029E   1283 1303      01027         BANKSEL OVERFLOW_CNT
-02A0   01B1           01028         CLRF    OVERFLOW_CNT
-02A1   1683 1303      01029         BANKSEL  PIE1  
+029F   1283 1303      01027         BANKSEL OVERFLOW_CNT
+02A1   01B1           01028         CLRF    OVERFLOW_CNT
+02A2   1683 1303      01029         BANKSEL  PIE1  
 Message[302]: Register in operand not in bank 0.  Ensure that bank bits are correct.
-02A3   140C           01030         BSF     PIE1, 0                 ; Enable Timer1 overflow interrupt
-02A4   1283 1303      01031         BANKSEL  TMR1H  
-02A6   3017           01032     MOVLW   0x17           ; High byte of initial value
-02A7   008F           01033     MOVWF   TMR1H          ; Load TMR1H
-02A8   30B8           01034     MOVLW   0xB8           ; Low byte of initial value
-02A9   008E           01035     MOVWF   TMR1L          ; Load TMR1L
+02A4   140C           01030         BSF     PIE1, 0                 ; Enable Timer1 overflow interrupt
+02A5   1283 1303      01031         BANKSEL  TMR1H  
+02A7   3017           01032     MOVLW   0x17           ; High byte of initial value
+02A8   008F           01033     MOVWF   TMR1H          ; Load TMR1H
+02A9   30B8           01034     MOVLW   0xB8           ; Low byte of initial value
+02AA   008E           01035     MOVWF   TMR1L          ; Load TMR1L
                       01036 
-02AA   0008           01037         RETURN
+02AB   0008           01037         RETURN
                       01038 
                       01039 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
                       01040 ;       Include LCD driver routine
@@ -1225,108 +1225,108 @@ Message[302]: Register in operand not in bank 0.  Ensure that bank bits are corr
                       00021 ;--------------------------------------------------------------
                       00022 ;       1ms delay with 1us cycle time (1000 cycles)
                       00023 ;--------------------------------------------------------------
-02AB   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
-02AC   00F0           00025                 MOVWF   Timer1          ; Load count    2 + (1 + 1 + 2) * 248 + 1 + 2 + 2
-02AD   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
+02AC   30F9           00024 onems   MOVLW   D'249'          ; Count for 1ms delay 
+02AD   00F0           00025                 MOVWF   Timer1          ; Load count    2 + (1 + 1 + 2) * 248 + 1 + 2 + 2
+02AE   0000           00026 loop1   NOP                     ; Pad for 4 cycle loop
 Message[305]: Using default destination of 1 (file).
-02AE   0BF0           00027                 DECFSZ  Timer1          ; Count
-02AF   2AAD           00028                 GOTO    loop1           ; until Z
-02B0   0008           00029                 RETURN                  ; and finish
+02AF   0BF0           00027                 DECFSZ  Timer1          ; Count
+02B0   2AAE           00028                 GOTO    loop1           ; until Z
+02B1   0008           00029                 RETURN                  ; and finish
                       00030 
                       00031 ;--------------------------------------------------------------
                       00032 ;       Delay Xms
                       00033 ;       Receives count in W, uses Onems
                       00034 ;--------------------------------------------------------------
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 22
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 22
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-02B1   00F1           00035 xms             MOVWF   TimerX          ; Count for X ms
-02B2   22AB           00036 loopX   CALL    onems           ; Delay 1ms
+02B2   00F1           00035 xms             MOVWF   TimerX          ; Count for X ms
+02B3   22AC           00036 loopX   CALL    onems           ; Delay 1ms
 Message[305]: Using default destination of 1 (file).
-02B3   0BF1           00037                 DECFSZ  TimerX          ; Repeat X times 
-02B4   2AB2           00038                 GOTO    loopX           ; until Z
-02B5   0008           00039                 RETURN                  ; and finish
+02B4   0BF1           00037                 DECFSZ  TimerX          ; Repeat X times 
+02B5   2AB3           00038                 GOTO    loopX           ; until Z
+02B6   0008           00039                 RETURN                  ; and finish
                       00040 
                       00041 ;--------------------------------------------------------------
                       00042 ;       Generate data/command clock siganl E
                       00043 ;--------------------------------------------------------------
-02B6   1508           00044 pulseE  BSF     PORTD,E         ; Set E high
-02B7   22AB           00045         CALL    onems           ; Delay 1ms
-02B8   1108           00046         BCF     PORTD,E         ; Reset E low
-02B9   22AB           00047         CALL    onems           ; Delay 1ms
-02BA   0008           00048         RETURN                  ; done
+02B7   1508           00044 pulseE  BSF     PORTD,E         ; Set E high
+02B8   22AC           00045         CALL    onems           ; Delay 1ms
+02B9   1108           00046         BCF     PORTD,E         ; Reset E low
+02BA   22AC           00047         CALL    onems           ; Delay 1ms
+02BB   0008           00048         RETURN                  ; done
                       00049 
                       00050 ;--------------------------------------------------------------
                       00051 ;       Send a command byte in two nibbles from RB4 - RB7
                       00052 ;       Receives command in W, uses PulseE and Onems
                       00053 ;--------------------------------------------------------------
-02BB   00F5           00054 send    MOVWF   OutCod          ; Store output code
-02BC   39F0           00055         ANDLW   0F0             ; Clear low nybble
-02BD   0088           00056         MOVWF   PORTD           ; Output high nybble
-02BE   18F4           00057         BTFSC   Select,RS       ; Test RS bit
-02BF   1488           00058         BSF     PORTD,RS        ; and set for data
-02C0   22B6           00059         CALL    pulseE          ; and clock display register
-02C1   22AB           00060         CALL    onems           ; wait 1ms for display
+02BC   00F5           00054 send    MOVWF   OutCod          ; Store output code
+02BD   39F0           00055         ANDLW   0F0             ; Clear low nybble
+02BE   0088           00056         MOVWF   PORTD           ; Output high nybble
+02BF   18F4           00057         BTFSC   Select,RS       ; Test RS bit
+02C0   1488           00058         BSF     PORTD,RS        ; and set for data
+02C1   22B7           00059         CALL    pulseE          ; and clock display register
+02C2   22AC           00060         CALL    onems           ; wait 1ms for display
                       00061 
 Message[305]: Using default destination of 1 (file).
-02C2   0EF5           00062         SWAPF   OutCod          ; Swap low and high nybbles 
-02C3   0875           00063         MOVF    OutCod,W        ; Retrieve output code
-02C4   39F0           00064         ANDLW   0F0             ; Clear low nybble
-02C5   0088           00065         MOVWF   PORTD           ; Output low nybble
-02C6   18F4           00066         BTFSC   Select,RS       ; Test RS bit
-02C7   1488           00067         BSF     PORTD,RS        ; and set for data
-02C8   22B6           00068         CALL    pulseE          ; and clock display register
-02C9   22AB           00069         CALL    onems           ; wait 1ms for display
-02CA   0008           00070         RETURN                  ; done
+02C3   0EF5           00062         SWAPF   OutCod          ; Swap low and high nybbles 
+02C4   0875           00063         MOVF    OutCod,W        ; Retrieve output code
+02C5   39F0           00064         ANDLW   0F0             ; Clear low nybble
+02C6   0088           00065         MOVWF   PORTD           ; Output low nybble
+02C7   18F4           00066         BTFSC   Select,RS       ; Test RS bit
+02C8   1488           00067         BSF     PORTD,RS        ; and set for data
+02C9   22B7           00068         CALL    pulseE          ; and clock display register
+02CA   22AC           00069         CALL    onems           ; wait 1ms for display
+02CB   0008           00070         RETURN                  ; done
                       00071 
                       00072 ;--------------------------------------------------------------
                       00073 ;       Initialise the display
                       00074 ;       Uses Send
                       00075 ;--------------------------------------------------------------
-02CB   3064           00076 inid    MOVLW   D'100'          ; Load count for 100ms delay
-02CC   22B1           00077         CALL    xms             ; and wait for display start
-02CD   30F0           00078         MOVLW   0F0             ; Mask for select code
-02CE   00F4           00079         MOVWF   Select          ; High nybble not masked
+02CC   3064           00076 inid    MOVLW   D'100'          ; Load count for 100ms delay
+02CD   22B2           00077         CALL    xms             ; and wait for display start
+02CE   30F0           00078         MOVLW   0F0             ; Mask for select code
+02CF   00F4           00079         MOVWF   Select          ; High nybble not masked
                       00080 
-02CF   3030           00081         MOVLW   0x30            ; Load initial nibble
-02D0   0088           00082         MOVWF   PORTD           ; and output it to display
-02D1   22B6           00083         CALL    pulseE          ; Latch initial code
-02D2   3005           00084         MOVLW   D'5'            ; Set delay 5ms
-02D3   22B1           00085         CALL    xms             ; and wait
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 23
+02D0   3030           00081         MOVLW   0x30            ; Load initial nibble
+02D1   0088           00082         MOVWF   PORTD           ; and output it to display
+02D2   22B7           00083         CALL    pulseE          ; Latch initial code
+02D3   3005           00084         MOVLW   D'5'            ; Set delay 5ms
+02D4   22B2           00085         CALL    xms             ; and wait
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 23
 
 
 LOC  OBJECT CODE     LINE SOURCE TEXT
   VALUE
 
-02D4   22B6           00086         CALL    pulseE          ; Latch initial code again
-02D5   22AB           00087         CALL    onems           ; Wait 1ms
-02D6   22B6           00088         CALL    pulseE          ; Latch initial code again
-02D7   1208           00089         BCF     PORTD,4         ; Set 4-bit mode
-02D8   22B6           00090         CALL    pulseE          ; Latch it
+02D5   22B7           00086         CALL    pulseE          ; Latch initial code again
+02D6   22AC           00087         CALL    onems           ; Wait 1ms
+02D7   22B7           00088         CALL    pulseE          ; Latch initial code again
+02D8   1208           00089         BCF     PORTD,4         ; Set 4-bit mode
+02D9   22B7           00090         CALL    pulseE          ; Latch it
                       00091         
-02D9   3028           00092         MOVLW   0x28            ; Set 4-bit mode, 2 lines
-02DA   22BB           00093         CALL    send            ; and send code
-02DB   3008           00094         MOVLW   0x08            ; Switch off display
-02DC   22BB           00095         CALL    send            ; and send code
-02DD   3001           00096         MOVLW   0x01            ; Code to clear display
-02DE   22BB           00097         CALL    send            ; and send code
-02DF   3006           00098         MOVLW   0x06            ; Enable cursor auto inc  
-02E0   22BB           00099         CALL    send            ; and send code
-02E1   3080           00100         MOVLW   0x80            ; Zero display address
-02E2   22BB           00101         CALL    send            ; and send code
-02E3   300C           00102         MOVLW   0x0C            ; Turn on display  
-02E4   22BB           00103         CALL    send            ; and send code
+02DA   3028           00092         MOVLW   0x28            ; Set 4-bit mode, 2 lines
+02DB   22BC           00093         CALL    send            ; and send code
+02DC   3008           00094         MOVLW   0x08            ; Switch off display
+02DD   22BC           00095         CALL    send            ; and send code
+02DE   3001           00096         MOVLW   0x01            ; Code to clear display
+02DF   22BC           00097         CALL    send            ; and send code
+02E0   3006           00098         MOVLW   0x06            ; Enable cursor auto inc  
+02E1   22BC           00099         CALL    send            ; and send code
+02E2   3080           00100         MOVLW   0x80            ; Zero display address
+02E3   22BC           00101         CALL    send            ; and send code
+02E4   300C           00102         MOVLW   0x0C            ; Turn on display  
+02E5   22BC           00103         CALL    send            ; and send code
                       00104 
-02E5   0008           00105         RETURN                  ; Done
+02E6   0008           00105         RETURN                  ; Done
                       00106 
                       00107 ;--------------------------------------------------------------
                       01044 
                       01045     END
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 24
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 24
 
 
 SYMBOL TABLE
@@ -1385,7 +1385,7 @@ CKE                               00000006
 CKP                               00000004
 CM0                               00000000
 CM1                               00000001
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 25
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 25
 
 
 SYMBOL TABLE
@@ -1444,7 +1444,7 @@ IRP                               00000007
 ISR                               00000004
 NOT_A                             00000005
 NOT_ADDRESS                       00000005
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 26
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 26
 
 
 SYMBOL TABLE
@@ -1503,7 +1503,7 @@ RC9                               00000006
 RCD8                              00000000
 RCEN                              00000003
 RCIE                              00000005
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 27
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 27
 
 
 SYMBOL TABLE
@@ -1562,7 +1562,7 @@ TMR0                              00000001
 TMR0IE                            00000005
 TMR0IF                            00000002
 TMR1CS                            00000001
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 28
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 28
 
 
 SYMBOL TABLE
@@ -1621,7 +1621,7 @@ _HS_OSC                           00003FFE
 _LP_OSC                           00003FFC
 _LVP_OFF                          00003F7F
 _LVP_ON                           00003FFF
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 29
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 29
 
 
 SYMBOL TABLE
@@ -1660,14 +1660,14 @@ game_state                        00000032
 generated_sequence                000000A2
 handel_another_trial              00000290
 index                             000000A0
-inid                              000002CB
+inid                              000002CC
 loop                              00000129
-loop1                             000002AD
-loopX                             000002B2
+loop1                             000002AE
+loopX                             000002B3
 loop_size                         00000038
 main_loop                         000000C3
 one_second_delay                  00000212
-onems                             000002AB
+onems                             000002AC
 ones                              00000037
 ones_calc                         0000013F
 other_int                         00000053
@@ -1678,9 +1678,9 @@ print_reset_game                  000001CA
 print_seq                         000001E2
 print_try_again                   000001A2
 print_you_win                     000001B8
-pulseE                            000002B6
+pulseE                            000002B7
 random_reg                        00000034
-MPASM  5.43                          MAIN.ASM   1-26-2025  17:16:43         PAGE 30
+MPASM  5.43                          MAIN.ASM   1-26-2025  17:23:43         PAGE 30
 
 
 SYMBOL TABLE
@@ -1689,7 +1689,7 @@ SYMBOL TABLE
 random_value                      0000022F
 reset_timer                       00000254
 save_random                       000000A1
-send                              000002BB
+send                              000002BC
 sequences_not_equal               0000028C
 set_game_state                    0000004F
 start                             00000066
@@ -1702,7 +1702,7 @@ two_hundred_millisecond_delay     0000021D
 user_sequence                     000000B8
 wait_until_enter_sequence         00000106
 wait_until_press                  000000A6
-xms                               000002B1
+xms                               000002B2
 
 
 MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
@@ -1718,13 +1718,13 @@ MEMORY USAGE MAP ('X' = Used,  '-' = Unused)
 0200 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0240 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
 0280 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX
-02C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXX---------- ----------------
+02C0 : XXXXXXXXXXXXXXXX XXXXXXXXXXXXXXXX XXXXXXX--------- ----------------
 2000 : -------X-------- ---------------- ---------------- ----------------
 
 All other memory blocks unused.
 
-Program Memory Words Used:   740
-Program Memory Words Free:  7452
+Program Memory Words Used:   741
+Program Memory Words Free:  7451
 
 
 Errors   :     0

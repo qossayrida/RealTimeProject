@@ -238,13 +238,13 @@ start:
     MOVWF   TMR0           ; Load Timer0 with preload value
 
 	
-	BANKSEL game_state        ; Select bank for game_state
-    MOVLW 0                 ; Load value 0
-    MOVWF game_state          ; Set game_state = 0
+	BANKSEL game_state        	; Select bank for game_state
+    MOVLW 	0                 	; Load value 0
+    MOVWF 	game_state          ; Set game_state = 0
 
-	BANKSEL current_level     ; Select bank for current_level
-    MOVLW 0                   ; Load value 0
-    MOVWF current_level       ; Set current_level = 0
+	BANKSEL current_level     	; Select bank for current_level
+    MOVLW 	0                   ; Load value 0
+    MOVWF 	current_level       ; Set current_level = 0
 
     CALL    inid    			; Initialize the display
 	
@@ -1008,8 +1008,8 @@ handel_another_trial:
     CLRF    index            ; Clear index (start from 0)
 	
 	; increment number of trials 
-	movlw 1
-    addwf trials,1
+	BANKSEL trials
+	INCF   	trials, F ; Increment overflow counter
 
 	; disable timer 0
 	BANKSEL INTCON
